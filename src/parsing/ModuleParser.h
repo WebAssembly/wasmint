@@ -43,11 +43,11 @@ protected:
     }
 
     void parseHeader() {
-        // Opcode table
+        // Instruction table
         opcodeTable = OpcodeTableParser::parse(stream);
 
         // Section header
-        uint32_t numberOfSections = stream.popUint32();
+        uint32_t numberOfSections = stream.popLEB128();
         sections.resize(numberOfSections);
 
         uint32_t lastOffset = 0;
@@ -66,7 +66,7 @@ protected:
                 default:
                     throw UnknownSectionType();
             }
-            uint32_t offset = stream.popUint32();
+            uint32_t offset = stream.popLEB128();
 
             sectionTypes[offset] = type;
 

@@ -11,10 +11,15 @@ include_directories (src)
 
 add_library(core
     main.cpp
-    src/parsing/ByteStream.cpp
+    src/InstructionSet.cpp
     src/Module.cpp
     src/Section.cpp
+    src/Instruction.cpp
     src/OpcodeTable.cpp
+
+    src/instructions/I32Add.cpp
+
+    src/parsing/ByteStream.cpp
     src/parsing/ModuleParser.cpp
     src/parsing/SectionParser.cpp
     src/parsing/OpcodeTableParser.cpp

@@ -14,7 +14,7 @@
 class OpcodeTableParser {
 
     ByteStream& stream;
-    std::vector<std::string> opcodeNames;
+    OpcodeTable opcodeTable;
 
 protected:
     OpcodeTableParser(ByteStream& stream) : stream(stream) {
@@ -32,14 +32,13 @@ protected:
 
     void parse() {
         uint32_t numberOfOpcodes = stream.popLEB128();
-        opcodeNames.resize(numberOfOpcodes);
         for(uint32_t i = 0; i < numberOfOpcodes; i++) {
-            opcodeNames[i] = readCString();
+            opcodeTable.addInstruction(i, readCString());
         }
     }
 
     OpcodeTable getParsedTable() {
-
+        return opcodeTable;
     }
 
 public:
