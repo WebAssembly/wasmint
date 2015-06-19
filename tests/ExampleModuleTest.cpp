@@ -4,12 +4,18 @@
 #include <Module.h>
 #include <parsing/ModuleParser.h>
 
+#define BLOCK 0x7
+#define SET_LOCAL 0x5
+#define PRINT 0x6
+#define INT32_ADD 0x0
+#define GET_LOCAL 0x4
+
 int main() {
     std::deque<uint8_t> data = {
             // Module header
             // unless specified otherwise, all numbers are LEB128 encoded
             // first the opcode table
-            8, // we use 7 instructions
+            8, // we use 8 instructions in this module
             // the string name of the instructions
             'i', 'n', 't', '3', '2', '.', 'a', 'd', 'd', '\0', // int32.add = 0x0
             'i', 'n', 't', '3', '2', '.', 's', 'u', 'b', '\0', // int32.sub = 0x1
@@ -20,17 +26,18 @@ int main() {
             'p', 'r', 'i', 'n', 't', '\0', // debug opcode which prints to console = 0x6
             'b', 'l', 'o', 'c', 'k', '\0', // starts a block = 0x7
 
-            2, // we use 2 types
+            // now the table for the used types
+            2, // we use 2 types in this module
             'v', 'o', 'i', 'd', '\0',
             'i', 'n', 't', '3', '2', '\0',
 
             // now the section table
             1, // only one section
-            1, // section 1 is program code (= 1).
+            1, // section 1 is program code (1 means program code, 0 means data).
             88, // start offset of the section in this array
 
             // section 1
-            1, // we have only one function
+            1, // we have only one function in this section
             'm', 'a', 'i', 'n', '\0', // the name of the function
             1, // return type
             0, // number of parameters
@@ -42,20 +49,19 @@ int main() {
             0x1, // local variable 0x0 with type int32
             0x1, // local variable 0x1 with type int32
 
-            0x7, 0x3, // we start a new block with 3 instructions in it
-            0x5, 0x0, 6, // set_local the variable 0 to 1
-            0x5, 0x1, 4, // set_local the variable 1 to 4
-            0x6, // print the result of
-                0x0, // int32.add with
-                    0x4, 0x0, // an variable at index 0x0 as first argument
-                    0x4, 0x1, // an variable at index 0x1 as second argument
+            BLOCK, 0x3, // we start a new block with 3 instructions in it
+            SET_LOCAL, 0x0, 2, // set_local the variable with index 0 to 2
+            SET_LOCAL, 0x1, 4, // set_local the variable with index 1 to 4
+            PRINT, // print the result of
+                INT32_ADD, // int32.add with
+                    GET_LOCAL, 0x0, // an variable at index 0x0 as first argument
+                    GET_LOCAL, 0x1, // an variable at index 0x1 as second argument
     };
 
     ByteStream stream(data);
 
     Module* m = ModuleParser::parse(stream);
 
-    assert(m->sections().size() == 1);
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "int32.sub");
     assert(m->opcodeTable().getInstruction(0x2) == "int32.mul");
@@ -67,8 +73,14 @@ int main() {
     assert(m->typeTable().getType(0x0) == "void");
     assert(m->typeTable().getType(0x1) == "int32");
 
+
+    assert(m->sections().size() == 1);
+
     Environment environment;
-    Function& func = m->sections()[0].getFunction("main");
+    Function& func = m->sections().at(0).getFunction("main");
     func.execute(environment);
+
+    // This module should print the number 6
+    assert(environment.stdout() == "6");
 
 }

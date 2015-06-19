@@ -8,11 +8,12 @@
 #include <cstdint>
 #include <Instruction.h>
 #include <parsing/ByteStream.h>
+#include <types/Int32.h>
 
 class SetLocal : public Instruction {
 
     uint32_t localIndex;
-    uint32_t value;
+    int32_t value;
 
 public:
     SetLocal(ByteStream& stream) {
@@ -20,16 +21,16 @@ public:
         value = stream.popLEB128();
     }
 
-    virtual std::vector<Type> childrenTypes() {
+    virtual std::vector<Type*> childrenTypes() {
         return {};
     }
 
-    virtual Type returnType() {
-        return Type::Int32();
+    virtual Type* returnType() {
+        return Void::instance();
     }
 
     virtual Variable execute(Environment& env) {
-        env.variable(localIndex).int32Value(value);
+        Int32::setValue(env.variable(localIndex), value);
         return Variable();
     }
 };

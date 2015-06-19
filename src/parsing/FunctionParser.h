@@ -16,7 +16,7 @@
 
 class FunctionParser {
     ByteStream& stream;
-    std::vector<Type> typeOfLocals;
+    std::vector<Type*> typeOfLocals;
     ModuleContext& context_;
     Instruction* mainInstruction;
 
@@ -28,7 +28,7 @@ protected:
     void parse() {
         uint32_t numberOfLocals = stream.popLEB128();
         for (uint32_t i = 0; i < numberOfLocals; i++) {
-            typeOfLocals.push_back(Type::Int32());
+            typeOfLocals.push_back(Int32::instance());
             stream.popLEB128(); // TODO use the value
         }
         mainInstruction = parseInstruction();
@@ -48,12 +48,12 @@ protected:
         return instruction;
     }
 
-    Function getParsedFunction(std::string name, Type returnType, std::vector<Type> parameters) {
+    Function getParsedFunction(std::string name, Type* returnType, std::vector<Type*> parameters) {
         return Function(name, returnType, parameters, typeOfLocals, mainInstruction);
     }
 
 public:
-    static Function parse(ModuleContext& context, std::string name, Type returnType, std::vector<Type> parameters, ByteStream& stream) {
+    static Function parse(ModuleContext& context, std::string name, Type* returnType, std::vector<Type*> parameters, ByteStream& stream) {
         FunctionParser parser(context, stream);
         parser.parse();
         return parser.getParsedFunction(name, returnType, parameters);

@@ -38,7 +38,7 @@ class CodeSectionParser {
         }
 
         for (int i = 0; i < numberOfFunctions; i++) {
-            functions.push_back(FunctionParser::parse(context, functionNames.at(i), Type::Void(), std::vector<Type>(), stream));
+            functions.push_back(FunctionParser::parse(context, functionNames.at(i), Void::instance(), std::vector<Type*>(), stream));
         }
     }
 

@@ -7,37 +7,33 @@
 
 
 #include <cstdint>
+#include <parsing/ByteStream.h>
+#include <typeinfo>
+
+class IncompatibleType : public std::exception {};
 
 class Type {
 
-    uint8_t id_;
-
-    static Type Int32_;
-    static Type Void_;
-
-    Type(uint8_t id) : id_(id) {
+protected:
+    Type() {
 
     }
 
 public:
-    Type(const Type& type) : id_(type.id_) {
+    Type(const Type& type) {
 
     }
 
-    static const Type& Int32() {
-        return Int32_;
-    }
+    virtual void parse(ByteStream& stream, void* data, std::size_t dataLength) = 0;
 
-    static const Type& Void() {
-        return Void_;
-    }
+    virtual std::size_t size() = 0;
 
     bool operator==(const Type& other) const {
-        return this->id_ == other.id_;
+        return typeid(*this) == typeid(other);
     }
 
     bool operator!=(const Type& other) const {
-        return this->id_ != other.id_;
+        return typeid(*this) != typeid(other);
     }
 
 };

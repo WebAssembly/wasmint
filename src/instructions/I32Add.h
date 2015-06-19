@@ -6,23 +6,27 @@
 #define WASMINT_I32ADD_H
 
 
+#include <types/Int32.h>
 #include "Instruction.h"
 
 class I32Add : public Instruction {
 
 public:
-    virtual std::vector<Type> childrenTypes() {
-        return {Type::Int32(), Type::Int32()};
+    virtual std::vector<Type*> childrenTypes() {
+        return {Int32::instance(), Int32::instance()};
     }
 
-    virtual Type returnType() {
-        return Type::Int32();
+    virtual Type* returnType() {
+        return Void::instance();
     }
 
     virtual Variable execute(Environment& env) {
-        Variable left = children().at(0)->execute(env);
-        Variable right = children().at(1)->execute(env);
-        return Variable(Type::Int32(), left.int32Value() + right.int32Value());
+        int32_t left = Int32::getValue(children().at(0)->execute(env));
+        int32_t right = Int32::getValue(children().at(1)->execute(env));
+
+        Variable result = Variable(Int32::instance());
+        Int32::setValue(result, left + right);
+        return result;
     }
 };
 

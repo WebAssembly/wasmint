@@ -18,12 +18,12 @@ public:
         localIndex = stream.popLEB128();
     }
 
-    virtual std::vector<Type> childrenTypes() {
+    virtual std::vector<Type*> childrenTypes() {
         return {};
     }
 
-    virtual Type returnType() {
-        return Type::Int32();
+    virtual Type* returnType() {
+        return Void::instance();
     }
 
     virtual Variable execute(Environment& env) {

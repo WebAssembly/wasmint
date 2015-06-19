@@ -16,19 +16,19 @@ class Environment;
 class Function {
 
     std::string name_;
-    Type returnType_;
-    std::vector<Type> parameterTypes_;
+    Type* returnType_;
+    std::vector<Type*> parameterTypes_;
     Instruction* mainInstruction;
-    std::vector<Type> locals_;
+    std::vector<Type*> locals_;
 
 public:
-    Function(std::string name, Type returnType, std::vector<Type> parameterTypes, std::vector<Type> locals, Instruction* mainInstruction)
+    Function(std::string name, Type* returnType, std::vector<Type*> parameterTypes, std::vector<Type*> locals, Instruction* mainInstruction)
         : name_(name), returnType_(returnType), parameterTypes_(parameterTypes),
           mainInstruction(mainInstruction), locals_(locals)
     {
     }
 
-    std::vector<Type> locals() {
+    std::vector<Type*> locals() {
         return locals_;
     }
 

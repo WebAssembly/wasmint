@@ -15,12 +15,14 @@ class Environment {
 
     std::stack<std::vector<Variable>> stack;
 
-    void createLocals(std::vector<Type> variableTypes) {
+    void createLocals(std::vector<Type*> variableTypes) {
         stack.push(std::vector<Variable>());
-        for(Type& type : variableTypes) {
-            stack.top().push_back(Variable(type, 0));
+        for(Type* type : variableTypes) {
+            stack.top().push_back(Variable(type));
         }
     }
+
+    std::string stdout_;
 
 public:
     Environment() {
@@ -37,6 +39,14 @@ public:
 
     void leaveFunction() {
         stack.pop();
+    }
+
+    void print(std::string s) {
+        stdout_ += s;
+    }
+
+    std::string stdout() {
+        return stdout_;
     }
 
 };

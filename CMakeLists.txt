@@ -30,6 +30,9 @@ add_library(core
     src/instructions/GetLocal.cpp
     src/instructions/SetLocal.cpp
 
+    src/types/Int32.cpp
+    src/types/Void.cpp
+
     src/parsing/ByteStream.cpp
     src/parsing/FunctionParser.cpp
     src/parsing/TypeTableParser.cpp

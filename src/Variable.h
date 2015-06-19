@@ -6,29 +6,24 @@
 #define WASMINT_VARIABLE_H
 
 #include <cstdint>
+#include <types/Void.h>
 #include "Type.h"
 
 class Variable {
-    Type type_;
-    int32_t  value_;
+    Type* type_;
+    void* value_;
+
 public:
-    Variable() : type_(Type::Void()) {
-
-    }
-    Variable(Type type, int32_t intValue) : type_(type), value_(intValue) {
-
+    Variable(Type* type = Void::instance()) : type_(type) {
+        value_ = new uint8_t[type->size()];
     }
 
-    void int32Value(int32_t value) {
-        value_ = value;
+    Type& type() {
+        return *type_;
     }
 
-    int32_t int32Value() {
+    void* value() {
         return value_;
-    }
-
-    Type type() {
-        return type_;
     }
 };
 

@@ -18,23 +18,23 @@ public:
         amountOfChildren = stream.popLEB128();
     }
 
-    virtual std::vector<Type> childrenTypes() {
-        std::vector<Type> result;
+    virtual std::vector<Type*> childrenTypes() {
+        std::vector<Type*> result;
         for(uint32_t i = 0; i < amountOfChildren; i++) {
-            result.push_back(Type::Int32());
+            result.push_back(Void::instance());
         }
         return result;
     }
 
-    virtual Type returnType() {
-        return Type::Void();
+    virtual Type* returnType() {
+        return Void::instance();
     }
 
     virtual Variable execute(Environment& env) {
         for(Instruction* child : children()) {
             child->execute(env);
         }
-        return Variable(Type::Void(), 0);
+        return Variable();
     }
 };
 

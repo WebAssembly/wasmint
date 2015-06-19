@@ -25,8 +25,8 @@ public:
         return children_;
     }
 
-    virtual std::vector<Type> childrenTypes() = 0;
-    virtual Type returnType() = 0;
+    virtual std::vector<Type*> childrenTypes() = 0;
+    virtual Type* returnType() = 0;
 
     virtual Variable execute(Environment& env) = 0;
 
