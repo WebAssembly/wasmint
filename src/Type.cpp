@@ -4,5 +4,5 @@
 
 #include "Type.h"
 
-Type Type::Int32_;
-Type Type::Void_;
+Type Type::Int32_(0);
+Type Type::Void_(1);

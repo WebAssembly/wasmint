@@ -9,12 +9,14 @@
 #include "parsing/ByteStream.h"
 #include "Section.h"
 #include "OpcodeTable.h"
+#include "TypeTable.h"
 #include <vector>
 
 class Module {
 
     std::vector<Section> sections_;
     OpcodeTable opcodeTable_;
+    TypeTable typeTable;
 
 public:
     Module(OpcodeTable& opcodeTable, std::vector<Section>& sections)

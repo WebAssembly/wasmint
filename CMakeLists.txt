@@ -16,10 +16,19 @@ add_library(core
     src/Section.cpp
     src/Instruction.cpp
     src/OpcodeTable.cpp
+    src/Variable.cpp
+    src/Function.cpp
+    src/Type.cpp
+    src/TypeTable.cpp
+
+    src/interpreter/Environment.cpp
 
     src/instructions/I32Add.cpp
+    src/instructions/Print.cpp
+    src/instructions/GetLocal.cpp
 
     src/parsing/ByteStream.cpp
+    src/parsing/TypeTableParser.cpp
     src/parsing/ModuleParser.cpp
     src/parsing/SectionParser.cpp
     src/parsing/OpcodeTableParser.cpp

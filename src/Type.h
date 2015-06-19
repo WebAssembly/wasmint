@@ -6,17 +6,24 @@
 #define WASMINT_TYPE_H
 
 
+#include <cstdint>
 
 class Type {
+
+    uint8_t id_;
 
     static Type Int32_;
     static Type Void_;
 
-    Type() {
+    Type(uint8_t id) : id_(id) {
 
     }
 
 public:
+    Type(const Type& type) : id_(type.id_) {
+
+    }
+
     static const Type& Int32() {
         return Int32_;
     }
@@ -25,8 +32,12 @@ public:
         return Void_;
     }
 
-    bool operator==(Type& other) const {
-        return this == &other;
+    bool operator==(const Type& other) const {
+        return this->id_ == other.id_;
+    }
+
+    bool operator!=(const Type& other) const {
+        return this->id_ != other.id_;
     }
 
 };

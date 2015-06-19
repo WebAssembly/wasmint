@@ -12,6 +12,7 @@
 #include "ByteStream.h"
 #include "SectionParser.h"
 #include "OpcodeTableParser.h"
+#include "TypeTableParser.h"
 
 
 class NoSectionWithOffset : public std::exception {};
@@ -26,6 +27,7 @@ class ModuleParser {
     std::vector<Section> sections;
 
     OpcodeTable opcodeTable;
+    TypeTable typeTable;
 
     SectionType getSectionTypeFromOffset(uint32_t offset) {
         auto result = sectionTypes.find(offset);
@@ -46,6 +48,10 @@ protected:
         // Instruction table
         opcodeTable = OpcodeTableParser::parse(stream);
 
+        // Type table
+        typeTable = TypeTableParser::parse(stream);
+
+
         // Section header
         uint32_t numberOfSections = stream.popLEB128();
         sections.resize(numberOfSections);
@@ -53,7 +59,7 @@ protected:
         uint32_t lastOffset = 0;
 
         for(uint32_t i = 0; i < numberOfSections; i++) {
-            uint8_t typeData = stream.popChar();
+            uint32_t typeData = stream.popLEB128();
 
             SectionType type;
             switch (typeData) {

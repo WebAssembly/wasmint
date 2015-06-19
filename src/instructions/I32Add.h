@@ -18,6 +18,10 @@ public:
     virtual Type returnType() {
         return Type::Int32();
     }
+
+    virtual Variable execute() {
+        return Variable(Type::Void(), 0);
+    }
 };
 
 
