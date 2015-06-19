@@ -10,7 +10,7 @@
 #include <map>
 #include <OpcodeTable.h>
 #include "ByteStream.h"
-#include "SectionParser.h"
+#include "CodeSectionParser.h"
 #include "OpcodeTableParser.h"
 #include "TypeTableParser.h"
 
@@ -26,8 +26,7 @@ class ModuleParser {
 
     std::vector<Section> sections;
 
-    OpcodeTable opcodeTable;
-    TypeTable typeTable;
+    ModuleContext context;
 
     SectionType getSectionTypeFromOffset(uint32_t offset) {
         auto result = sectionTypes.find(offset);
@@ -46,15 +45,16 @@ protected:
 
     void parseHeader() {
         // Instruction table
-        opcodeTable = OpcodeTableParser::parse(stream);
+        OpcodeTable opcodeTable = OpcodeTableParser::parse(stream);
 
         // Type table
-        typeTable = TypeTableParser::parse(stream);
+        TypeTable typeTable = TypeTableParser::parse(stream);
 
+        // Put everything into the context
+        context = ModuleContext(opcodeTable, typeTable);
 
         // Section header
         uint32_t numberOfSections = stream.popLEB128();
-        sections.resize(numberOfSections);
 
         uint32_t lastOffset = 0;
 
@@ -85,11 +85,12 @@ protected:
 
     void parseSections() {
         SectionType sectionType = getSectionTypeFromOffset(stream.position());
-        Section section = SectionParser::parse(stream);
+        Section section = CodeSectionParser::parse(stream.position(), context, stream);
+        sections.push_back(section);
     }
 
     Module* getParsedModule() {
-        return new Module(opcodeTable, sections);
+        return new Module(context, sections);
     }
 
 public:

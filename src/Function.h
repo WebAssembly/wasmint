@@ -10,16 +10,23 @@
 
 #include "Type.h"
 
+class Instruction;
+
 class Function {
 
     std::string name_;
     Type returnType_;
     std::vector<Type> parameterTypes_;
+    Instruction* mainInstruction;
+    std::vector<Type> locals_;
 
 public:
-    Function(std::string name, Type returnType, std::vector<Type> parameterTypes)
-        : name_(name), returnType_(returnType), parameterTypes_(parameterTypes) {
+    Function(std::string name, Type returnType, std::vector<Type> parameterTypes, Instruction* mainInstruction)
+        : name_(name), returnType_(returnType), parameterTypes_(parameterTypes), mainInstruction(mainInstruction) {
+    }
 
+    std::vector<Type> locals() {
+        return locals_;
     }
 };
 

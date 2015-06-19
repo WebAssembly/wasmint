@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <deque>
+#include <string>
 
 class LEB128PayloadBiggerThan32Bit : public std::exception {};
 class EndOfStreamReached : public std::exception {};
@@ -26,6 +27,16 @@ public:
         position_++;
         uint8_t result = peekChar();
         bytes_.pop_front();
+        return result;
+    }
+
+    virtual std::string readCString() {
+        std::string result = "";
+        while (peekChar() != 0) {
+            result.push_back((unsigned char) popChar());
+        }
+        // remove the \0 at the end
+        popChar();
         return result;
     }
 

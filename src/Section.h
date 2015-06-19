@@ -8,6 +8,7 @@
 
 #include <assert.h>
 #include <cstdint>
+#include "Function.h"
 
 enum class SectionType {
     DATA = 0,
@@ -20,9 +21,11 @@ class Section {
 
     SectionType type_;
     uint32_t offset_;
+    std::vector<Function> functions_;
 
 public:
-    Section(uint32_t offset = 0, SectionType type = SectionType::INVALID) : offset_(offset), type_(type) {
+    Section(uint32_t offset, SectionType type, std::vector<Function> functions)
+            : offset_(offset), type_(type), functions_(functions) {
 
     }
 

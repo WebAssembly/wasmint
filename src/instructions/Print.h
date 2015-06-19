@@ -8,7 +8,19 @@
 #include <Instruction.h>
 
 class Print : public Instruction {
+public:
 
+    virtual std::vector<Type> childrenTypes() {
+        return {};
+    }
+
+    virtual Type returnType() {
+        return Type::Int32();
+    }
+
+    virtual Variable execute(Environment& env) {
+        return Variable(Type::Void(), 0);
+    }
 };
 
 

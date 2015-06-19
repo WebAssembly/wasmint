@@ -20,20 +20,10 @@ protected:
     OpcodeTableParser(ByteStream& stream) : stream(stream) {
     }
 
-    std::string readCString() {
-        std::string result = "";
-        while (stream.peekChar() != 0) {
-            result.push_back((unsigned char) stream.popChar());
-        }
-        // remove the \0 at the end
-        stream.popChar();
-        return result;
-    }
-
     void parse() {
         uint32_t numberOfOpcodes = stream.popLEB128();
         for(uint32_t i = 0; i < numberOfOpcodes; i++) {
-            opcodeTable.addInstruction(i, readCString());
+            opcodeTable.addInstruction(i, stream.readCString());
         }
     }
 

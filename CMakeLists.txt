@@ -20,6 +20,7 @@ add_library(core
     src/Function.cpp
     src/Type.cpp
     src/TypeTable.cpp
+    src/ModuleContext.cpp
 
     src/interpreter/Environment.cpp
 
@@ -28,9 +29,10 @@ add_library(core
     src/instructions/GetLocal.cpp
 
     src/parsing/ByteStream.cpp
+    src/parsing/FunctionParser.cpp
     src/parsing/TypeTableParser.cpp
     src/parsing/ModuleParser.cpp
-    src/parsing/SectionParser.cpp
+    src/parsing/CodeSectionParser.cpp
     src/parsing/OpcodeTableParser.cpp
 )
 

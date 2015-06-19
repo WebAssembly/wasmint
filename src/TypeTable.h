@@ -24,7 +24,7 @@ public:
         instructionsByLocalOpcode[localTypeCode] = name;
     }
 
-    std::string getInstruction(uint32_t localTypeCode) {
+    std::string getType(uint32_t localTypeCode) {
         auto result = instructionsByLocalOpcode.find(localTypeCode);
         if (result == instructionsByLocalOpcode.end()) {
             throw UnknownLocalTypeCode();

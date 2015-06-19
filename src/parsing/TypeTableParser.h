@@ -18,20 +18,10 @@ protected:
     TypeTableParser(ByteStream& stream) : stream(stream) {
     }
 
-    std::string readCString() {
-        std::string result = "";
-        while (stream.peekChar() != 0) {
-            result.push_back((unsigned char) stream.popChar());
-        }
-        // remove the \0 at the end
-        stream.popChar();
-        return result;
-    }
-
     void parse() {
         uint32_t numberOfTypes = stream.popLEB128();
         for(uint32_t i = 0; i < numberOfTypes; i++) {
-            typeTable.addType(i, readCString());
+            typeTable.addType(i, stream.readCString());
         }
     }
 

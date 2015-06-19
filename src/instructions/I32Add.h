@@ -19,7 +19,7 @@ public:
         return Type::Int32();
     }
 
-    virtual Variable execute() {
+    virtual Variable execute(Environment& env) {
         return Variable(Type::Void(), 0);
     }
 };

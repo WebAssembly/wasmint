@@ -25,7 +25,7 @@ int main() {
 
             // now the section table
             1, // only one section
-            1, // section 1 is code (= 1).
+            1, // section 1 is program code (= 1).
             82, // start offset in this array is 70
 
             // section 1
@@ -33,6 +33,7 @@ int main() {
             'm', 'a', 'i', 'n', '\0', // the name of the function
             1, // return type
             0, // number of parameters
+            // here the parameter types would be listed
             13,  // offset in this section
 
             // the main function
@@ -42,8 +43,8 @@ int main() {
 
             0x6, // print the result of
                 0x0, // int32.add with
-                    0x4, 0x1, 0x0, // an variable at index 0x0 as first argument
-                    0x4, 0x1, 0x1, // an variable at index 0x1 as second argument
+                    0x4, 0x0, // an variable at index 0x0 as first argument
+                    0x4, 0x1, // an variable at index 0x1 as second argument
     };
 
     ByteStream stream(data);
@@ -59,6 +60,9 @@ int main() {
     assert(m->opcodeTable().getInstruction(0x5) == "set_local");
     assert(m->opcodeTable().getInstruction(0x6) == "print");
 
+    assert(m->typeTable().getType(0x0) == "void");
+    assert(m->typeTable().getType(0x1) == "int32");
 
+    Environment environment;
 
 }

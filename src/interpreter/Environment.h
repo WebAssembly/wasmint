@@ -8,20 +8,35 @@
 
 #include <Variable.h>
 #include <vector>
+#include <stack>
+#include <Function.h>
 
 class Environment {
 
-    std::vector<Variable> variables_;
+    std::stack<std::vector<Variable>> stack;
 
-public:
-    Environment(std::vector<Type> variableTypes) {
-        for(Type type : variableTypes) {
-            variables_.push_back(Variable(type, 0));
+    void createLocals(std::vector<Type> variableTypes) {
+        stack.push(std::vector<Variable>());
+        for(Type& type : variableTypes) {
+            stack.top().push_back(Variable(type, 0));
         }
     }
 
+public:
+    Environment() {
+
+    }
+
+    void enterFunction(Function& function) {
+        createLocals(function.locals());
+    }
+
     Variable& variable(uint32_t index) {
-        return variables_.at(index);
+        return stack.top().at(index);
+    }
+
+    void leaveFunction() {
+        stack.pop();
     }
 
 };

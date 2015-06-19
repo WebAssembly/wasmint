@@ -10,17 +10,18 @@
 #include "Section.h"
 #include "OpcodeTable.h"
 #include "TypeTable.h"
+#include "ModuleContext.h"
 #include <vector>
 
 class Module {
 
     std::vector<Section> sections_;
-    OpcodeTable opcodeTable_;
-    TypeTable typeTable;
+    ModuleContext context_;
+
 
 public:
-    Module(OpcodeTable& opcodeTable, std::vector<Section>& sections)
-            : sections_(sections), opcodeTable_(opcodeTable) {
+    Module(ModuleContext& context, std::vector<Section>& sections)
+            : sections_(sections), context_(context) {
     }
 
     std::vector<Section>& sections() {
@@ -28,7 +29,11 @@ public:
     }
 
     OpcodeTable& opcodeTable() {
-        return opcodeTable_;
+        return context_.opcodeTable();
+    }
+
+    TypeTable& typeTable() {
+        return context_.typeTable();
     }
 
 };
