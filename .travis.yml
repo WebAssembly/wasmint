@@ -5,6 +5,4 @@ compiler:
 script:
   - cmake .
   - make
-  - ctest -D ExperimentalBuild
-  - ctest -D ExperimentalTest (just runs the test)
-  - ctest -D ExperimentalMemCheck (to run the test under valgrind)
+  - ctest
