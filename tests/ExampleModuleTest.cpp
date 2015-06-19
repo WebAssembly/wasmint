@@ -9,7 +9,7 @@ int main() {
             // Module header
 
             // first the opcode table
-            7, // we use 7 opcodes (LEB128-Encoded)
+            7, // we use 7 opcodes (LEB128-Encoded integer)
             'i', 'n', 't', '3', '2', '.', 'a', 'd', 'd', '\0', // int32.add
             'i', 'n', 't', '3', '2', '.', 's', 'u', 'b', '\0', // int32.add
             'i', 'n', 't', '3', '2', '.', 'm', 'u', 'l', '\0', // int32.add
@@ -20,8 +20,8 @@ int main() {
 
             // now the section table
             0, 0, 0, 1, // only one section
-            0, // section 1 is data
-            0, 0, 0, 76, // start offset in this array is 9
+            1, // section 1 is code (= 1). Data would be 0
+            0, 0, 0, 76, // start offset in this array is 76
 
 
             0 // start of section 1

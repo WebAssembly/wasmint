@@ -9,6 +9,9 @@
 #include <cstdint>
 #include <deque>
 
+class LEB128PayloadBiggerThan32Bit : public std::exception {};
+class EndOfStreamReached : public std::exception {};
+
 class ByteStream {
 
     std::deque<unsigned char> bytes_;
@@ -21,7 +24,7 @@ public:
 
     virtual uint8_t popChar() {
         position_++;
-        uint8_t result = bytes_.front();
+        uint8_t result = peekChar();
         bytes_.pop_front();
         return result;
     }
@@ -39,20 +42,35 @@ public:
     }
 
     virtual uint8_t peekChar() {
+        if (bytes_.empty())
+            throw EndOfStreamReached();
         return bytes_.front();
     }
 
 
-    virtual uint64_t peekLEB128() {
-        uint64_t result = 0;
-        // TODO: Handle more thatn 64bit integers
-        for(int i = 0; i < 8; i++) {
+    virtual uint32_t popLEB128() {
+        uint32_t result = 0;
+        uint8_t shift = 0;
+        for(int i = 0; i < 4; i++) {
             uint8_t byte = popChar();
-            result |= byte;
-            if (byte <= 128u) {
+
+            // check if first bit is set
+            if (byte >= 128u) {
+                // if we currently check the 4th byte, the number has to be smaller than 128
+                // or the payload would be bigger thatn 32 bit (which is restricted by the specification)
+                if (i == 3) {
+                    throw LEB128PayloadBiggerThan32Bit();
+                }
+            }
+
+            // OR the new byte without the MSB into the result integer
+            result |= (byte & 0x7F) << shift;
+
+            // if the MSB is not set, we are done here
+            if (byte < 128u) {
                 break;
             }
-            result <<= 8;
+            shift += 7;
         }
         return result;
     }

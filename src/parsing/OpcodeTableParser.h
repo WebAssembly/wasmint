@@ -31,9 +31,9 @@ protected:
     }
 
     void parse() {
-        uint64_t numberOfOpcodes = stream.peekLEB128();
+        uint32_t numberOfOpcodes = stream.popLEB128();
         opcodeNames.resize(numberOfOpcodes);
-        for(uint64_t i = 0; i < numberOfOpcodes; i++) {
+        for(uint32_t i = 0; i < numberOfOpcodes; i++) {
             opcodeNames[i] = readCString();
         }
     }
