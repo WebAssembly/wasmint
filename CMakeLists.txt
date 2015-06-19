@@ -24,9 +24,11 @@ add_library(core
 
     src/interpreter/Environment.cpp
 
+    src/instructions/Block.cpp
     src/instructions/I32Add.cpp
     src/instructions/Print.cpp
     src/instructions/GetLocal.cpp
+    src/instructions/SetLocal.cpp
 
     src/parsing/ByteStream.cpp
     src/parsing/FunctionParser.cpp

@@ -20,7 +20,9 @@ public:
     }
 
     virtual Variable execute(Environment& env) {
-        return Variable(Type::Void(), 0);
+        Variable left = children().at(0)->execute(env);
+        Variable right = children().at(1)->execute(env);
+        return Variable(Type::Int32(), left.int32Value() + right.int32Value());
     }
 };
 

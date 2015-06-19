@@ -10,6 +10,8 @@
 #include <parsing/ByteStream.h>
 #include <instructions/Print.h>
 #include <instructions/GetLocal.h>
+#include <instructions/Block.h>
+#include <instructions/SetLocal.h>
 #include "Instruction.h"
 
 class UnknownInstructionName : public std::exception {};
@@ -24,6 +26,10 @@ public:
             return new Print();
         } else if (name == "get_local") {
             return new GetLocal(stream);
+        } else if (name == "block") {
+            return new Block(stream);
+        } else if (name == "set_local") {
+            return new SetLocal(stream);
         } else {
             throw UnknownInstructionName();
         }

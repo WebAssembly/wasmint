@@ -30,7 +30,7 @@ class CodeSectionParser {
             uint32_t returnTypeData = stream.popLEB128();
 
             uint32_t numberOfParameters = stream.popLEB128();
-            for (uint32_t j = 0; j < numberOfFunctions; ++j) {
+            for (uint32_t j = 0; j < numberOfParameters; j++) {
                 stream.popLEB128();
             }
 

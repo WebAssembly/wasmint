@@ -27,7 +27,7 @@ protected:
 
     void parse() {
         uint32_t numberOfLocals = stream.popLEB128();
-        for (uint32_t i = 0; i < numberOfLocals; ++i) {
+        for (uint32_t i = 0; i < numberOfLocals; i++) {
             typeOfLocals.push_back(Type::Int32());
             stream.popLEB128(); // TODO use the value
         }
@@ -36,7 +36,6 @@ protected:
 
     Instruction* parseInstruction() {
         uint32_t opcode = stream.popLEB128();
-        uint32_t next = stream.popLEB128();
         Instruction* instruction = InstructionSet::getInstruction(context_.opcodeTable().getInstruction(opcode), stream);
 
         std::vector<Instruction*> children;
@@ -46,10 +45,11 @@ protected:
         }
 
         instruction->children(children);
+        return instruction;
     }
 
     Function getParsedFunction(std::string name, Type returnType, std::vector<Type> parameters) {
-        return Function(name, returnType, parameters, mainInstruction);
+        return Function(name, returnType, parameters, typeOfLocals, mainInstruction);
     }
 
 public:

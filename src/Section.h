@@ -16,6 +16,7 @@ enum class SectionType {
     INVALID = 200
 };
 
+class NoFunctionWithThatName : std::exception {};
 
 class Section {
 
@@ -35,6 +36,15 @@ public:
 
     uint32_t offset() {
         return offset_;
+    }
+
+    Function& getFunction(std::string name) {
+        for(Function& function : functions_) {
+            if (function.name() == name) {
+                return function;
+            }
+        }
+        throw NoFunctionWithThatName();
     }
 };
 

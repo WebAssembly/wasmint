@@ -12,6 +12,9 @@ class Variable {
     Type type_;
     int32_t  value_;
 public:
+    Variable() : type_(Type::Void()) {
+
+    }
     Variable(Type type, int32_t intValue) : type_(type), value_(intValue) {
 
     }

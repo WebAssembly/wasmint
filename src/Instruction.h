@@ -21,6 +21,10 @@ public:
     virtual void children(std::vector<Instruction*> newChildren) {
         children_ = newChildren;
     }
+    std::vector<Instruction*> children() {
+        return children_;
+    }
+
     virtual std::vector<Type> childrenTypes() = 0;
     virtual Type returnType() = 0;
 
