@@ -1,0 +1,11 @@
+language: cpp
+compiler:
+  - gcc
+
+script:
+  - cmake .
+  - make
+  - ctest -D ExperimentalBuild
+  - ctest -D ExperimentalTest (just runs the test)
+  - ctest -D ExperimentalMemCheck (to run the test under valgrind)
+  - valgrind --error-exitcode=1 --leak-check=full ./json_unit
