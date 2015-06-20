@@ -8,7 +8,6 @@ Look [here](docs/Instructions.md) for the (uncomplete list) of supported instruc
 ## Known Bugs
 
 * The LEB128 parser currently only works well with unsigned 32 bit integers (or signed in the range[0, 2^31])
-* The Variable class leaks memory 
 * Not all instructions from the draft are supported yet.
 * Parameters for function calls are not supported yet.
 

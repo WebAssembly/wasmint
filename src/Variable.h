@@ -7,15 +7,17 @@
 
 #include <cstdint>
 #include <types/Void.h>
+#include <string.h>
 #include "types/Type.h"
+#include <vector>
 
 class Variable {
     Type* type_;
-    void* value_ = nullptr;
+    std::vector<uint8_t> value_;
 
 public:
     Variable(Type* type = Void::instance()) : type_(type) {
-        value_ = new uint8_t[type->size()];
+        value_.resize(type->size());
     }
 
     Type& type() {
@@ -23,7 +25,7 @@ public:
     }
 
     void* value() {
-        return value_;
+        return (void*) value_.data();
     }
 };
 

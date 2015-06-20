@@ -42,7 +42,7 @@ public:
         }
     }
 
-    static void setValue(Variable variable, int32_t value) {
+    static void setValue(Variable& variable, int32_t value) {
         if (variable.type() == *instance()) {
             int32_t* data = (int32_t*) variable.value();
             (*data) = value;
