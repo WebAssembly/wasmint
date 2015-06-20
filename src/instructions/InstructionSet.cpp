@@ -3,6 +3,7 @@
 //
 
 #include "InstructionSet.h"
+#include "Literal.h"
 #include <instructions/I32/I32Add.h>
 #include <instructions/Print.h>
 #include <instructions/GetLocal.h>
@@ -15,10 +16,21 @@
 #include <instructions/controlflow/Return.h>
 #include <instructions/controlflow/Forever.h>
 #include <instructions/FunctionCall.h>
+#include <instructions/I32/I32Sub.h>
+#include <instructions/I32/I32Mul.h>
+#include <instructions/I32/I32Div.h>
 
 Instruction *InstructionSet::getInstruction(std::string name, ByteStream& stream, ModuleContext& context, FunctionContext& functionContext) {
-    if (name == "int32.add") {
+    if (name == "literal") {
+        return new Literal(stream, context);
+    } else if (name == "int32.add") {
         return new I32Add();
+    } else if (name == "int32.sub") {
+        return new I32Sub();
+    } else if (name == "int32.mul") {
+        return new I32Mul();
+    } else if (name == "int32.div") {
+        return new I32Div();
     } else if (name == "print") {
         return new Print();
     } else if (name == "call") {

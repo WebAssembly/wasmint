@@ -30,6 +30,10 @@ add_library(core
     src/interpreter/Heap.cpp
 
     src/instructions/I32/I32Add.cpp
+    src/instructions/I32/I32Sub.cpp
+    src/instructions/I32/I32Mul.cpp
+    src/instructions/I32/I32Div.cpp
+
     src/instructions/Print.cpp
     src/instructions/GetLocal.cpp
     src/instructions/SetLocal.cpp
@@ -41,6 +45,7 @@ add_library(core
     src/instructions/controlflow/If.cpp
     src/instructions/controlflow/Return.cpp
     src/instructions/FunctionCall.cpp
+    src/instructions/Literal.cpp
 
     src/types/Int32.cpp
     src/types/Int64.cpp
