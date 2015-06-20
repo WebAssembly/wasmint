@@ -29,7 +29,7 @@ public:
         return functionSignature.returnType();
     }
 
-    virtual Variable execute(Environment& env) {
+    virtual Variable execute(RuntimeEnvironment & env) {
         return env.callFunction(functionSignature.name());
     }
 };

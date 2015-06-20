@@ -26,7 +26,7 @@ add_library(core
     src/TypeTable.cpp
     src/ModuleContext.cpp
 
-    src/interpreter/Environment.cpp
+    src/interpreter/RuntimeEnvironment.cpp
     src/interpreter/Heap.cpp
 
     src/instructions/I32/I32Add.cpp

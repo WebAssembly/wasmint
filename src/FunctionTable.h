@@ -9,11 +9,11 @@
 #include "FunctionSignature.h"
 #include "ExceptionWithMessage.h"
 
-class UnknownLocalFunctionId : public ExceptionWithMessage {
-public:
-    UnknownLocalFunctionId(std::string message) : ExceptionWithMessage(message) {}
-};
+ExceptionMessage(UnknownLocalFunctionId)
 
+/**
+ * Maps local function ids to function signatures.
+ */
 class FunctionTable {
 
     std::vector<FunctionSignature> functionNames_;

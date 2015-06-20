@@ -6,7 +6,7 @@
 
 #include <cstdint>
 #include <vector>
-#include <interpreter/Environment.h>
+#include "RuntimeEnvironment.h"
 
 #include "types/Type.h"
 #include "Variable.h"
@@ -28,7 +28,7 @@ public:
     virtual std::vector<Type*> childrenTypes() = 0;
     virtual Type* returnType() = 0;
 
-    virtual Variable execute(Environment& env) = 0;
+    virtual Variable execute(RuntimeEnvironment & env) = 0;
 
 };
 

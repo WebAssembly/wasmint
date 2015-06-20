@@ -31,7 +31,7 @@ public:
         return expectedType;
     }
 
-    virtual Variable execute(Environment& env) {
+    virtual Variable execute(RuntimeEnvironment & env) {
         return env.variable(localIndex) = children().at(0)->execute(env);
     }
 };

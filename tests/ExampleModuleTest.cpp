@@ -3,6 +3,7 @@
 #include <parsing/ByteStream.h>
 #include <Module.h>
 #include <parsing/ModuleParser.h>
+#include <interpreter/RuntimeEnvironment.h>
 
 #define BLOCK 0x7
 #define SET_LOCAL 0x5
@@ -100,7 +101,7 @@ int main() {
 
     assert(m->sections().size() == 1);
 
-    Environment environment;
+    RuntimeEnvironment environment;
     environment.useModule(*m);
     environment.callFunction("main");
 

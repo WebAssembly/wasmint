@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    Environment environment;
+    RuntimeEnvironment environment;
 
     for(int i = 1; i < argc; i++) {
         std::string modulePath = argv[i];

@@ -9,9 +9,13 @@
 #include "types/Type.h"
 #include "Variable.h"
 
+/**
+ * Contains all information that are relevant to an caller of the given function.
+ */
 class FunctionSignature {
 
     std::string name_;
+    // TODO also needed in FunctionContext to verify return statements?
     Type* returnType_ = Void::instance();
     std::vector<Type*> parameterTypes_;
 

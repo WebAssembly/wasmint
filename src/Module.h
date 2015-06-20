@@ -16,7 +16,6 @@ class Module {
     std::vector<Section> sections_;
     ModuleContext context_;
 
-
 public:
     Module(ModuleContext& context, std::vector<Section>& sections)
             : sections_(sections), context_(context) {

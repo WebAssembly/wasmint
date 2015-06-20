@@ -24,7 +24,7 @@ public:
         return Int32::instance();
     }
 
-    virtual Variable execute(Environment& env) {
+    virtual Variable execute(RuntimeEnvironment & env) {
         int32_t left = Int32::getValue(children().at(0)->execute(env));
         int32_t right = Int32::getValue(children().at(1)->execute(env));
 

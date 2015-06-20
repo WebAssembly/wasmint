@@ -49,7 +49,7 @@ For information what instructions are available, see the (Instructions.md)[Instr
 
 ### Local type table
 
-The local opcode table provides functionality to translate type indizes (integers)
+The local opcode table provides functionality to translate type indices (integers)
 to the string names of the types.
 
 The local type table starts with a uLEB128 (from now on called LT_LEN) 
@@ -58,7 +58,7 @@ that specifies how many types are used in this module.
 After that exactly LT_LEN strings follow that contain the names of the used types.
 The order of the strings define their local type index.
 
-As an example, this type table would define indizes for the types `int32` and `void`.
+As an example, this type table would define indices for the types `int32` and `void`.
 
 ```
 2, // number of types

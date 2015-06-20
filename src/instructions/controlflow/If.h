@@ -21,7 +21,7 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(Environment& env) {
+    virtual Variable execute(RuntimeEnvironment & env) {
         Variable condition = children().at(0)->execute(env);
 
         if (Int32::getValue(condition)) {

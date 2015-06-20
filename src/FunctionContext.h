@@ -7,6 +7,10 @@
 #include "types/Type.h"
 #include <vector>
 
+/**
+ * The context of a function. This contains all information that are needed to
+ * create the instructions in the AST of the related function.
+ */
 class FunctionContext {
 
     std::vector<Type*> locals_;

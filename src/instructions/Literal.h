@@ -32,7 +32,7 @@ public:
         return &literalValue.type();
     }
 
-    virtual Variable execute(Environment& env) {
+    virtual Variable execute(RuntimeEnvironment & env) {
         return literalValue;
     }
 };

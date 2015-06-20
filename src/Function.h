@@ -12,10 +12,14 @@
 #include "FunctionContext.h"
 
 class Instruction;
-class Environment;
+class RuntimeEnvironment;
+
 
 class Function : public FunctionSignature, public FunctionContext {
 
+    /**
+     * The AST of this function which contains all instructions of this function.
+     */
     Instruction* mainInstruction;
 
 public:
@@ -26,7 +30,7 @@ public:
     }
 
 
-    Variable execute(Environment& environment);
+    Variable execute(RuntimeEnvironment & environment);
 };
 
 

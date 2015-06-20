@@ -30,7 +30,7 @@ public:
         return returnType_;
     }
 
-    virtual Variable execute(Environment& env) {
+    virtual Variable execute(RuntimeEnvironment & env) {
         return env.variable(localIndex);
     }
 };

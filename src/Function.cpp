@@ -1,9 +1,9 @@
 
 
 #include "Function.h"
-#include <interpreter/Environment.h>
+#include "RuntimeEnvironment.h"
 #include <instructions/Instruction.h>
 
-Variable Function::execute(Environment& environment) {
+Variable Function::execute(RuntimeEnvironment & environment) {
     return mainInstruction->execute(environment);
 }

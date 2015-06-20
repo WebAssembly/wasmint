@@ -23,7 +23,7 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(Environment& env) {
+    virtual Variable execute(RuntimeEnvironment & env) {
         Variable condition;
         try {
             while (true) {
