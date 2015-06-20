@@ -29,9 +29,19 @@ add_library(core
     src/instructions/Print.cpp
     src/instructions/GetLocal.cpp
     src/instructions/SetLocal.cpp
+    src/instructions/Break.cpp
+    src/instructions/Continue.cpp
+    src/instructions/DoWhile.cpp
+    src/instructions/Forever.cpp
+    src/instructions/If.cpp
+    src/instructions/Return.cpp
+    src/instructions/FunctionCall.cpp
 
     src/types/Int32.cpp
+    src/types/Int64.cpp
     src/types/Void.cpp
+    src/types/Float32.cpp
+    src/types/Float64.cpp
 
     src/parsing/ByteStream.cpp
     src/parsing/FunctionParser.cpp

@@ -12,6 +12,12 @@
 #include <instructions/GetLocal.h>
 #include <instructions/Block.h>
 #include <instructions/SetLocal.h>
+#include <instructions/Break.h>
+#include <instructions/Continue.h>
+#include <instructions/DoWhile.h>
+#include <instructions/Forever.h>
+#include <instructions/If.h>
+#include <instructions/Return.h>
 #include "Instruction.h"
 
 class UnknownInstructionName : public std::exception {};
@@ -30,6 +36,18 @@ public:
             return new Block(stream);
         } else if (name == "set_local") {
             return new SetLocal(stream);
+        } else if (name == "break") {
+            return new Break();
+        } else if (name == "continue") {
+            return new Continue();
+        } else if (name == "do_while") {
+            return new DoWhile();
+        } else if (name == "forever") {
+            return new Forever();
+        } else if (name == "if") {
+            return new If();
+        } else if (name == "return") {
+            return new Return();
         } else {
             throw UnknownInstructionName();
         }
