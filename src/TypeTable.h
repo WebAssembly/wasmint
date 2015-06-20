@@ -11,20 +11,9 @@
 #include <types/Void.h>
 #include <types/Int32.h>
 #include "Type.h"
+#include "ExceptionWithMessage.h"
 
-class UnknownLocalTypeCode : public std::exception {
-    std::string message;
-
-public:
-    UnknownLocalTypeCode(uint32_t localCode) {
-        message = std::to_string(localCode);
-    }
-
-    virtual const char* what() const noexcept {
-        return message.c_str();
-    }
-
-};
+ExceptionMessage(UnknownLocalTypeCode)
 
 class TypeTable {
 
@@ -51,7 +40,7 @@ public:
     std::string getTypeName(uint32_t localTypeCode) {
         auto result = instructionsByLocalOpcode.find(localTypeCode);
         if (result == instructionsByLocalOpcode.end()) {
-            throw UnknownLocalTypeCode(localTypeCode);
+            throw UnknownLocalTypeCode(std::to_string(localTypeCode));
         } else {
             return result->second;
         }

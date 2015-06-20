@@ -26,6 +26,7 @@ add_library(core
     src/ModuleContext.cpp
 
     src/interpreter/Environment.cpp
+    src/interpreter/Heap.cpp
 
     src/instructions/Block.cpp
     src/instructions/I32Add.cpp

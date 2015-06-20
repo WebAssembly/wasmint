@@ -23,5 +23,9 @@ public:
 
 };
 
+#define ExceptionMessage(Name) class Name : public ExceptionWithMessage { \
+    public: Name(std::string message) : ExceptionWithMessage(message) {} \
+    };
+
 
 #endif //WASMINT_EXCEPTIONWITHDATA_H

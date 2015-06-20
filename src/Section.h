@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <cstdint>
 #include "Function.h"
+#include "ExceptionWithMessage.h"
 
 enum class SectionType {
     DATA = 0,
@@ -16,7 +17,7 @@ enum class SectionType {
     INVALID = 200
 };
 
-class NoFunctionWithThatName : std::exception {};
+ExceptionMessage(NoFunctionWithThatName)
 
 class Section {
 
@@ -52,7 +53,7 @@ public:
                 return function;
             }
         }
-        throw NoFunctionWithThatName();
+        throw NoFunctionWithThatName(name);
     }
 };
 

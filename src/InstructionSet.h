@@ -21,7 +21,7 @@
 #include <instructions/FunctionCall.h>
 #include "Instruction.h"
 
-class UnknownInstructionName : public std::exception {};
+ExceptionMessage(UnknownInstructionName)
 
 class InstructionSet {
 
@@ -52,7 +52,7 @@ public:
         } else if (name == "return") {
             return new Return();
         } else {
-            throw UnknownInstructionName();
+            throw UnknownInstructionName(name);
         }
     }
 };

@@ -8,8 +8,10 @@
 #include <cstdint>
 #include <string>
 #include <map>
+#include "ExceptionWithMessage.h"
 
-class UnknownLocalOpcode : public std::exception {};
+
+ExceptionMessage(UnknownLocalOpcode)
 
 class OpcodeTable {
 
@@ -26,7 +28,7 @@ public:
     std::string getInstruction(uint32_t localOpcode) {
         auto result = instructionsByLocalOpcode.find(localOpcode);
         if (result == instructionsByLocalOpcode.end()) {
-            throw UnknownLocalOpcode();
+            throw UnknownLocalOpcode(std::to_string(localOpcode));
         } else {
             return result->second;
         }

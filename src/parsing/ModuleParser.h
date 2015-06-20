@@ -15,20 +15,9 @@
 #include "TypeTableParser.h"
 #include "FunctionTableParser.h"
 
-
-class NoSectionWithOffset : public std::exception {
-    std::string message;
-public:
-    NoSectionWithOffset(uint32_t offset) {
-        message = std::string("Offset was ") + std::to_string(offset);
-    }
-
-    virtual const char* what() const noexcept {
-        return message.c_str();
-    }
-};
-class UnknownSectionType : public std::exception {};
-class SectionTableNotOrdered : public std::exception {};
+ExceptionMessage(NoSectionWithOffset)
+ExceptionMessage(UnknownSectionType)
+ExceptionMessage(SectionTableNotOrdered)
 
 class ModuleParser {
 
@@ -43,7 +32,7 @@ class ModuleParser {
         auto result = sectionTypes.find(offset);
 
         if (result == sectionTypes.end()) {
-            throw NoSectionWithOffset(offset);
+            throw NoSectionWithOffset(std::to_string(offset));
         } else {
             return result->second;
         }
@@ -76,21 +65,18 @@ protected:
 
             SectionType type;
             switch (typeData) {
-                case 0:
-                    type = SectionType::DATA;
-                    break;
                 case 1:
                     type = SectionType::CODE;
                     break;
                 default:
-                    throw UnknownSectionType();
+                    throw UnknownSectionType(std::to_string(typeData));
             }
             uint32_t offset = stream.popLEB128();
 
             sectionTypes[offset] = type;
 
             if (offset <= lastOffset)
-                throw SectionTableNotOrdered();
+                throw SectionTableNotOrdered(std::string("Offset of section ") + std::to_string(i) + " smaller than previous offset");
             lastOffset = offset;
         }
     }

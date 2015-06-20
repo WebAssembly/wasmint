@@ -12,17 +12,17 @@
 #include <Function.h>
 #include <map>
 #include <Module.h>
+#include "Heap.h"
 
-class NoFunctionWithName : public ExceptionWithMessage {
-public:
-    NoFunctionWithName(std::string message) : ExceptionWithMessage(message) {}
-};
+ExceptionMessage(NoFunctionWithName)
 
 class Environment {
 
     std::stack<std::vector<Variable>> stack;
 
     std::map<std::string, Function*> functions_;
+
+    Heap heap_;
 
     void createLocals(std::vector<Type*> variableTypes) {
         stack.push(std::vector<Variable>());
@@ -43,9 +43,6 @@ class Environment {
     }
 
 public:
-    Environment() {
-
-    }
 
     void useModule(Module& module) {
         std::vector<Function*> functions = module.functions();
@@ -65,6 +62,10 @@ public:
         } else {
             throw NoFunctionWithName(functionName);
         }
+    }
+
+    Heap& heap() {
+        return heap_;
     }
 
 
