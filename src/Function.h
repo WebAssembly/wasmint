@@ -9,34 +9,29 @@
 #include <vector>
 
 #include "Type.h"
+#include "Variable.h"
+#include "FunctionSignature.h"
 
 class Instruction;
 class Environment;
 
-class Function {
+class Function : public FunctionSignature {
 
-    std::string name_;
-    Type* returnType_;
-    std::vector<Type*> parameterTypes_;
     Instruction* mainInstruction;
     std::vector<Type*> locals_;
 
 public:
     Function(std::string name, Type* returnType, std::vector<Type*> parameterTypes, std::vector<Type*> locals, Instruction* mainInstruction)
-        : name_(name), returnType_(returnType), parameterTypes_(parameterTypes),
-          mainInstruction(mainInstruction), locals_(locals)
+        : locals_(locals), mainInstruction(mainInstruction), FunctionSignature(name, returnType, parameterTypes)
     {
+
     }
 
     std::vector<Type*> locals() {
         return locals_;
     }
 
-    std::string name() {
-        return name_;
-    }
-
-    void execute(Environment& environment);
+    Variable execute(Environment& environment);
 };
 
 

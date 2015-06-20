@@ -33,10 +33,12 @@ int main() {
             'v', 'o', 'i', 'd', '\0',
             'i', 'n', 't', '3', '2', '\0',
 
+            0, // no external functions used
+
             // now the section table
             1, // only one section
             1, // section 1 is program code (1 means program code, 0 means data).
-            82, // start offset of the section in this array
+            83, // start offset of the section in this array
 
             // section 1
             1, // we have only one function in this section

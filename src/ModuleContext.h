@@ -8,19 +8,21 @@
 
 #include "TypeTable.h"
 #include "OpcodeTable.h"
+#include "FunctionTable.h"
 
 class ModuleContext {
 
     OpcodeTable opcodeTable_;
     TypeTable typeTable_;
+    FunctionTable functionTable_;
 
 public:
     ModuleContext() {
 
     }
 
-    ModuleContext(OpcodeTable& opcodeTable, TypeTable& typeTable)
-        : opcodeTable_(opcodeTable), typeTable_(typeTable) {
+    ModuleContext(OpcodeTable& opcodeTable, TypeTable& typeTable, FunctionTable& functionTable)
+        : opcodeTable_(opcodeTable), typeTable_(typeTable), functionTable_(functionTable) {
 
     }
 
@@ -30,6 +32,10 @@ public:
 
     TypeTable& typeTable() {
         return typeTable_;
+    }
+
+    FunctionTable& functionTable() {
+        return functionTable_;
     }
 
 };

@@ -24,6 +24,17 @@ public:
             : sections_(sections), context_(context) {
     }
 
+    std::vector<Function*> functions() {
+        std::vector<Function*> result;
+        for(Section& section : sections_) {
+            std::vector<Function*> sectionFunctions = section.functions();
+            for(Function* function : sectionFunctions) {
+                result.push_back(function);
+            }
+        }
+        return result;
+    }
+
     std::vector<Section>& sections() {
         return sections_;
     }

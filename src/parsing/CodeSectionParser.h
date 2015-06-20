@@ -25,16 +25,21 @@ class CodeSectionParser {
 
     void parseFunctions() {
         uint32_t numberOfFunctions = stream.popLEB128();
+
         for (uint32_t i = 0; i < numberOfFunctions; i++) {
-            functionNames.push_back(stream.readCString());
-            uint32_t returnTypeData = stream.popLEB128();
+            std::string functionName = stream.readCString();
+            functionNames.push_back(functionName);
+
+            Type* returnType = context.typeTable().getType(stream.popLEB128());
 
             uint32_t numberOfParameters = stream.popLEB128();
+            std::vector<Type*> parameters;
             for (uint32_t j = 0; j < numberOfParameters; j++) {
-                stream.popLEB128();
+                parameters.push_back(context.typeTable().getType(stream.popLEB128()));
             }
 
             offsets.push_back(stream.popLEB128());
+            context.functionTable().addFunctionSignature(FunctionSignature(functionName, returnType, parameters));
         }
 
         for (int i = 0; i < numberOfFunctions; i++) {

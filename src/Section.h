@@ -38,6 +38,14 @@ public:
         return offset_;
     }
 
+    std::vector<Function*> functions() {
+        std::vector<Function*> result;
+        for(Function& function : functions_) {
+            result.push_back(&function);
+        }
+        return result;
+    }
+
     Function& getFunction(std::string name) {
         for(Function& function : functions_) {
             if (function.name() == name) {

@@ -11,9 +11,12 @@ include_directories (src)
 
 add_library(core
     main.cpp
+    src/ExceptionWithMessage.cpp
     src/InstructionSet.cpp
     src/Module.cpp
     src/Section.cpp
+    src/FunctionSignature.cpp
+    src/FunctionTable.cpp
     src/Instruction.cpp
     src/OpcodeTable.cpp
     src/Variable.cpp
@@ -45,6 +48,7 @@ add_library(core
 
     src/parsing/ByteStream.cpp
     src/parsing/FunctionParser.cpp
+    src/parsing/FunctionTableParser.cpp
     src/parsing/TypeTableParser.cpp
     src/parsing/ModuleParser.cpp
     src/parsing/CodeSectionParser.cpp

@@ -13,6 +13,7 @@
 #include "CodeSectionParser.h"
 #include "OpcodeTableParser.h"
 #include "TypeTableParser.h"
+#include "FunctionTableParser.h"
 
 
 class NoSectionWithOffset : public std::exception {
@@ -60,8 +61,10 @@ protected:
         // Type table
         TypeTable typeTable = TypeTableParser::parse(stream);
 
+        FunctionTable functionTable = FunctionTableParser::parse(stream);
+
         // Put everything into the context
-        context = ModuleContext(opcodeTable, typeTable);
+        context = ModuleContext(opcodeTable, typeTable, functionTable);
 
         // Section header
         uint32_t numberOfSections = stream.popLEB128();

@@ -31,10 +31,13 @@ int main() {
             'v', 'o', 'i', 'd', '\0',
             'i', 'n', 't', '3', '2', '\0',
 
+            // now the table for the used functions
+            0, // we use 0 external functions in this modole
+
             // now the section table
             1, // only one section
             1, // section 1 is program code (1 means program code, 0 means data).
-            88, // start offset of the section in this array
+            89, // start offset of the section in this array
 
             // section 1
             1, // we have only one function in this section
@@ -77,8 +80,8 @@ int main() {
     assert(m->sections().size() == 1);
 
     Environment environment;
-    Function& func = m->sections().at(0).getFunction("main");
-    func.execute(environment);
+    environment.useModule(*m);
+    environment.callFunction("main");
 
     // This module should print the number 6
     assert(environment.stdout() == "6");

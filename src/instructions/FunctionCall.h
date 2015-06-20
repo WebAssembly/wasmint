@@ -6,8 +6,29 @@
 #define WASMINT_FUNCTIONCALL_H
 
 
-class FunctionCall {
+#include <Instruction.h>
+#include <ModuleContext.h>
 
+class FunctionCall : public Instruction {
+
+    FunctionSignature functionSignature;
+
+public:
+    FunctionCall(ByteStream& stream, ModuleContext& context) {
+
+    }
+
+    virtual std::vector<Type*> childrenTypes() {
+        return functionSignature.parameters();
+    }
+
+    virtual Type* returnType() {
+        return functionSignature.returnType();
+    }
+
+    virtual Variable execute(Environment& env) {
+        return env.callFunction(functionSignature.name());
+    }
 };
 
 
