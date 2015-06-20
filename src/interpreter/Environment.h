@@ -10,9 +10,13 @@
 #include <Function.h>
 #include <map>
 #include <Module.h>
+#include <instructions/controlflow/Break.h>
+#include <instructions/controlflow/Continue.h>
 #include "Heap.h"
 
 ExceptionMessage(NoFunctionWithName)
+ExceptionMessage(IllegalUseageOfBreak)
+ExceptionMessage(IllegalUseageOfContinue)
 
 class Environment {
 
@@ -54,7 +58,14 @@ public:
         if (functionIterator != functions_.end()) {
             Function* function = functionIterator->second;
             enterFunction(*function);
-            Variable result = function->execute(*this);
+            Variable result;
+            try {
+                result = function->execute(*this);
+            } catch(CalledBreak e) {
+                throw IllegalUseageOfBreak(std::string("break was used outside of a loop in function ") + functionName);
+            } catch(CalledContinue e) {
+                throw IllegalUseageOfContinue(std::string("continue was used outside of a loop in function ") + functionName);
+            }
             leaveFunction();
             return result;
         } else {
@@ -65,7 +76,6 @@ public:
     Heap& heap() {
         return heap_;
     }
-
 
     Variable& variable(uint32_t index) {
         return stack.top().at(index);
