@@ -5,6 +5,13 @@ A WebAssembly (**WASM**) **Int**erpreter licensed under the Apache 2.0 License.
 
 Look [here](docs/Instructions.md) for the (uncomplete list) of supported instructions.
 
+## Known Bugs
+
+* The LEB128 parser currently only works well with unsigned 32 bit integers (or signed in the range[0, 2^31])
+* The Variable class leaks memory 
+* Not all instructions from the draft are supported yet.
+* Parameters for function calls are not supported yet.
+
 ## Binary format
 
 As the binary format of WASM is still up to decision, this interpreter is currently using it's own 
