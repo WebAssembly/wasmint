@@ -13,7 +13,7 @@ ExceptionMessage(UnknownInstructionName)
 class InstructionSet {
 
 public:
-    static Instruction * getInstruction(std::string name, ByteStream& stream, ModuleContext& context);
+    static Instruction * getInstruction(std::string name, ByteStream& stream, ModuleContext& context, FunctionContext& functionContext);
 };
 
 

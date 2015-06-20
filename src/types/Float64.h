@@ -22,6 +22,11 @@ public:
         return instance;
     }
 
+
+    virtual std::string name() {
+        return "float64";
+    }
+
     virtual void parse(ByteStream& stream, void* data, std::size_t dataLength) {
         ((uint8_t*) data)[0] = stream.popChar();
         ((uint8_t*) data)[1] = stream.popChar();

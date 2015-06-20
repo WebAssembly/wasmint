@@ -6,7 +6,7 @@
 #define WASMINT_RETURN_H
 
 
-#include <Instruction.h>
+#include <instructions/Instruction.h>
 #include <types/Int32.h>
 
 class CalledReturn {
@@ -18,6 +18,10 @@ class Return : public Instruction {
 public:
     virtual std::vector<Type*> childrenTypes() {
         return {Int32::instance()};
+    }
+
+    virtual std::string name() {
+        return "return";
     }
 
     virtual Type* returnType() {

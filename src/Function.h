@@ -11,25 +11,22 @@
 #include "Type.h"
 #include "Variable.h"
 #include "FunctionSignature.h"
+#include "FunctionContext.h"
 
 class Instruction;
 class Environment;
 
-class Function : public FunctionSignature {
+class Function : public FunctionSignature, public FunctionContext {
 
     Instruction* mainInstruction;
-    std::vector<Type*> locals_;
 
 public:
-    Function(std::string name, Type* returnType, std::vector<Type*> parameterTypes, std::vector<Type*> locals, Instruction* mainInstruction)
-        : locals_(locals), mainInstruction(mainInstruction), FunctionSignature(name, returnType, parameterTypes)
+    Function(std::string name, Type* returnType, std::vector<Type*> parameterTypes, FunctionContext& context, Instruction* mainInstruction)
+        : FunctionContext(context), mainInstruction(mainInstruction), FunctionSignature(name, returnType, parameterTypes)
     {
 
     }
 
-    std::vector<Type*> locals() {
-        return locals_;
-    }
 
     Variable execute(Environment& environment);
 };

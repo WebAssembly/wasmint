@@ -6,7 +6,7 @@
 #define WASMINT_FOREVER_H
 
 
-#include <Instruction.h>
+#include <instructions/Instruction.h>
 #include "Break.h"
 #include "Continue.h"
 
@@ -14,6 +14,10 @@ class Forever : public Instruction {
 public:
     virtual std::vector<Type*> childrenTypes() {
         return {Void::instance()};
+    }
+
+    virtual std::string name() {
+        return "forever";
     }
 
     virtual Type* returnType() {

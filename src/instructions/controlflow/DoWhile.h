@@ -6,7 +6,7 @@
 #define WASMINT_DOWHILE_H
 
 
-#include <Instruction.h>
+#include <instructions/Instruction.h>
 #include <types/Int32.h>
 #include "Break.h"
 #include "Continue.h"
@@ -15,6 +15,10 @@ class DoWhile : public Instruction {
 public:
     virtual std::vector<Type*> childrenTypes() {
         return {Int32::instance(), Void::instance()};
+    }
+
+    virtual std::string name() {
+        return "do_while";
     }
 
     virtual Type* returnType() {

@@ -6,7 +6,7 @@
 #define WASMINT_CONTINUE_H
 
 
-#include <Instruction.h>
+#include <instructions/Instruction.h>
 
 class CalledContinue {};
 
@@ -14,6 +14,9 @@ class Continue : public Instruction {
 public:
     virtual std::vector<Type*> childrenTypes() {
         return {};
+    }
+    virtual std::string name() {
+        return "continue";
     }
 
     virtual Type* returnType() {

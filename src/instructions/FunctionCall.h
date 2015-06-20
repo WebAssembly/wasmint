@@ -6,7 +6,7 @@
 #define WASMINT_FUNCTIONCALL_H
 
 
-#include <Instruction.h>
+#include <instructions/Instruction.h>
 #include <ModuleContext.h>
 
 class FunctionCall : public Instruction {
@@ -17,6 +17,11 @@ public:
     FunctionCall(ByteStream& stream, ModuleContext& context) {
         functionSignature = context.functionTable().getFunctionSignature(stream.popLEB128());
     }
+
+    virtual std::string name() {
+        return "call";
+    }
+
 
     virtual std::vector<Type*> childrenTypes() {
         return functionSignature.parameters();

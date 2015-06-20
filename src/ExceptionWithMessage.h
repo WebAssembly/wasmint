@@ -8,6 +8,7 @@
 
 #include <exception>
 #include <string>
+#include <parsing/ByteStream.h>
 
 class ExceptionWithMessage : public std::exception {
 

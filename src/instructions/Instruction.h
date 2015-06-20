@@ -25,6 +25,8 @@ public:
         return children_;
     }
 
+    virtual std::string name() = 0;
+
     virtual std::vector<Type*> childrenTypes() = 0;
     virtual Type* returnType() = 0;
 

@@ -4,7 +4,7 @@
 
 #include "Function.h"
 #include <interpreter/Environment.h>
-#include <Instruction.h>
+#include <instructions/Instruction.h>
 
 Variable Function::execute(Environment& environment) {
     return mainInstruction->execute(environment);

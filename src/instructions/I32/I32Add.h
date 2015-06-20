@@ -7,7 +7,7 @@
 
 
 #include <types/Int32.h>
-#include "Instruction.h"
+#include "instructions/Instruction.h"
 
 class I32Add : public Instruction {
 
@@ -16,8 +16,13 @@ public:
         return {Int32::instance(), Int32::instance()};
     }
 
+    virtual std::string name() {
+        return "int32.add";
+    }
+
+
     virtual Type* returnType() {
-        return Void::instance();
+        return Int32::instance();
     }
 
     virtual Variable execute(Environment& env) {

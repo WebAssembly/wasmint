@@ -22,6 +22,10 @@ public:
         return instance;
     }
 
+    virtual std::string name() {
+        return "void";
+    }
+
     virtual void parse(ByteStream& stream, void* data, std::size_t dataLength) {
         throw NoVoidLiteralsSupported();
     }

@@ -6,13 +6,17 @@
 #define WASMINT_IF_H
 
 
-#include <Instruction.h>
+#include <instructions/Instruction.h>
 #include <types/Int32.h>
 
 class If : public Instruction {
 public:
     virtual std::vector<Type*> childrenTypes() {
         return {Int32::instance(), Void::instance()};
+    }
+
+    virtual std::string name() {
+        return "if";
     }
 
     virtual Type* returnType() {

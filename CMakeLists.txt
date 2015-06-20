@@ -15,9 +15,10 @@ add_library(core
     src/instructions/InstructionSet.cpp
     src/Module.cpp
     src/Section.cpp
+    src/FunctionContext.cpp
     src/FunctionSignature.cpp
     src/FunctionTable.cpp
-    src/Instruction.cpp
+    src/instructions/Instruction.cpp
     src/OpcodeTable.cpp
     src/Variable.cpp
     src/Function.cpp

@@ -16,7 +16,7 @@
 #include <instructions/controlflow/Forever.h>
 #include <instructions/FunctionCall.h>
 
-Instruction *InstructionSet::getInstruction(std::string name, ByteStream& stream, ModuleContext& context) {
+Instruction *InstructionSet::getInstruction(std::string name, ByteStream& stream, ModuleContext& context, FunctionContext& functionContext) {
     if (name == "int32.add") {
         return new I32Add();
     } else if (name == "print") {
@@ -24,7 +24,7 @@ Instruction *InstructionSet::getInstruction(std::string name, ByteStream& stream
     } else if (name == "call") {
         return new FunctionCall(stream, context);
     } else if (name == "get_local") {
-        return new GetLocal(stream);
+        return new GetLocal(stream, functionContext);
     } else if (name == "block") {
         return new Block(stream);
     } else if (name == "set_local") {

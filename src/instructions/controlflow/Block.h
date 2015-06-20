@@ -6,7 +6,7 @@
 #define WASMINT_BLOCK_H
 
 
-#include <Instruction.h>
+#include <instructions/Instruction.h>
 #include <parsing/ByteStream.h>
 
 class Block : public Instruction {
@@ -16,6 +16,10 @@ class Block : public Instruction {
 public:
     Block(ByteStream& stream) {
         amountOfChildren = stream.popLEB128();
+    }
+
+    virtual std::string name() {
+        return "block";
     }
 
     virtual std::vector<Type*> childrenTypes() {

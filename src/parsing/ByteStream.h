@@ -9,13 +9,14 @@
 #include <cstdint>
 #include <deque>
 #include <string>
+#include <sstream>
 
 class LEB128PayloadBiggerThan32Bit : public std::exception {};
 class EndOfStreamReached : public std::exception {};
 
 class ByteStream {
 
-    std::deque<unsigned char> bytes_;
+    std::deque<uint8_t> bytes_;
     uint32_t position_ = 0;
 
 public:
@@ -23,14 +24,15 @@ public:
     }
     ByteStream(const ByteStream& copy); // Don't implement
 
-    virtual uint8_t popChar() {
+    uint8_t popChar() {
         position_++;
         uint8_t result = peekChar();
         bytes_.pop_front();
+
         return result;
     }
 
-    virtual std::string readCString() {
+    std::string readCString() {
         std::string result = "";
         while (peekChar() != 0) {
             result.push_back((unsigned char) popChar());
@@ -40,7 +42,7 @@ public:
         return result;
     }
 
-    virtual uint32_t popUint32() {
+    uint32_t popUint32() {
         uint32_t result = 0;
         result += popChar();
         result <<= 8;
@@ -52,14 +54,14 @@ public:
         return result;
     }
 
-    virtual uint8_t peekChar() {
+    uint8_t peekChar() {
         if (bytes_.empty())
             throw EndOfStreamReached();
         return bytes_.front();
     }
 
 
-    virtual uint32_t popLEB128() {
+    uint32_t popLEB128() {
         uint32_t result = 0;
         uint8_t shift = 0;
         for(int i = 0; i < 4; i++) {
@@ -86,10 +88,9 @@ public:
         return result;
     }
 
-    virtual uint32_t position() {
+    uint32_t position() {
         return position_;
     }
-
 
 };
 

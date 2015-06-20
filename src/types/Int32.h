@@ -22,6 +22,10 @@ public:
         return instance;
     }
 
+    virtual std::string name() {
+        return "int32";
+    }
+
     virtual void parse(ByteStream& stream, void* data, std::size_t dataLength) {
         uint32_t value = stream.popLEB128();
         (*(uint32_t*)data) = value;

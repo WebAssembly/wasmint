@@ -22,6 +22,10 @@ public:
         return instance;
     }
 
+    virtual std::string name() {
+        return "int64";
+    }
+
     virtual void parse(ByteStream& stream, void* data, std::size_t dataLength) {
         int64_t value = stream.popLEB128() << 32; // FIXME
         value |= stream.popLEB128();

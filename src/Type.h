@@ -24,6 +24,8 @@ public:
 
     }
 
+    virtual std::string name() = 0;
+
     virtual void parse(ByteStream& stream, void* data, std::size_t dataLength) = 0;
 
     virtual std::size_t size() = 0;

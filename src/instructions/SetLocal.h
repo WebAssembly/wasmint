@@ -6,7 +6,7 @@
 #define WASMINT_SETLOCAL_H
 
 #include <cstdint>
-#include <Instruction.h>
+#include <instructions/Instruction.h>
 #include <parsing/ByteStream.h>
 #include <types/Int32.h>
 
@@ -19,6 +19,10 @@ public:
     SetLocal(ByteStream& stream) {
         localIndex = stream.popLEB128();
         value = stream.popLEB128();
+    }
+
+    virtual std::string name() {
+        return "set_local";
     }
 
     virtual std::vector<Type*> childrenTypes() {
