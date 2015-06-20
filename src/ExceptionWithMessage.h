@@ -1,6 +1,4 @@
-//
-// Created by teemperor on 20.06.15.
-//
+
 
 #ifndef WASMINT_EXCEPTIONWITHDATA_H
 #define WASMINT_EXCEPTIONWITHDATA_H

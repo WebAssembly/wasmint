@@ -1,6 +1,4 @@
-//
-// Created by teemperor on 19.06.15.
-//
+
 
 #ifndef INTERPRETER_SECTION_H
 #define INTERPRETER_SECTION_H

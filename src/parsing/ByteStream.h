@@ -1,6 +1,4 @@
-//
-// Created by teemperor on 19.06.15.
-//
+
 
 #ifndef INTERPRETER_BYTESTREAM_H
 #define INTERPRETER_BYTESTREAM_H

@@ -1,6 +1,4 @@
-//
-// Created by teemperor on 19.06.15.
-//
+
 
 #ifndef WASMINT_OPCODE_H
 #define WASMINT_OPCODE_H

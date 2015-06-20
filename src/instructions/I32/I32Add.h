@@ -1,6 +1,4 @@
-//
-// Created by teemperor on 19.06.15.
-//
+
 
 #ifndef WASMINT_I32ADD_H
 #define WASMINT_I32ADD_H

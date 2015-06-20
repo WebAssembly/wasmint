@@ -1,6 +1,4 @@
-//
-// Created by teemperor on 19.06.15.
-//
+
 
 #ifndef INTERPRETER_MODULE_H
 #define INTERPRETER_MODULE_H

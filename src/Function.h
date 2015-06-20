@@ -1,6 +1,4 @@
-//
-// Created by teemperor on 19.06.15.
-//
+
 
 #ifndef WASMINT_FUNCTION_H
 #define WASMINT_FUNCTION_H
