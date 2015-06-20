@@ -84,8 +84,8 @@ int main() {
     assert(m->sections().size() == 1);
 
     Environment environment;
-    Function& func = m->sections().at(0).getFunction("main");
-    func.execute(environment);
+    environment.useModule(*m);
+    environment.callFunction("main");
 
     // This module should print the number 6
     assert(environment.stdout() == "8");
