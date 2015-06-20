@@ -70,8 +70,8 @@ int main() {
     assert(m->opcodeTable().getInstruction(0x5) == "set_local");
     assert(m->opcodeTable().getInstruction(0x6) == "print");
 
-    assert(m->typeTable().getType(0x0) == "void");
-    assert(m->typeTable().getType(0x1) == "int32");
+    assert(m->typeTable().getType(0x0) == Void::instance());
+    assert(m->typeTable().getType(0x1) == Int32::instance());
 
 
     assert(m->sections().size() == 1);

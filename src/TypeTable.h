@@ -8,6 +8,9 @@
 #include <string>
 #include <cstdint>
 #include <map>
+#include <types/Void.h>
+#include <types/Int32.h>
+#include "Type.h"
 
 class UnknownLocalTypeCode : public std::exception {};
 
@@ -24,7 +27,16 @@ public:
         instructionsByLocalOpcode[localTypeCode] = name;
     }
 
-    std::string getType(uint32_t localTypeCode) {
+    Type* getType(uint32_t localTypeCode) {
+        std::string typeName = getTypeName(localTypeCode);
+        if (typeName == "void") {
+            return Void::instance();
+        } else if (typeName == "int32") {
+            return Int32::instance();
+        }
+    }
+
+    std::string getTypeName(uint32_t localTypeCode) {
         auto result = instructionsByLocalOpcode.find(localTypeCode);
         if (result == instructionsByLocalOpcode.end()) {
             throw UnknownLocalTypeCode();

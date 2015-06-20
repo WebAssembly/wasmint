@@ -28,8 +28,8 @@ protected:
     void parse() {
         uint32_t numberOfLocals = stream.popLEB128();
         for (uint32_t i = 0; i < numberOfLocals; i++) {
-            typeOfLocals.push_back(Int32::instance());
-            stream.popLEB128(); // TODO use the value
+            uint32_t typeData = stream.popLEB128();
+            typeOfLocals.push_back(context_.typeTable().getType(typeData));
         }
         mainInstruction = parseInstruction();
     }
