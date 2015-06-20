@@ -20,7 +20,7 @@ On execution the the children of this AST node will be executed in the order the
 
 A block has a void return value.
 
-### Example:
+#### Example:
 
 Code | Instruction
 -----|-------------
@@ -43,7 +43,7 @@ The `set_local` instruction sets the value of a local variable. It requires two 
 
 `set_local` has a void return value.
 
-### Example:
+#### Example:
 
 Code | Instruction
 -----|-------------
@@ -60,7 +60,7 @@ which is then returned by this instruction upon execution.
 
 The return type of `get_local` is the type of the local variable.
 
-### Example:
+#### Example:
 
 Code | Instruction
 -----|-------------
