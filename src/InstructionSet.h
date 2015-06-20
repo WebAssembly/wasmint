@@ -18,6 +18,7 @@
 #include <instructions/Forever.h>
 #include <instructions/If.h>
 #include <instructions/Return.h>
+#include <instructions/FunctionCall.h>
 #include "Instruction.h"
 
 class UnknownInstructionName : public std::exception {};
@@ -25,11 +26,13 @@ class UnknownInstructionName : public std::exception {};
 class InstructionSet {
 
 public:
-    static Instruction* getInstruction(std::string name, ByteStream& stream) {
+    static Instruction* getInstruction(std::string name, ByteStream& stream, ModuleContext& context) {
         if (name == "int32.add") {
             return new I32Add();
         } else if (name == "print") {
             return new Print();
+        } else if (name == "call") {
+            return new FunctionCall(stream, context);
         } else if (name == "get_local") {
             return new GetLocal(stream);
         } else if (name == "block") {

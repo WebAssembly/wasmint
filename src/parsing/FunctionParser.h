@@ -36,7 +36,8 @@ protected:
 
     Instruction* parseInstruction() {
         uint32_t opcode = stream.popLEB128();
-        Instruction* instruction = InstructionSet::getInstruction(context_.opcodeTable().getInstruction(opcode), stream);
+        Instruction* instruction = InstructionSet::getInstruction(
+                context_.opcodeTable().getInstruction(opcode), stream, context_);
 
         std::vector<Instruction*> children;
 
@@ -53,10 +54,10 @@ protected:
     }
 
 public:
-    static Function parse(ModuleContext& context, std::string name, Type* returnType, std::vector<Type*> parameters, ByteStream& stream) {
+    static Function parse(ModuleContext& context, FunctionSignature& signature, ByteStream& stream) {
         FunctionParser parser(context, stream);
         parser.parse();
-        return parser.getParsedFunction(name, returnType, parameters);
+        return parser.getParsedFunction(signature.name(), signature.returnType(), signature.parameters());
     }
 };
 

@@ -17,9 +17,7 @@ class CodeSectionParser {
     ByteStream& stream;
 
     std::vector<Function> functions;
-    std::vector<std::string> functionNames;
-    std::vector<Type> returnTypes;
-    std::vector<uint32_t > offsets;
+    std::vector<FunctionSignature> signatures;
 
     ModuleContext& context;
 
@@ -28,7 +26,6 @@ class CodeSectionParser {
 
         for (uint32_t i = 0; i < numberOfFunctions; i++) {
             std::string functionName = stream.readCString();
-            functionNames.push_back(functionName);
 
             Type* returnType = context.typeTable().getType(stream.popLEB128());
 
@@ -38,12 +35,14 @@ class CodeSectionParser {
                 parameters.push_back(context.typeTable().getType(stream.popLEB128()));
             }
 
-            offsets.push_back(stream.popLEB128());
-            context.functionTable().addFunctionSignature(FunctionSignature(functionName, returnType, parameters));
+            uint32_t offset = stream.popLEB128();
+            FunctionSignature signature = FunctionSignature(functionName, returnType, parameters);
+            signatures.push_back(signature);
+            context.functionTable().addFunctionSignature(signature);
         }
 
         for (int i = 0; i < numberOfFunctions; i++) {
-            functions.push_back(FunctionParser::parse(context, functionNames.at(i), Void::instance(), std::vector<Type*>(), stream));
+            functions.push_back(FunctionParser::parse(context, signatures[i], stream));
         }
     }
 

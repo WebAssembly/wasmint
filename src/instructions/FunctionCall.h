@@ -15,7 +15,7 @@ class FunctionCall : public Instruction {
 
 public:
     FunctionCall(ByteStream& stream, ModuleContext& context) {
-
+        functionSignature = context.functionTable().getFunctionSignature(stream.popLEB128());
     }
 
     virtual std::vector<Type*> childrenTypes() {
