@@ -19,7 +19,7 @@ protected:
     }
 
     void parse() {
-        uint32_t numberOfTypes = stream.popLEB128();
+        uint32_t numberOfTypes = stream.popULEB128();
         for(uint32_t i = 0; i < numberOfTypes; i++) {
             typeTable.addType(i, stream.readCString());
         }

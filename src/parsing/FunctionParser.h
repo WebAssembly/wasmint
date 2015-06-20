@@ -29,11 +29,11 @@ protected:
     }
 
     void parse() {
-        uint32_t numberOfLocals = stream.popLEB128();
+        uint32_t numberOfLocals = stream.popULEB128();
 
         std::vector<Type*> typeOfLocals;
         for (uint32_t i = 0; i < numberOfLocals; i++) {
-            uint32_t typeData = stream.popLEB128();
+            uint32_t typeData = stream.popULEB128();
             typeOfLocals.push_back(context_.typeTable().getType(typeData));
         }
         functionContext = FunctionContext(typeOfLocals);
@@ -42,7 +42,7 @@ protected:
     }
 
     Instruction* parseInstruction() {
-        uint32_t opcode = stream.popLEB128();
+        uint32_t opcode = stream.popULEB128();
         Instruction* instruction = InstructionSet::getInstruction(
                 context_.opcodeTable().getInstruction(opcode), stream, context_, functionContext);
 

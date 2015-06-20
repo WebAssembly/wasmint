@@ -13,7 +13,7 @@ class Literal : public Instruction {
 
 public:
     Literal(ByteStream& stream, ModuleContext& context) {
-        uint32_t typeId = stream.popLEB128();
+        uint32_t typeId = stream.popULEB128();
 
         Type* type = context.typeTable().getType(typeId);
 

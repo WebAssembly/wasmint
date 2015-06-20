@@ -16,7 +16,7 @@ class GetLocal : public Instruction {
 
 public:
     GetLocal(ByteStream& stream, FunctionContext& context) {
-        localIndex = stream.popLEB128();
+        localIndex = stream.popULEB128();
         returnType_ = context.locals().at(localIndex);
     }
 

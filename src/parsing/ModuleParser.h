@@ -56,12 +56,12 @@ protected:
         context = ModuleContext(opcodeTable, typeTable, functionTable);
 
         // Section header
-        uint32_t numberOfSections = stream.popLEB128();
+        uint32_t numberOfSections = stream.popULEB128();
 
         uint32_t lastOffset = 0;
 
         for(uint32_t i = 0; i < numberOfSections; i++) {
-            uint32_t typeData = stream.popLEB128();
+            uint32_t typeData = stream.popULEB128();
 
             SectionType type;
             switch (typeData) {
@@ -71,7 +71,7 @@ protected:
                 default:
                     throw UnknownSectionType(std::to_string(typeData));
             }
-            uint32_t offset = stream.popLEB128();
+            uint32_t offset = stream.popULEB128();
 
             sectionTypes[offset] = type;
 

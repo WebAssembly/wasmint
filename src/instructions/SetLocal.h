@@ -17,7 +17,7 @@ class SetLocal : public Instruction {
 
 public:
     SetLocal(ByteStream& stream, FunctionContext& functionContext) {
-        localIndex = stream.popLEB128();
+        localIndex = stream.popULEB128();
         expectedType = functionContext.locals().at(localIndex);
     }
 

@@ -26,9 +26,35 @@ public:
         return "int32";
     }
 
+    static int32_t getFromStream(ByteStream& stream) {
+        int32_t result = 0;
+        uint32_t shift = 0;
+        uint32_t size = 32;
+
+        uint8_t byte;
+
+        while(true) {
+            byte = stream.popChar();
+
+
+            result |= ((byte & 0x7F) << shift);
+            shift += 7;
+
+            if ((byte & 0x80u) == 0u)
+                break;
+        }
+
+        /* sign bit of byte is second high order bit (0x40) */
+        if ((shift < size) && ((0x40 & byte) != 0))
+            /* sign extend */
+            result |= - (1 << shift);
+
+        return result;
+    }
+
     virtual void parse(ByteStream& stream, void* data, std::size_t dataLength) {
-        uint32_t value = stream.popLEB128();
-        (*(uint32_t*)data) = value;
+        int32_t value = getFromStream(stream);
+        (*(int32_t*)data) = value;
     }
 
     static int32_t getValue(Variable variable) {

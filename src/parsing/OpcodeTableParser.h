@@ -21,7 +21,7 @@ protected:
     }
 
     void parse() {
-        uint32_t numberOfOpcodes = stream.popLEB128();
+        uint32_t numberOfOpcodes = stream.popULEB128();
         for(uint32_t i = 0; i < numberOfOpcodes; i++) {
             opcodeTable.addInstruction(i, stream.readCString());
         }

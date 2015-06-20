@@ -22,7 +22,7 @@ class ByteStream {
 public:
     ByteStream(std::deque<uint8_t> bytes) : bytes_(bytes) {
     }
-    ByteStream(const ByteStream& copy); // Don't implement
+    ByteStream(const ByteStream& copy); // Don't implement to prevent copying
 
     uint8_t popChar() {
         position_++;
@@ -42,18 +42,6 @@ public:
         return result;
     }
 
-    uint32_t popUint32() {
-        uint32_t result = 0;
-        result += popChar();
-        result <<= 8;
-        result += popChar();
-        result <<= 8;
-        result += popChar();
-        result <<= 8;
-        result += popChar();
-        return result;
-    }
-
     uint8_t peekChar() {
         if (bytes_.empty())
             throw EndOfStreamReached();
@@ -61,17 +49,17 @@ public:
     }
 
 
-    uint32_t popLEB128() {
+    uint32_t popULEB128() {
         uint32_t result = 0;
         uint8_t shift = 0;
-        for(int i = 0; i < 4; i++) {
+        for(int i = 0; i < 5; i++) {
             uint8_t byte = popChar();
 
             // check if first bit is set
             if (byte >= 128u) {
                 // if we currently check the 4th byte, the number has to be smaller than 128
                 // or the payload would be bigger thatn 32 bit (which is restricted by the specification)
-                if (i == 3) {
+                if (i == 4) {
                     throw LEB128PayloadBiggerThan32Bit();
                 }
             }

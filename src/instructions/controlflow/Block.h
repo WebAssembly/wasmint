@@ -15,7 +15,7 @@ class Block : public Instruction {
 
 public:
     Block(ByteStream& stream) {
-        amountOfChildren = stream.popLEB128();
+        amountOfChildren = stream.popULEB128();
     }
 
     virtual std::string name() {

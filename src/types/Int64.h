@@ -27,8 +27,8 @@ public:
     }
 
     virtual void parse(ByteStream& stream, void* data, std::size_t dataLength) {
-        int64_t value = stream.popLEB128() << 32; // FIXME
-        value |= stream.popLEB128();
+        int64_t value = stream.popULEB128() << 32; // FIXME
+        value |= stream.popULEB128();
         (*(int64_t*)data) = value;
     }
 
