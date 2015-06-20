@@ -3,11 +3,11 @@
 
 A WebAssembly (**WASM**) **Int**erpreter.
 
-# Building
+## Building
 
 wasmint requires a C++11 compiler and CMake as build dependencies.
 
-## Linux/OS X/Unix/Posix
+### Linux/OS X/Unix/Posix
 
 To build wasmint on those systems with cmake and make by running:
 
@@ -17,12 +17,12 @@ cmake . && make
 
 You can also run the tests by running `ctest` in the build directory.
 
-# Windows
+### Windows
 
 On Windows you can use Visual Studio by generating a Visual Studio project through the CMake client or use 
 ports of unix tools like the ones from MinGW.
 
-# Binary format
+## Binary format
 
 As the binary format of WASM is still up to decision, this interpreter is currently using it's own 
 binary format that tries to be as close as possible to the draft by the W3C group.
