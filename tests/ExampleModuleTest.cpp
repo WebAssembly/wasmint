@@ -10,6 +10,7 @@
 #define INT32_ADD 0x0
 #define GET_LOCAL 0x4
 #define CALL 0x1
+#define LITERAL 0x2
 
 int main() {
     std::deque<uint8_t> data = {
@@ -20,7 +21,7 @@ int main() {
             // the string name of the instructions
             'i', 'n', 't', '3', '2', '.', 'a', 'd', 'd', '\0', // int32.add = 0x0
             'c', 'a', 'l', 'l', '\0',                          // call a function = 0x1
-            'i', 'n', 't', '3', '2', '.', 'm', 'u', 'l', '\0', // int32.mul = 0x2
+            'l', 'i', 't', 'e', 'r', 'a', 'l', '\0',           // literal = 0x2
             'i', 'n', 't', '3', '2', '.', 'd', 'i', 'v', '\0', // int32.div = 0x3
             'g', 'e', 't', '_', 'l', 'o', 'c', 'a', 'l', '\0', // get_local = 0x4
             's', 'e', 't', '_', 'l', 'o', 'c', 'a', 'l', '\0', // set_local = 0x5
@@ -38,7 +39,7 @@ int main() {
             // now the section table
             1, // only one section
             1, // section 1 is program code (1 means program code, 0 means data).
-            84, // start offset of the section in this array
+            82, // start offset of the section in this array
 
             // section 1
             2, // we have only two functions in this section
@@ -63,8 +64,8 @@ int main() {
             0x1, // local variable 0x1 with type int32
 
             BLOCK, 0x5, // we start a new block with 5 instructions in it
-                SET_LOCAL, 0x0, 3, // set_local the variable with index 0 to 3
-                SET_LOCAL, 0x1, 4, // set_local the variable with index 1 to 4
+                SET_LOCAL, 0x0, LITERAL, 0x1, 3, // set_local the variable with index 0 to 3
+                SET_LOCAL, 0x1, LITERAL, 0x1, 4, // set_local the variable with index 1 to 4
                 PRINT, // print the result of
                     INT32_ADD, // int32.add with
                         GET_LOCAL, 0x0, // an variable at index 0x0 as first argument
@@ -77,7 +78,7 @@ int main() {
             0x1, // local variable 0x0 with type int32
 
             BLOCK, 0x2, // we start a new block with 2 instructions in it
-                SET_LOCAL, 0x0, 66, // set_local the variable with index 0 to 66
+                SET_LOCAL, 0x0, LITERAL, 0x1, 66, // set_local the variable with index 0 to 66
                 PRINT, GET_LOCAL, 0x0, // print the 66
     };
 
@@ -87,7 +88,7 @@ int main() {
 
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "call");
-    assert(m->opcodeTable().getInstruction(0x2) == "int32.mul");
+    assert(m->opcodeTable().getInstruction(0x2) == "literal");
     assert(m->opcodeTable().getInstruction(0x3) == "int32.div");
     assert(m->opcodeTable().getInstruction(0x4) == "get_local");
     assert(m->opcodeTable().getInstruction(0x5) == "set_local");

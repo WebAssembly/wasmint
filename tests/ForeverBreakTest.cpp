@@ -11,6 +11,7 @@
 #define GET_LOCAL 0x4
 #define FOREVER 0x1
 #define BREAK 0x2
+#define LITERAL 0x3
 
 int main() {
     std::deque<uint8_t> data = {
@@ -22,7 +23,7 @@ int main() {
             'i', 'n', 't', '3', '2', '.', 'a', 'd', 'd', '\0', // int32.add = 0x0
             'f', 'o', 'r', 'e', 'v', 'e', 'r', '\0',           // forever = 0x1
             'b', 'r', 'e', 'a', 'k', '\0',                     // break = 0x2
-            'i', 'n', 't', '3', '2', '.', 'd', 'i', 'v', '\0', // int32.div = 0x3
+            'l', 'i', 't', 'e', 'r', 'a', 'l', '\0',           // literal = 0x3
             'g', 'e', 't', '_', 'l', 'o', 'c', 'a', 'l', '\0', // get_local = 0x4
             's', 'e', 't', '_', 'l', 'o', 'c', 'a', 'l', '\0', // set_local = 0x5
             'p', 'r', 'i', 'n', 't', '\0', // debug opcode which prints to console = 0x6
@@ -38,7 +39,7 @@ int main() {
             // now the section table
             1, // only one section
             1, // section 1 is program code (1 means program code, 0 means data).
-            83, // start offset of the section in this array
+            81, // start offset of the section in this array
 
             // section 1
             1, // we have only one function in this section
@@ -54,10 +55,10 @@ int main() {
             0x1, // local variable 0x1 with type int32
 
             BLOCK, 0x3, // we start a new block with 3 instructions in it
-            SET_LOCAL, 0x0, 4, // set_local the variable with index 0 to 2
-            SET_LOCAL, 0x1, 4, // set_local the variable with index 1 to 4
+            SET_LOCAL, 0x0, LITERAL, 0x1, 2, // set_local the variable with index 0 to 2
+            SET_LOCAL, 0x1, LITERAL, 0x1, 4, // set_local the variable with index 1 to 4
             FOREVER,
-                BLOCK, 0x2, // we start a new block with 3 instructions in it
+                BLOCK, 0x2, // we start a new block with 2 instructions in it
                     PRINT, // print the result of
                         INT32_ADD, // int32.add with
                             GET_LOCAL, 0x0, // an variable at index 0x0 as first argument
@@ -72,7 +73,7 @@ int main() {
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "forever");
     assert(m->opcodeTable().getInstruction(0x2) == "break");
-    assert(m->opcodeTable().getInstruction(0x3) == "int32.div");
+    assert(m->opcodeTable().getInstruction(0x3) == "literal");
     assert(m->opcodeTable().getInstruction(0x4) == "get_local");
     assert(m->opcodeTable().getInstruction(0x5) == "set_local");
     assert(m->opcodeTable().getInstruction(0x6) == "print");
@@ -88,6 +89,6 @@ int main() {
     environment.callFunction("main");
 
     // This module should print the number 6
-    assert(environment.stdout() == "8");
+    assert(environment.stdout() == "6");
 
 }

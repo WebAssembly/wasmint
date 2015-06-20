@@ -6,7 +6,7 @@
 #define WASMINT_FUNCTIONCONTEXT_H
 
 
-#include "Type.h"
+#include "types/Type.h"
 #include <vector>
 
 class FunctionContext {

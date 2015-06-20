@@ -10,7 +10,7 @@
 #include <vector>
 #include <interpreter/Environment.h>
 
-#include "Type.h"
+#include "types/Type.h"
 #include "Variable.h"
 
 class Instruction {

@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#include "Type.h"
+#include "types/Type.h"
 #include "Variable.h"
 #include "FunctionSignature.h"
 #include "FunctionContext.h"

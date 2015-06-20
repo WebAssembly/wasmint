@@ -6,7 +6,7 @@
 #define WASMINT_INT32_H
 
 
-#include <Type.h>
+#include <types/Type.h>
 #include <Variable.h>
 
 class Int32 : public Type {

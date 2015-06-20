@@ -7,11 +7,11 @@
 
 #include <cstdint>
 #include <types/Void.h>
-#include "Type.h"
+#include "types/Type.h"
 
 class Variable {
     Type* type_;
-    void* value_;
+    void* value_ = nullptr;
 
 public:
     Variable(Type* type = Void::instance()) : type_(type) {

@@ -40,7 +40,7 @@ Instruction *InstructionSet::getInstruction(std::string name, ByteStream& stream
     } else if (name == "block") {
         return new Block(stream);
     } else if (name == "set_local") {
-        return new SetLocal(stream);
+        return new SetLocal(stream, functionContext);
     } else if (name == "break") {
         return new Break();
     } else if (name == "continue") {

@@ -10,7 +10,7 @@
 #include <map>
 #include <types/Void.h>
 #include <types/Int32.h>
-#include "Type.h"
+#include "types/Type.h"
 #include "ExceptionWithMessage.h"
 
 ExceptionMessage(UnknownLocalTypeCode)

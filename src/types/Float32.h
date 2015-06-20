@@ -6,7 +6,7 @@
 #define WASMINT_FLOAT32_H
 
 
-#include <Type.h>
+#include <types/Type.h>
 #include <Variable.h>
 
 class Float32  : public Type {

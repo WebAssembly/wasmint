@@ -6,7 +6,7 @@
 #define WASMINT_FLOAT64_H
 
 
-#include <Type.h>
+#include <types/Type.h>
 #include <Variable.h>
 
 class Float64 : public Type {

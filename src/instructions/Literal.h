@@ -9,12 +9,17 @@
 #include "Instruction.h"
 
 class Literal : public Instruction {
-    Variable value;
+    Variable literalValue;
 
 public:
     Literal(ByteStream& stream, ModuleContext& context) {
         uint32_t typeId = stream.popLEB128();
-        // TODO finish me
+
+        Type* type = context.typeTable().getType(typeId);
+
+        literalValue = Variable(type);
+        type->parse(stream, literalValue.value(), type->size());
+
     }
 
     virtual std::vector<Type*> childrenTypes() {
@@ -26,11 +31,11 @@ public:
     }
 
     virtual Type* returnType() {
-        return &value.type();
+        return &literalValue.type();
     }
 
     virtual Variable execute(Environment& env) {
-        return value;
+        return literalValue;
     }
 };
 

@@ -6,7 +6,7 @@
 #define WASMINT_INT64_H
 
 
-#include <Type.h>
+#include <types/Type.h>
 #include <Variable.h>
 
 class Int64  : public Type {

@@ -13,12 +13,12 @@
 class SetLocal : public Instruction {
 
     uint32_t localIndex;
-    int32_t value;
+    Type* expectedType;
 
 public:
-    SetLocal(ByteStream& stream) {
+    SetLocal(ByteStream& stream, FunctionContext& functionContext) {
         localIndex = stream.popLEB128();
-        value = stream.popLEB128();
+        expectedType = functionContext.locals().at(localIndex);
     }
 
     virtual std::string name() {
@@ -26,16 +26,15 @@ public:
     }
 
     virtual std::vector<Type*> childrenTypes() {
-        return {};
+        return {expectedType};
     }
 
     virtual Type* returnType() {
-        return Void::instance();
+        return expectedType;
     }
 
     virtual Variable execute(Environment& env) {
-        Int32::setValue(env.variable(localIndex), value);
-        return Variable();
+        return env.variable(localIndex) = children().at(0)->execute(env);
     }
 };
 

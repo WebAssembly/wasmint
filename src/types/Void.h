@@ -6,7 +6,7 @@
 #define WASMINT_VOID_H
 
 
-#include <Type.h>
+#include <types/Type.h>
 
 class NoVoidLiteralsSupported : public std::exception {};
 

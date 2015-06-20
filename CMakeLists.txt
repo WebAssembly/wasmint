@@ -22,7 +22,7 @@ add_library(core
     src/OpcodeTable.cpp
     src/Variable.cpp
     src/Function.cpp
-    src/Type.cpp
+    src/types/Type.cpp
     src/TypeTable.cpp
     src/ModuleContext.cpp
 
