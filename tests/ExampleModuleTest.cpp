@@ -78,7 +78,7 @@ int main() {
             0x1, // local variable 0x0 with type int32
 
             BLOCK, 0x2, // we start a new block with 2 instructions in it
-                SET_LOCAL, 0x0, LITERAL, 0x1, 66, // set_local the variable with index 0 to 66
+                SET_LOCAL, 0x0, LITERAL, 0x1, 32, // set_local the variable with index 0 to 66
                 PRINT, GET_LOCAL, 0x0, // print the 66
     };
 
@@ -104,7 +104,7 @@ int main() {
     environment.useModule(*m);
     environment.callFunction("main");
 
-    // This module should print the number 7 in mainand then 6666 in the two times we call the test function
-    assert(environment.stdout() == "76666");
+    // This module should print the number 7 in main and then 3232 in the two times we call the test function
+    assert(environment.stdout() == "73232");
 
 }
