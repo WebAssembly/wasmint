@@ -10,13 +10,14 @@
 #include <Function.h>
 #include <map>
 #include <Module.h>
-#include <instructions/controlflow/Break.h>
-#include <instructions/controlflow/Continue.h>
 #include "Heap.h"
 
 ExceptionMessage(NoFunctionWithName)
 ExceptionMessage(IllegalUseageOfBreak)
 ExceptionMessage(IllegalUseageOfContinue)
+
+class CalledBreak;
+class CalledContinue;
 
 /**
  * Contains all variable values during the interpretation of a program.
@@ -84,30 +85,7 @@ public:
         }
     }
 
-    /**
-     * Calls the function with the given name with the given parameters.
-     *
-     * Returns the result of the called function.
-     */
-    Variable callFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>()) {
-        auto functionIterator = functions_.find(functionName);
-        if (functionIterator != functions_.end()) {
-            Function* function = functionIterator->second;
-            enterFunction(*function);
-            Variable result;
-            try {
-                result = function->execute(*this);
-            } catch(CalledBreak e) {
-                throw IllegalUseageOfBreak(std::string("break was used outside of a loop in function ") + functionName);
-            } catch(CalledContinue e) {
-                throw IllegalUseageOfContinue(std::string("continue was used outside of a loop in function ") + functionName);
-            }
-            leaveFunction();
-            return result;
-        } else {
-            throw NoFunctionWithName(functionName);
-        }
-    }
+    Variable callFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
 
     Heap& heap() {
         return heap_;

@@ -6,7 +6,7 @@
 
 #include <cstdint>
 #include <vector>
-#include "RuntimeEnvironment.h"
+#include <interpreter/RuntimeEnvironment.h>
 
 #include "types/Type.h"
 #include "Variable.h"
