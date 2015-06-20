@@ -9,7 +9,7 @@
 #include <Function.h>
 #include <Variable.h>
 #include <Instruction.h>
-#include <InstructionSet.h>
+#include <instructions/InstructionSet.h>
 #include <OpcodeTable.h>
 #include <ModuleContext.h>
 #include "ByteStream.h"
@@ -42,7 +42,8 @@ protected:
         std::vector<Instruction*> children;
 
         for(uint32_t args = 0; args < instruction->childrenTypes().size(); args++) {
-            children.push_back(parseInstruction());
+            Instruction* child = parseInstruction();
+            children.push_back(child);
         }
 
         instruction->children(children);

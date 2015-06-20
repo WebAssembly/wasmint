@@ -12,7 +12,7 @@ include_directories (src)
 add_library(core
     main.cpp
     src/ExceptionWithMessage.cpp
-    src/InstructionSet.cpp
+    src/instructions/InstructionSet.cpp
     src/Module.cpp
     src/Section.cpp
     src/FunctionSignature.cpp
@@ -28,17 +28,17 @@ add_library(core
     src/interpreter/Environment.cpp
     src/interpreter/Heap.cpp
 
-    src/instructions/Block.cpp
-    src/instructions/I32Add.cpp
+    src/instructions/I32/I32Add.cpp
     src/instructions/Print.cpp
     src/instructions/GetLocal.cpp
     src/instructions/SetLocal.cpp
-    src/instructions/Break.cpp
-    src/instructions/Continue.cpp
-    src/instructions/DoWhile.cpp
-    src/instructions/Forever.cpp
-    src/instructions/If.cpp
-    src/instructions/Return.cpp
+    src/instructions/controlflow/Block.cpp
+    src/instructions/controlflow/Break.cpp
+    src/instructions/controlflow/Continue.cpp
+    src/instructions/controlflow/DoWhile.cpp
+    src/instructions/controlflow/Forever.cpp
+    src/instructions/controlflow/If.cpp
+    src/instructions/controlflow/Return.cpp
     src/instructions/FunctionCall.cpp
 
     src/types/Int32.cpp
