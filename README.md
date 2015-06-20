@@ -23,7 +23,7 @@ For more information see the [documentation](docs/BinaryFormat.md).
 
 ## Building
 
-wasmint requires a C++11 compiler and CMake as build dependencies.
+wasmint requires a C++11 compiler (including STL) and CMake as build dependencies.
 
 ### Linux/OS X/Unix/Posix
 
