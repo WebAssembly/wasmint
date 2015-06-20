@@ -33,7 +33,7 @@ int main() {
             'i', 'n', 't', '3', '2', '\0',
 
             // now the table for the used functions
-            0, // we use 0 external functions in this modole
+            0, // we use 0 external functions in this module
 
             // now the section table
             1, // only one section
