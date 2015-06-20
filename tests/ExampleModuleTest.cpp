@@ -41,13 +41,16 @@ int main() {
             84, // start offset of the section in this array
 
             // section 1
-            2, // we have only one function in this section
+            2, // we have only two functions in this section
+
+            // signature of the main function
             'm', 'a', 'i', 'n', '\0', // the name of the function
             0, // return type
             0, // number of parameters
             // here the parameter types would be listed
             13,  // offset in this section
 
+            // signature of the test function
             't', 'e', 's', 't', '\0', // the name of the function
             0, // return type
             0, // number of parameters

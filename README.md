@@ -1,7 +1,9 @@
 # wasmint
 [![Build Status](https://travis-ci.org/Teemperor/wasmint.svg?branch=master)](https://travis-ci.org/Teemperor/wasmint)
 
-A WebAssembly (**WASM**) **Int**erpreter.
+A WebAssembly (**WASM**) **Int**erpreter licensed under the Apache 2.0 License.
+
+Look [here](docs/Instructions.md) for the (uncomplete list) of supported instructions.
 
 ## Building
 
@@ -29,3 +31,4 @@ binary format that tries to be as close as possible to the draft by the W3C grou
 If you find any differences between the current binary format and the one from the draft, 
 please create a issue on github.
 
+For more information see the [documentation](docs/BinaryFormat.md).
