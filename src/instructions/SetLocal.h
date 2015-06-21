@@ -7,6 +7,7 @@
 #include <instructions/Instruction.h>
 #include <parsing/ByteStream.h>
 #include <types/Int32.h>
+#include <FunctionContext.h>
 
 class SetLocal : public Instruction {
 

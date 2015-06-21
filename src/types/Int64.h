@@ -16,8 +16,8 @@ protected:
 
 public:
     static Int64* instance() {
-        static Int64* instance = new Int64();
-        return instance;
+        static Int64 instance;
+        return &instance;
     }
 
     virtual std::string name() {

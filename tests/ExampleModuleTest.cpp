@@ -1,8 +1,10 @@
 
+#include <cassert>
 #include <cstdint>
 #include <parsing/ByteStream.h>
 #include <Module.h>
 #include <parsing/ModuleParser.h>
+#include <memory>
 #include <interpreter/RuntimeEnvironment.h>
 
 #define BLOCK 0x7
@@ -96,7 +98,8 @@ int main() {
 
     ByteStream stream(data);
 
-    Module* m = ModuleParser::parse(stream);
+    std::unique_ptr<Module> m;
+    m.reset(ModuleParser::parse(stream));
 
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "call");

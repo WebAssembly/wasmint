@@ -24,7 +24,7 @@ class ModuleParser {
     ByteStream& stream;
     std::map<uint32_t, SectionType> sectionTypes;
 
-    std::vector<Section> sections;
+    std::vector<Section*> sections;
 
     ModuleContext context;
 
@@ -86,7 +86,7 @@ protected:
 
     void parseSections() {
         SectionType sectionType = getSectionTypeFromOffset(stream.position());
-        Section section = CodeSectionParser::parse(stream.position(), context, stream);
+        Section* section = CodeSectionParser::parse(stream.position(), context, stream);
         sections.push_back(section);
     }
 

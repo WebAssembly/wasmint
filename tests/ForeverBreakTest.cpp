@@ -4,6 +4,7 @@
 #include <Module.h>
 #include <parsing/ModuleParser.h>
 #include <interpreter/RuntimeEnvironment.h>
+#include <cassert>
 
 #define BLOCK 0x7
 #define SET_LOCAL 0x5

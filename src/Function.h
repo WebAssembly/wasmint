@@ -10,25 +10,21 @@
 #include "Variable.h"
 #include "FunctionSignature.h"
 #include "FunctionContext.h"
+#include <memory>
+#include <interpreter/RuntimeEnvironment.h>
 
 class Instruction;
-class RuntimeEnvironment;
-
 
 class Function : public FunctionContext {
 
     /**
      * The AST of this function which contains all instructions of this function.
      */
-    Instruction* mainInstruction;
+    Instruction* mainInstruction_;
 
 public:
-    Function(FunctionContext& context, Instruction* mainInstruction)
-        : FunctionContext(context), mainInstruction(mainInstruction)
-    {
-
-    }
-
+    Function(FunctionContext& context, Instruction* mainInstruction);
+    virtual ~Function();
 
     Variable execute(RuntimeEnvironment & environment);
 };

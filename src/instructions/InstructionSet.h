@@ -4,6 +4,7 @@
 #define WASMINT_INSTRUCTIONSET_H
 
 #include <string>
+#include <FunctionContext.h>
 #include "Instruction.h"
 
 ExceptionMessage(UnknownInstructionName)

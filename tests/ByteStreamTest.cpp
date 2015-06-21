@@ -3,6 +3,7 @@
 #include <parsing/ByteStream.h>
 #include <Module.h>
 #include <parsing/ModuleParser.h>
+#include <cassert>
 
 int main() {
     std::deque<uint8_t> data = {

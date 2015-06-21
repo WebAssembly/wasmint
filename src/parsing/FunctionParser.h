@@ -72,12 +72,12 @@ protected:
         return instruction;
     }
 
-    Function getParsedFunction() {
-        return Function(functionContext, mainInstruction);
+    Function* getParsedFunction() {
+        return new Function(functionContext, mainInstruction);
     }
 
 public:
-    static Function parse(ModuleContext& context, FunctionSignature& signature, ByteStream& stream) {
+    static Function* parse(ModuleContext& context, FunctionSignature& signature, ByteStream& stream) {
         FunctionParser parser(context, stream, signature);
         parser.parse();
         return parser.getParsedFunction();

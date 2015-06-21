@@ -6,6 +6,7 @@
 
 #include <instructions/Instruction.h>
 #include <parsing/ByteStream.h>
+#include <FunctionContext.h>
 
 class GetLocal : public Instruction {
 

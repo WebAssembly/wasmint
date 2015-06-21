@@ -14,7 +14,7 @@ class CodeSectionParser {
 
     ByteStream& stream;
 
-    std::vector<Function> functions;
+    std::vector<Function*> functions;
     std::vector<FunctionSignature> signatures;
 
     ModuleContext& context;
@@ -50,12 +50,12 @@ protected:
 
     }
 
-    Section get(uint32_t offset) {
-        return Section(offset, SectionType::CODE, functions);
+    Section* get(uint32_t offset) {
+        return new Section(offset, SectionType::CODE, functions);
     }
 
 public:
-    static Section parse(uint32_t offset, ModuleContext& context, ByteStream& stream) {
+    static Section* parse(uint32_t offset, ModuleContext& context, ByteStream& stream) {
         CodeSectionParser parser(context, stream);
         parser.parseFunctions();
         return parser.get(offset);

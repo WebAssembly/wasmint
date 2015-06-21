@@ -13,18 +13,24 @@
 
 class Module {
 
-    std::vector<Section> sections_;
+    std::vector<Section*> sections_;
     ModuleContext context_;
 
 public:
-    Module(ModuleContext& context, std::vector<Section>& sections)
+    Module(ModuleContext& context, std::vector<Section*> sections)
             : sections_(sections), context_(context) {
+    }
+
+    virtual ~Module() {
+        for(Section* section : sections_) {
+            delete section;
+        }
     }
 
     std::vector<Function*> functions() {
         std::vector<Function*> result;
-        for(Section& section : sections_) {
-            std::vector<Function*> sectionFunctions = section.functions();
+        for(Section* section : sections_) {
+            std::vector<Function*> sectionFunctions = section->functions();
             for(Function* function : sectionFunctions) {
                 result.push_back(function);
             }
@@ -32,7 +38,7 @@ public:
         return result;
     }
 
-    std::vector<Section>& sections() {
+    std::vector<Section*> sections() {
         return sections_;
     }
 

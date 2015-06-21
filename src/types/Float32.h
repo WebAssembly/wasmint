@@ -16,8 +16,8 @@ protected:
 
 public:
     static Float32* instance() {
-        static Float32* instance = new Float32();
-        return instance;
+        static Float32 instance;
+        return &instance;
     }
 
     virtual std::string name() {

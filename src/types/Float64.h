@@ -16,8 +16,8 @@ protected:
 
 public:
     static Float64* instance() {
-        static Float64* instance = new Float64();
-        return instance;
+        static Float64 instance;
+        return &instance;
     }
 
 

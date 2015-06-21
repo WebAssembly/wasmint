@@ -7,7 +7,6 @@
 #include <Variable.h>
 #include <vector>
 #include <stack>
-#include <Function.h>
 #include <map>
 #include <Module.h>
 #include "Heap.h"
@@ -70,13 +69,7 @@ class RuntimeEnvironment {
      */
     std::string stdout_;
 
-    /**
-     * Prepare the environment to enter the given function.
-     */
-    void enterFunction(Function& function) {
-        // We push the new locals to the stack before entering.
-        createLocals(function.locals());
-    }
+    void enterFunction(Function& function);
 
     /**
      * Leave the last entered function
@@ -87,21 +80,7 @@ class RuntimeEnvironment {
 
 public:
 
-    /**
-     * Loads all functions of that module into the namespace.
-     * TODO: Also load globals here
-     */
-    void useModule(Module& module) {
-        std::vector<Function*> functions = module.functions();
-        for(Function* function : functions) {
-            functions_[function->name()] = function;
-        }
-
-        for(Global& global : module.globals()) {
-            globals_[global.name()] = Variable(global.type());
-        }
-
-    }
+    void useModule(Module& module);
 
     Variable callFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
 

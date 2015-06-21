@@ -16,6 +16,12 @@ class Instruction {
     std::vector<Instruction*> children_;
 
 public:
+    virtual ~Instruction() {
+        for(Instruction* child : children()) {
+            delete child;
+        }
+    }
+
     virtual void children(std::vector<Instruction*> newChildren) {
         children_ = newChildren;
     }
@@ -28,8 +34,7 @@ public:
     virtual std::vector<Type*> childrenTypes() = 0;
     virtual Type* returnType() = 0;
 
-    virtual Variable execute(RuntimeEnvironment & env) = 0;
-
+    virtual Variable execute(RuntimeEnvironment& env) = 0;
 };
 
 

@@ -16,8 +16,8 @@ protected:
 
 public:
     static Void* instance() {
-        static Void* instance = new Void();
-        return instance;
+        static Void instance;
+        return &instance;
     }
 
     virtual std::string name() {

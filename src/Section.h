@@ -4,9 +4,9 @@
 #define INTERPRETER_SECTION_H
 
 
-#include <assert.h>
 #include <cstdint>
-#include "Function.h"
+#include <vector>
+
 #include "ExceptionWithMessage.h"
 
 enum class SectionType {
@@ -17,17 +17,20 @@ enum class SectionType {
 
 ExceptionMessage(NoFunctionWithThatName)
 
+class Function;
+
 class Section {
 
     SectionType type_;
     uint32_t offset_;
-    std::vector<Function> functions_;
+    std::vector<Function*> functions_;
 
 public:
-    Section(uint32_t offset, SectionType type, std::vector<Function> functions)
+    Section(uint32_t offset, SectionType type, std::vector<Function*> functions)
             : offset_(offset), type_(type), functions_(functions) {
-
     }
+
+    virtual ~Section();
 
     SectionType type() {
         return type_;
@@ -39,20 +42,13 @@ public:
 
     std::vector<Function*> functions() {
         std::vector<Function*> result;
-        for(Function& function : functions_) {
-            result.push_back(&function);
+        for(Function* function : functions_) {
+            result.push_back(function);
         }
         return result;
     }
 
-    Function& getFunction(std::string name) {
-        for(Function& function : functions_) {
-            if (function.name() == name) {
-                return function;
-            }
-        }
-        throw NoFunctionWithThatName(name);
-    }
+    Function & getFunction(std::string name);
 };
 
 
