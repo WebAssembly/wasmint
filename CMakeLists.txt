@@ -21,6 +21,8 @@ add_library(core
     src/instructions/Instruction.cpp
     src/OpcodeTable.cpp
     src/Variable.cpp
+    src/Global.cpp
+    src/GlobalTable.cpp
     src/Function.cpp
     src/types/Type.cpp
     src/TypeTable.cpp
@@ -37,6 +39,8 @@ add_library(core
     src/instructions/Print.cpp
     src/instructions/GetLocal.cpp
     src/instructions/SetLocal.cpp
+    src/instructions/GetGlobal.cpp
+    src/instructions/SetGlobal.cpp
     src/instructions/controlflow/Block.cpp
     src/instructions/controlflow/Break.cpp
     src/instructions/controlflow/Continue.cpp
@@ -54,6 +58,7 @@ add_library(core
     src/types/Float64.cpp
 
     src/parsing/ByteStream.cpp
+    src/parsing/GlobalTableParser.cpp
     src/parsing/FunctionParser.cpp
     src/parsing/FunctionTableParser.cpp
     src/parsing/TypeTableParser.cpp

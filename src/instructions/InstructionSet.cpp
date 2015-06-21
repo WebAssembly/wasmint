@@ -2,6 +2,8 @@
 
 #include "InstructionSet.h"
 #include "Literal.h"
+#include "SetGlobal.h"
+#include "GetGlobal.h"
 #include <instructions/I32/I32Add.h>
 #include <instructions/Print.h>
 #include <instructions/GetLocal.h>
@@ -51,6 +53,10 @@ Instruction *InstructionSet::getInstruction(std::string name, ByteStream& stream
         return new If();
     } else if (name == "return") {
         return new Return();
+    } else if (name == "get_global") {
+        return new GetGlobal(stream, context);
+    } else if (name == "set_global") {
+        return new SetGlobal(stream, context);
     } else {
         throw UnknownInstructionName(name);
     }

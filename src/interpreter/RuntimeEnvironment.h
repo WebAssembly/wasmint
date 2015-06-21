@@ -13,6 +13,8 @@
 #include "Heap.h"
 
 ExceptionMessage(NoFunctionWithName)
+ExceptionMessage(NoGlobalWithName)
+ExceptionMessage(StackLimitReached)
 ExceptionMessage(IllegalUseageOfBreak)
 ExceptionMessage(IllegalUseageOfContinue)
 
@@ -38,14 +40,25 @@ class RuntimeEnvironment {
     std::map<std::string, Function*> functions_;
 
     /**
+     * All globals that are accessible with the currently loaded modules.
+     * The keys are the variable names.
+     */
+    std::map<std::string, Variable> globals_;
+
+    /**
      * The current heap.
      */
     Heap heap_;
+
+    uint32_t stackLimit = 50;
 
     /**
      * Pushes a new vector on the stack and creates variables with the given types.
      */
     void createLocals(std::vector<Type*> variableTypes) {
+        if (stack.size() >= stackLimit)
+            throw StackLimitReached(std::to_string(stack.size()));
+
         stack.push(std::vector<Variable>());
         for(Type* type : variableTypes) {
             stack.top().push_back(Variable(type));
@@ -83,6 +96,11 @@ public:
         for(Function* function : functions) {
             functions_[function->name()] = function;
         }
+
+        for(Global& global : module.globals()) {
+            globals_[global.name()] = Variable(global.type());
+        }
+
     }
 
     Variable callFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
@@ -93,6 +111,15 @@ public:
 
     Variable& variable(uint32_t index) {
         return stack.top().at(index);
+    }
+
+    Variable& global(std::string name) {
+        auto globalIterator = globals_.find(name);
+        if (globalIterator != globals_.end()) {
+           return globalIterator->second;
+        } else {
+            throw NoGlobalWithName(name);
+        }
     }
 
     void print(std::string s) {

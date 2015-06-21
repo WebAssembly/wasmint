@@ -44,6 +44,10 @@ public:
         return context_.typeTable();
     }
 
+    std::vector<Global> globals() {
+        return context_.globalTable().internalGlobals();
+    }
+
 };
 
 

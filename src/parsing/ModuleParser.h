@@ -7,11 +7,13 @@
 #include "../Module.h"
 #include <map>
 #include <OpcodeTable.h>
+#include <GlobalTable.h>
 #include "ByteStream.h"
 #include "CodeSectionParser.h"
 #include "OpcodeTableParser.h"
 #include "TypeTableParser.h"
 #include "FunctionTableParser.h"
+#include "GlobalTableParser.h"
 
 ExceptionMessage(NoSectionWithOffset)
 ExceptionMessage(UnknownSectionType)
@@ -50,8 +52,10 @@ protected:
 
         FunctionTable functionTable = FunctionTableParser::parse(stream);
 
+        GlobalTable globalTable = GlobalTableParser::parse(stream, typeTable);
+
         // Put everything into the context
-        context = ModuleContext(opcodeTable, typeTable, functionTable);
+        context = ModuleContext(opcodeTable, typeTable, functionTable, globalTable);
 
         // Section header
         uint32_t numberOfSections = stream.popULEB128();

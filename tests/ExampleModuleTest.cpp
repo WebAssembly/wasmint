@@ -12,13 +12,15 @@
 #define GET_LOCAL 0x4
 #define CALL 0x1
 #define LITERAL 0x2
+#define GET_GLOBAL 0x8
+#define SET_GLOBAL 0x9
 
 int main() {
     std::deque<uint8_t> data = {
             // Module header
             // unless specified otherwise, all numbers are LEB128 encoded
             // first the opcode table
-            8, // we use 8 instructions in this module
+            10, // we use 10 instructions in this module
             // the string name of the instructions
             'i', 'n', 't', '3', '2', '.', 'a', 'd', 'd', '\0', // int32.add = 0x0
             'c', 'a', 'l', 'l', '\0',                          // call a function = 0x1
@@ -28,6 +30,8 @@ int main() {
             's', 'e', 't', '_', 'l', 'o', 'c', 'a', 'l', '\0', // set_local = 0x5
             'p', 'r', 'i', 'n', 't', '\0', // debug opcode which prints to console = 0x6
             'b', 'l', 'o', 'c', 'k', '\0', // starts a block = 0x7
+            'g', 'e', 't', '_', 'g', 'l', 'o', 'b', 'a', 'l', '\0', // get_global = 0x8
+            's', 'e', 't', '_', 'g', 'l', 'o', 'b', 'a', 'l', '\0', // set_global = 0x9
 
             // now the table for the used types
             2, // we use 2 types in this module
@@ -37,10 +41,17 @@ int main() {
             // now the table for the used functions
             0, // we use 0 external functions in this module
 
+            // now the table for the used external globals
+            0, // we use 0 external globals
+
+            // now the table for the internal globals
+            1, // we have 1 internal global
+            0x1, 'g', 'v', 'a', 'r', '\0', // global int32 named "gvar"
+
             // now the section table
             1, // only one section
             1, // section 1 is program code (1 means program code, 0 means data).
-            82, // start offset of the section in this array
+            112, // start offset of the section in this array
 
             // section 1
             2, // we have only two functions in this section
@@ -57,14 +68,15 @@ int main() {
             0, // return type
             0, // number of parameters
             // here the parameter types would be listed
-            13,  // offset in this section
+            23,  // offset in this section
 
             // the main function
             2, // number of locals
             0x1, // local variable 0x0 with type int32
             0x1, // local variable 0x1 with type int32
 
-            BLOCK, 0x5, // we start a new block with 5 instructions in it
+            BLOCK, 0x6, // we start a new block with 6 instructions in it
+                SET_GLOBAL, 0x0, LITERAL, 0x1, 32, // set our only global to 32
                 SET_LOCAL, 0x0, LITERAL, 0x1, 3, // set_local the variable with index 0 to 3
                 SET_LOCAL, 0x1, LITERAL, 0x1, 4, // set_local the variable with index 1 to 4
                 PRINT, // print the result of
@@ -78,9 +90,8 @@ int main() {
             1, // number of locals
             0x1, // local variable 0x0 with type int32
 
-            BLOCK, 0x2, // we start a new block with 2 instructions in it
-                SET_LOCAL, 0x0, LITERAL, 0x1, 32, // set_local the variable with index 0 to 66
-                PRINT, GET_LOCAL, 0x0, // print the 66
+            BLOCK, 0x1, // we start a new block with 2 instructions in it
+                PRINT, GET_GLOBAL, 0x0, // print the 66
     };
 
     ByteStream stream(data);
@@ -94,6 +105,9 @@ int main() {
     assert(m->opcodeTable().getInstruction(0x4) == "get_local");
     assert(m->opcodeTable().getInstruction(0x5) == "set_local");
     assert(m->opcodeTable().getInstruction(0x6) == "print");
+    assert(m->opcodeTable().getInstruction(0x7) == "block");
+    assert(m->opcodeTable().getInstruction(0x8) == "get_global");
+    assert(m->opcodeTable().getInstruction(0x9) == "set_global");
 
     assert(m->typeTable().getType(0x0) == Void::instance());
     assert(m->typeTable().getType(0x1) == Int32::instance());

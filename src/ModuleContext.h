@@ -7,20 +7,23 @@
 #include "TypeTable.h"
 #include "OpcodeTable.h"
 #include "FunctionTable.h"
+#include "GlobalTable.h"
 
 class ModuleContext {
 
     OpcodeTable opcodeTable_;
     TypeTable typeTable_;
     FunctionTable functionTable_;
+    GlobalTable globalTable_;
+
 
 public:
     ModuleContext() {
 
     }
 
-    ModuleContext(OpcodeTable& opcodeTable, TypeTable& typeTable, FunctionTable& functionTable)
-        : opcodeTable_(opcodeTable), typeTable_(typeTable), functionTable_(functionTable) {
+    ModuleContext(OpcodeTable& opcodeTable, TypeTable& typeTable, FunctionTable& functionTable, GlobalTable& globalTable)
+        : opcodeTable_(opcodeTable), typeTable_(typeTable), functionTable_(functionTable), globalTable_(globalTable) {
 
     }
 
@@ -34,6 +37,10 @@ public:
 
     FunctionTable& functionTable() {
         return functionTable_;
+    }
+
+    GlobalTable& globalTable() {
+        return globalTable_;
     }
 
 };

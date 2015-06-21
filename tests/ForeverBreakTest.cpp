@@ -37,10 +37,17 @@ int main() {
 
             0, // no external functions used
 
+            // now the table for the used external globals
+            0, // we use 0 external globals
+
+            // now the table for the internal globals
+            1, // we have 1 internal global
+            0x1, 'g', 'v', 'a', 'r', '\0', // global int32 named "gvar"
+
             // now the section table
             1, // only one section
             1, // section 1 is program code (1 means program code, 0 means data).
-            81, // start offset of the section in this array
+            89, // start offset of the section in this array
 
             // section 1
             1, // we have only one function in this section

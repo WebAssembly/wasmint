@@ -15,7 +15,6 @@
 class FunctionSignature {
 
     std::string name_;
-    // TODO also needed in FunctionContext to verify return statements?
     Type* returnType_ = Void::instance();
     std::vector<Type*> parameterTypes_;
 
