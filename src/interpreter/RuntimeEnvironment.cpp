@@ -8,6 +8,10 @@ Variable RuntimeEnvironment::callFunction(std::string functionName, std::vector<
     if (functionIterator != functions_.end()) {
         Function* function = functionIterator->second;
         enterFunction(*function);
+        for(uint32_t i = 0; i < parameters.size(); i++) {
+            variable(i) = parameters.at(i);
+        }
+
         Variable result;
         try {
             result = function->execute(*this);

@@ -30,6 +30,10 @@ public:
     }
 
     virtual Variable execute(RuntimeEnvironment & env) {
+        std::vector<Variable> parameters;
+        for(uint32_t i = 0; i < parameters.size(); i++) {
+            parameters[i] = children().at(i)->execute(env);
+        }
         return env.callFunction(functionSignature.name());
     }
 };

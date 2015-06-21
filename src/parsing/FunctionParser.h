@@ -16,14 +16,15 @@ ExceptionMessage(InvalidParameterType)
 
 class FunctionParser {
     ByteStream& stream;
+    FunctionSignature functionSignature_;
     FunctionContext functionContext;
 
     ModuleContext& context_;
     Instruction* mainInstruction;
 
 protected:
-    FunctionParser(ModuleContext& context, ByteStream& stream)
-            : context_(context), stream(stream) {
+    FunctionParser(ModuleContext& context, ByteStream& stream, FunctionSignature functionSignature)
+            : context_(context), stream(stream), functionSignature_(functionSignature) {
     }
 
     void parse() {
@@ -34,7 +35,8 @@ protected:
             uint32_t typeData = stream.popULEB128();
             typeOfLocals.push_back(context_.typeTable().getType(typeData));
         }
-        functionContext = FunctionContext(typeOfLocals);
+        functionContext = FunctionContext(functionSignature_.name(), functionSignature_.returnType(),
+                                          functionSignature_.parameters(), typeOfLocals);
 
         mainInstruction = parseInstruction();
     }
@@ -70,15 +72,15 @@ protected:
         return instruction;
     }
 
-    Function getParsedFunction(std::string name, Type* returnType, std::vector<Type*> parameters) {
-        return Function(name, returnType, parameters, functionContext, mainInstruction);
+    Function getParsedFunction() {
+        return Function(functionContext, mainInstruction);
     }
 
 public:
     static Function parse(ModuleContext& context, FunctionSignature& signature, ByteStream& stream) {
-        FunctionParser parser(context, stream);
+        FunctionParser parser(context, stream, signature);
         parser.parse();
-        return parser.getParsedFunction(signature.name(), signature.returnType(), signature.parameters());
+        return parser.getParsedFunction();
     }
 };
 

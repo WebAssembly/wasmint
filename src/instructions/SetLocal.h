@@ -16,7 +16,7 @@ class SetLocal : public Instruction {
 public:
     SetLocal(ByteStream& stream, FunctionContext& functionContext) {
         localIndex = stream.popULEB128();
-        expectedType = functionContext.locals().at(localIndex);
+        expectedType = functionContext.pureLocals().at(localIndex);
     }
 
     virtual std::string name() {

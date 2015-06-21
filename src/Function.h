@@ -15,7 +15,7 @@ class Instruction;
 class RuntimeEnvironment;
 
 
-class Function : public FunctionSignature, public FunctionContext {
+class Function : public FunctionContext {
 
     /**
      * The AST of this function which contains all instructions of this function.
@@ -23,8 +23,8 @@ class Function : public FunctionSignature, public FunctionContext {
     Instruction* mainInstruction;
 
 public:
-    Function(std::string name, Type* returnType, std::vector<Type*> parameterTypes, FunctionContext& context, Instruction* mainInstruction)
-        : FunctionContext(context), mainInstruction(mainInstruction), FunctionSignature(name, returnType, parameterTypes)
+    Function(FunctionContext& context, Instruction* mainInstruction)
+        : FunctionContext(context), mainInstruction(mainInstruction)
     {
 
     }

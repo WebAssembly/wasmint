@@ -5,13 +5,14 @@
 
 
 #include "types/Type.h"
+#include "FunctionSignature.h"
 #include <vector>
 
 /**
  * The context of a function. This contains all information that are needed to
  * create the instructions in the AST of the related function.
  */
-class FunctionContext {
+class FunctionContext : public FunctionSignature {
 
     std::vector<Type*> locals_;
 
@@ -19,11 +20,26 @@ public:
     FunctionContext() {
     }
 
-    FunctionContext(std::vector<Type*> locals) : locals_(locals) {
+    FunctionContext(std::string name, Type* returnType, std::vector<Type*> parameterTypes, std::vector<Type*> locals)
+            : locals_(locals), FunctionSignature(name, returnType, parameterTypes) {
+
+    }
+
+    std::vector<Type*> pureLocals() {
+        return locals_;
     }
 
     std::vector<Type*> locals() {
-        return locals_;
+        std::vector<Type*> result;
+
+        for(Type* type : parameters()) {
+            result.push_back(type);
+        }
+
+        for(Type* type : pureLocals()) {
+            result.push_back(type);
+        }
+        return result;
     }
 };
 
