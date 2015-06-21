@@ -6,6 +6,7 @@
 #include <parsing/ModuleParser.h>
 #include <memory>
 #include <interpreter/RuntimeEnvironment.h>
+#include <types/Int32.h>
 
 #define BLOCK 0x7
 #define SET_LOCAL 0x5

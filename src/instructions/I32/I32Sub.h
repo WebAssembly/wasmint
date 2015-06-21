@@ -5,6 +5,7 @@
 
 
 #include <instructions/Instruction.h>
+#include <types/Int32.h>
 
 class I32Sub : public Instruction {
 

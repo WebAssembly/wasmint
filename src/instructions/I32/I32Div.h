@@ -5,6 +5,7 @@
 
 #include <exception>
 #include <instructions/Instruction.h>
+#include <types/Int32.h>
 
 class DivisionThroughZero : std::exception {};
 
