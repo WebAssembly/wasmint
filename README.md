@@ -3,7 +3,14 @@
 
 A WebAssembly (**WASM**) **Int**erpreter licensed under the Apache 2.0 License.
 
-Look [here](docs/Instructions.md) for the (uncomplete list) of supported instructions.
+Supports:
+
+* Global and local variables
+* I32 calculations
+* Function calls (but no cross module calls and no return values so far)
+* Control flow (if, do_while, break, continue)
+* Printing numbers to terminal (to have some IO)
+
 
 ## Known Bugs
 
