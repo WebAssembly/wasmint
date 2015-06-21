@@ -14,4 +14,4 @@ script:
   - cmake .
   - make
   - ctest
-  - valgrind --suppressions=valgrind.supp  --error-exitcode=1 --leak-check=full --show-leak-kinds=all ./ExampleModuleTest
+  - valgrind --suppressions=valgrind.supp  --error-exitcode=1 --leak-check=full ./ExampleModuleTest
