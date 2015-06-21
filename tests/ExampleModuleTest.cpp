@@ -91,7 +91,7 @@ int main() {
             0x1, // local variable 0x0 with type int32
 
             BLOCK, 0x1, // we start a new block with 2 instructions in it
-                PRINT, GET_GLOBAL, 0x0, // print the 66
+                PRINT, GET_GLOBAL, 0x0, // print the 32 from the global (that was set in main)
     };
 
     ByteStream stream(data);
