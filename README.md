@@ -10,6 +10,7 @@ Supports:
 * Function calls (but no cross module calls and no return values so far)
 * Control flow (if, do_while, break, continue)
 * Printing numbers to terminal (to have some IO)
+* Type checking
 
 
 ## Known Bugs
