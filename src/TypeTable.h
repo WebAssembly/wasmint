@@ -6,8 +6,6 @@
 #include <string>
 #include <cstdint>
 #include <map>
-#include <types/Void.h>
-#include <types/Int32.h>
 #include "types/Type.h"
 #include "ExceptionWithMessage.h"
 
@@ -16,28 +14,21 @@ ExceptionMessage(UnknownLocalTypeCode)
 class TypeTable {
 
 
-    std::map<uint32_t, std::string> instructionsByLocalOpcode;
+    std::map<uint32_t, std::string> typesByLocalTypeCode;
 
 public:
     TypeTable() {
     }
 
     void addType(uint32_t localTypeCode, std::string name) {
-        instructionsByLocalOpcode[localTypeCode] = name;
+        typesByLocalTypeCode[localTypeCode] = name;
     }
 
-    Type* getType(uint32_t localTypeCode) {
-        std::string typeName = getTypeName(localTypeCode);
-        if (typeName == "void") {
-            return Void::instance();
-        } else if (typeName == "int32") {
-            return Int32::instance();
-        }
-    }
+    Type * getType(uint32_t localTypeCode);
 
     std::string getTypeName(uint32_t localTypeCode) {
-        auto result = instructionsByLocalOpcode.find(localTypeCode);
-        if (result == instructionsByLocalOpcode.end()) {
+        auto result = typesByLocalTypeCode.find(localTypeCode);
+        if (result == typesByLocalTypeCode.end()) {
             throw UnknownLocalTypeCode(std::to_string(localTypeCode));
         } else {
             return result->second;
