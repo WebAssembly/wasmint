@@ -21,6 +21,10 @@ int main() {
             // Module header
             // unless specified otherwise, all numbers are LEB128 encoded
             // first the opcode table
+
+            // required modules
+            0,
+
             8, // we use 8 instructions in this module
             // the string name of the instructions
             'i', 'n', 't', '3', '2', '.', 'a', 'd', 'd', '\0', // int32.add = 0x0
@@ -49,11 +53,12 @@ int main() {
             // now the section table
             1, // only one section
             1, // section 1 is program code (1 means program code, 0 means data).
-            89, // start offset of the section in this array
+            90, // start offset of the section in this array
 
             // section 1
             1, // we have only one function in this section
             'm', 'a', 'i', 'n', '\0', // the name of the function
+            1, // exported
             1, // return type
             0, // number of parameters
             // here the parameter types would be listed

@@ -22,6 +22,7 @@ class ModuleParser {
 
     ByteStream& stream;
     std::map<uint32_t, SectionType> sectionTypes;
+    std::vector<std::string> requiredModules;
 
     std::vector<Section*> sections;
 
@@ -42,7 +43,16 @@ protected:
 
     }
 
+    void parseRequiredModules() {
+        uint32_t numberOfModules = stream.popULEB128();
+        for(uint32_t i = 0; i < numberOfModules; i++) {
+            requiredModules.push_back(stream.readCString());
+        }
+    }
+
     void parseHeader() {
+        parseRequiredModules();
+
         // Instruction table
         OpcodeTable opcodeTable = OpcodeTableParser::parse(stream);
 
@@ -88,7 +98,7 @@ protected:
     }
 
     Module* getParsedModule() {
-        return new Module(context, sections);
+        return new Module(context, sections, requiredModules);
     }
 
 public:

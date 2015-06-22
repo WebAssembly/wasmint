@@ -24,6 +24,7 @@ class CodeSectionParser {
 
         for (uint32_t i = 0; i < numberOfFunctions; i++) {
             std::string functionName = stream.readCString();
+            bool exported = stream.popULEB128() != 0;
 
             Type* returnType = context.typeTable().getType(stream.popULEB128());
 
@@ -34,7 +35,7 @@ class CodeSectionParser {
             }
 
             uint32_t offset = stream.popULEB128();
-            FunctionSignature signature = FunctionSignature(functionName, returnType, parameters);
+            FunctionSignature signature = FunctionSignature(functionName, returnType, parameters, exported);
             signatures.push_back(signature);
             context.functionTable().addFunctionSignature(signature);
         }
