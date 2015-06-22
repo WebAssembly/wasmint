@@ -16,7 +16,6 @@
 #include "GlobalTableParser.h"
 
 ExceptionMessage(NoSectionWithOffset)
-ExceptionMessage(UnknownSectionType)
 ExceptionMessage(SectionTableNotOrdered)
 
 class ModuleParser {
@@ -70,8 +69,6 @@ protected:
                 case 1:
                     type = SectionType::CODE;
                     break;
-                default:
-                    throw UnknownSectionType(std::to_string(typeData));
             }
             uint32_t offset = stream.popULEB128();
 
