@@ -17,9 +17,8 @@ public:
     }
 
     virtual std::string name() {
-        return "call";
+        return "call_direct";
     }
-
 
     virtual std::vector<Type*> childrenTypes() {
         return functionSignature.parameters();

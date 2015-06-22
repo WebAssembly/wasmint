@@ -33,7 +33,7 @@ Instruction *InstructionSet::getInstruction(std::string name, ByteStream& stream
         return new I32Div();
     } else if (name == "print") {
         return new Print();
-    } else if (name == "call") {
+    } else if (name == "call_direct") {
         return new FunctionCall(stream, context);
     } else if (name == "get_local") {
         return new GetLocal(stream, functionContext);

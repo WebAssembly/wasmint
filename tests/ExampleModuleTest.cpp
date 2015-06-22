@@ -30,7 +30,7 @@ int main() {
             10, // we use 10 instructions in this module
             // the string name of the instructions
             'i', 'n', 't', '3', '2', '.', 'a', 'd', 'd', '\0', // int32.add = 0x0
-            'c', 'a', 'l', 'l', '\0',                          // call a function = 0x1
+            'c', 'a', 'l', 'l', '_', 'd', 'i', 'r', 'e', 'c', 't', '\0', // call a function directly = 0x1
             'l', 'i', 't', 'e', 'r', 'a', 'l', '\0',           // literal = 0x2
             'i', 'n', 't', '3', '2', '.', 'd', 'i', 'v', '\0', // int32.div = 0x3
             'g', 'e', 't', '_', 'l', 'o', 'c', 'a', 'l', '\0', // get_local = 0x4
@@ -58,7 +58,7 @@ int main() {
             // now the section table
             1, // only one section
             1, // section 1 is program code (1 means program code, rest is undefined).
-            113, // start offset of the section in this array
+            120, // start offset of the section in this array
 
             // section 1
             2, // we have only two functions in this section
@@ -109,7 +109,7 @@ int main() {
     m.reset(ModuleParser::parse(stream));
 
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
-    assert(m->opcodeTable().getInstruction(0x1) == "call");
+    assert(m->opcodeTable().getInstruction(0x1) == "call_direct");
     assert(m->opcodeTable().getInstruction(0x2) == "literal");
     assert(m->opcodeTable().getInstruction(0x3) == "int32.div");
     assert(m->opcodeTable().getInstruction(0x4) == "get_local");
