@@ -22,7 +22,11 @@ int main() {
     std::deque<uint8_t> data = {
             // Module header
             // unless specified otherwise, all numbers are LEB128 encoded
-            // first the opcode table
+
+            // the names of modules that are required to run this modules
+            0, // We don't depend on any for now
+
+            // the opcode table
             10, // we use 10 instructions in this module
             // the string name of the instructions
             'i', 'n', 't', '3', '2', '.', 'a', 'd', 'd', '\0', // int32.add = 0x0
@@ -53,14 +57,15 @@ int main() {
 
             // now the section table
             1, // only one section
-            1, // section 1 is program code (1 means program code, 0 means data).
-            112, // start offset of the section in this array
+            1, // section 1 is program code (1 means program code, rest is undefined).
+            113, // start offset of the section in this array
 
             // section 1
             2, // we have only two functions in this section
 
             // signature of the main function
             'm', 'a', 'i', 'n', '\0', // the name of the function
+            1, // export function
             0, // return type
             0, // number of parameters
             // here the parameter types would be listed
@@ -68,6 +73,7 @@ int main() {
 
             // signature of the test function
             't', 'e', 's', 't', '\0', // the name of the function
+            0, // don't export function
             0, // return type
             0, // number of parameters
             // here the parameter types would be listed

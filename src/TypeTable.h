@@ -13,7 +13,6 @@ ExceptionMessage(UnknownLocalTypeCode)
 
 class TypeTable {
 
-
     std::map<uint32_t, std::string> typesByLocalTypeCode;
 
 public:

@@ -17,14 +17,18 @@ class FunctionSignature {
     std::string name_;
     Type* returnType_ = Void::instance();
     std::vector<Type*> parameterTypes_;
+    bool isExported_ = false;
 
 public:
     FunctionSignature() {
 
     }
 
-    FunctionSignature(std::string name, Type* returnType, std::vector<Type*> parameterTypes)
-    : name_(name), returnType_(returnType), parameterTypes_(parameterTypes) {
+    FunctionSignature(std::string name, Type* returnType,
+                      std::vector<Type*> parameterTypes, bool exported)
+    : name_(name), returnType_(returnType), parameterTypes_(parameterTypes),
+      isExported_(exported)
+    {
     }
 
     Type* returnType() {
@@ -38,6 +42,10 @@ public:
 
     std::string name() {
         return name_;
+    }
+
+    bool isExported() {
+        return isExported_;
     }
 };
 

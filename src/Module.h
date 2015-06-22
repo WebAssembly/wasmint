@@ -15,10 +15,13 @@ class Module {
 
     std::vector<Section*> sections_;
     ModuleContext context_;
+    std::vector<std::string> requiredModules_;
 
 public:
-    Module(ModuleContext& context, std::vector<Section*> sections)
-            : sections_(sections), context_(context) {
+    Module(ModuleContext& context, std::vector<Section*> sections,
+           std::vector<std::string> requiredModules)
+        : sections_(sections), context_(context), requiredModules_(requiredModules)
+    {
     }
 
     virtual ~Module() {
@@ -52,6 +55,10 @@ public:
 
     std::vector<Global> globals() {
         return context_.globalTable().internalGlobals();
+    }
+
+    std::vector<std::string> requiredModules() {
+        return requiredModules_;
     }
 
 };

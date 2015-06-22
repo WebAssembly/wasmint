@@ -20,8 +20,9 @@ public:
     FunctionContext() {
     }
 
-    FunctionContext(std::string name, Type* returnType, std::vector<Type*> parameterTypes, std::vector<Type*> locals)
-            : locals_(locals), FunctionSignature(name, returnType, parameterTypes) {
+    FunctionContext(std::string name, Type* returnType, std::vector<Type*> parameterTypes,
+                    std::vector<Type*> locals, bool exported)
+            : locals_(locals), FunctionSignature(name, returnType, parameterTypes, exported) {
 
     }
 

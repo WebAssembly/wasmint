@@ -36,7 +36,8 @@ protected:
             typeOfLocals.push_back(context_.typeTable().getType(typeData));
         }
         functionContext = FunctionContext(functionSignature_.name(), functionSignature_.returnType(),
-                                          functionSignature_.parameters(), typeOfLocals);
+                                          functionSignature_.parameters(), typeOfLocals,
+                                          functionSignature_.isExported());
 
         mainInstruction = parseInstruction();
     }
