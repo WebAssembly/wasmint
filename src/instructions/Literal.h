@@ -16,8 +16,7 @@ public:
         Type* type = context.typeTable().getType(typeId);
 
         literalValue = Variable(type);
-        type->parse(stream, literalValue.value(), type->size());
-
+        type->parse(stream, literalValue.value());
     }
 
     virtual std::vector<Type*> childrenTypes() {

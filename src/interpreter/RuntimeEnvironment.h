@@ -79,6 +79,9 @@ class RuntimeEnvironment {
     }
 
 public:
+    RuntimeEnvironment() : heap_(1024) {
+
+    }
 
     void useModule(Module& module);
 

@@ -4,19 +4,20 @@
 #define WASMINT_VARIABLE_H
 
 #include <cstdint>
-#include <types/Void.h>
 #include <string.h>
-#include "types/Type.h"
 #include <vector>
+
+class InvalidDataSize : public std::exception {};
+
+class Type;
 
 class Variable {
     Type* type_;
     std::vector<uint8_t> value_;
 
 public:
-    Variable(Type* type = Void::instance()) : type_(type) {
-        value_.resize(type->size());
-    }
+    Variable();
+    Variable(Type* type);
 
     Type& type() {
         return *type_;
@@ -25,6 +26,12 @@ public:
     void* value() {
         return (void*) value_.data();
     }
+
+    std::vector<uint8_t> data() {
+        return value_;
+    }
+
+    void setValue(std::vector<uint8_t> newData);
 };
 
 

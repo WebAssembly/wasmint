@@ -8,6 +8,7 @@
 #include <deque>
 #include <string>
 #include <sstream>
+#include <vector>
 
 class LEB128PayloadBiggerThan32Bit : public std::exception {};
 class EndOfStreamReached : public std::exception {};
@@ -19,6 +20,12 @@ class ByteStream {
 
 public:
     ByteStream(std::deque<uint8_t> bytes) : bytes_(bytes) {
+    }
+    ByteStream(std::vector<uint8_t> bytes) {
+        bytes_.resize(bytes.size());
+        for(uint32_t i = 0; i < bytes.size(); i++) {
+            bytes_[i] = bytes[i];
+        }
     }
     ByteStream(const ByteStream& copy); // Don't implement to prevent copying
 

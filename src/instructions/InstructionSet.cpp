@@ -19,6 +19,8 @@
 #include <instructions/I32/I32Sub.h>
 #include <instructions/I32/I32Mul.h>
 #include <instructions/I32/I32Div.h>
+#include <instructions/heap/Int32Load.h>
+#include <instructions/heap/Int32Store.h>
 
 Instruction *InstructionSet::getInstruction(std::string name, ByteStream& stream, ModuleContext& context, FunctionContext& functionContext) {
     if (name == "literal") {
@@ -49,6 +51,10 @@ Instruction *InstructionSet::getInstruction(std::string name, ByteStream& stream
         return new DoWhile();
     } else if (name == "forever") {
         return new Forever();
+    } else if (name == "int32.load") {
+        return new Int32Load();
+    } else if (name == "int32.store") {
+        return new Int32Store();
     } else if (name == "if") {
         return new If();
     } else if (name == "return") {

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <types/Void.h>
 
 #include "types/Type.h"
 #include "Variable.h"

@@ -23,8 +23,8 @@ class Heap {
     }
 
 public:
-    Heap() {
-        data.resize(1024);
+    Heap(uint32_t size) {
+        data.resize(size);
     }
 
     std::vector<uint8_t> getBytes(uint32_t offset, uint32_t size) {

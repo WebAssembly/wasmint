@@ -1,39 +1,44 @@
+//
+// Created by teemperor on 22.06.15.
+//
 
+#ifndef WASMINT_INT8_H
+#define WASMINT_INT8_H
 
-#ifndef WASMINT_INT32_H
-#define WASMINT_INT32_H
-
-
+#include <string>
 #include <types/Type.h>
 #include <Variable.h>
+#include "Int32.h"
 
-class Int32 : public Type {
+class Int8 : public Type {
 
 protected:
-    Int32() {
+    Int8() {
     }
 
-
 public:
-    static Int32* instance() {
-        static Int32 instance;
+    static Int8* instance() {
+        static Int8 instance;
         return &instance;
     }
 
     virtual std::string name() {
-        return "int32";
+        return "int8";
     }
 
-    static int32_t getFromStream(ByteStream& stream) {
-        int32_t result = 0;
-        uint32_t shift = 0;
-        uint32_t size = 32;
+    virtual Type* localType() override {
+        return Int32::instance();
+    }
+
+    static int8_t getFromStream(ByteStream& stream) {
+        int8_t result = 0;
+        uint8_t shift = 0;
+        uint8_t size = 8;
 
         uint8_t byte;
 
         while(true) {
             byte = stream.popChar();
-
 
             result |= ((byte & 0x7F) << shift);
             shift += 7;
@@ -51,14 +56,14 @@ public:
     }
 
     virtual void parse(ByteStream& stream, void* data) {
-        int32_t value = getFromStream(stream);
-        (*(int32_t*)data) = value;
+        int8_t value = getFromStream(stream);
+        (*(int8_t*)data) = value;
     }
 
-    static int32_t getValue(Variable variable) {
+    static int8_t getValue(Variable variable) {
         if (variable.type() == *instance()) {
-            int32_t result = 0;
-            int32_t* data = (int32_t*) variable.value();
+            int8_t result = 0;
+            int8_t* data = (int8_t*) variable.value();
             result = *data;
             return result;
         } else {
@@ -66,9 +71,9 @@ public:
         }
     }
 
-    static void setValue(Variable& variable, int32_t value) {
+    static void setValue(Variable& variable, int8_t value) {
         if (variable.type() == *instance()) {
-            int32_t* data = (int32_t*) variable.value();
+            int8_t* data = (int8_t*) variable.value();
             (*data) = value;
         } else {
             throw IncompatibleType();
@@ -76,10 +81,11 @@ public:
     }
 
     virtual std::size_t size() {
-        return 4;
+        return 1;
     }
 
 };
 
 
-#endif //WASMINT_INT32_H
+
+#endif //WASMINT_INT8_H
