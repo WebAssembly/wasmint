@@ -12,6 +12,11 @@
 #include <interpreter/Thread.h>
 #include <interpreter/RuntimeEnvironment.h>
 
+class StepResult {
+    Instruction* newChildInstruction = nullptr;
+    Variable result;
+};
+
 class Instruction {
 
     std::vector<Instruction*> children_;

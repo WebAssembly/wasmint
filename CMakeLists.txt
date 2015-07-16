@@ -29,6 +29,8 @@ add_library(core
     src/ModuleContext.cpp
 
     src/interpreter/Thread.cpp
+    src/interpreter/FunctionState.cpp
+    src/interpreter/InstructionState.cpp
     src/interpreter/RuntimeEnvironment.cpp
     src/interpreter/Heap.cpp
 

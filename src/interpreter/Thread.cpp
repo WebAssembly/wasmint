@@ -8,8 +8,12 @@ Thread::Thread(RuntimeEnvironment& env) : env_(env) {
 }
 
 void Thread::enterFunction(Function& function) {
+    if (stack.size() >= stackLimit)
+        throw StackLimitReached(std::to_string(stack.size()));
+
     // We push the new locals to the stack before entering.
-    createLocals(function.locals());
+
+    stack.push(FunctionState(function));
 }
 
 Variable Thread::callFunction(std::string functionName, std::vector<Variable> parameters) {

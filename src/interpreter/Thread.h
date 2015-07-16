@@ -6,7 +6,11 @@
 #include <stack>
 #include <map>
 #include <Module.h>
+#include <Function.h>
+#include <instructions/Instruction.h>
 #include "Heap.h"
+#include "FunctionState.h"
+#include "InstructionState.h"
 
 ExceptionMessage(StackLimitReached)
 ExceptionMessage(IllegalUseageOfBreak)
@@ -19,23 +23,10 @@ class Thread {
     uint32_t stackLimit = 50;
 
     /**
-     * The stack containing the local variables. The indices of the variables in each vector are equal to their
-     * local indices as used by get_local and set_local.
+     * The stack containing the states of all called functions. The most recently called
+     * function state is always on top of the stack.
      */
-    std::stack<std::vector<Variable>> stack;
-
-    /**
-     * Pushes a new vector on the stack and creates variables with the given types.
-     */
-    void createLocals(std::vector<Type*> variableTypes) {
-        if (stack.size() >= stackLimit)
-            throw StackLimitReached(std::to_string(stack.size()));
-
-        stack.push(std::vector<Variable>());
-        for(Type* type : variableTypes) {
-            stack.top().push_back(Variable(type));
-        }
-    }
+    std::stack<FunctionState> stack;
 
     /**
      * Leave the last entered function
@@ -53,9 +44,11 @@ public:
 
     Variable callFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
 
+    void step() {
+    }
 
     Variable& variable(uint32_t index) {
-        return stack.top().at(index);
+        return stack.top().variable(index);
     }
 
     RuntimeEnvironment& runtimeEnvironment() {
