@@ -121,9 +121,9 @@ int main() {
 
     RuntimeEnvironment environment;
     environment.useModule(*m);
-    environment.callFunction("main");
+    environment.createThread().callFunction("main");
 
-    // This module should print the number 7 in main and then 3232 in the two times we call the test function
+    // This module should print the number 3 from the test function
     assert(environment.stdout() == "3");
 
 }

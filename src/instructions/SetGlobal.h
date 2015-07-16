@@ -32,8 +32,8 @@ public:
         return expectedType;
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        return env.global(globalName) = children().at(0)->execute(env);
+    virtual Variable execute(Thread &thread) {
+        return thread.runtimeEnvironment().global(globalName) = children().at(0)->execute(thread);
     }
 };
 

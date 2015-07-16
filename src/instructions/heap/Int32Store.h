@@ -22,12 +22,11 @@ public:
         return "int32.store";
     }
 
-    virtual Variable execute(RuntimeEnvironment& env) {
-        uint32_t offset = static_cast<uint32_t>(Int32::getValue(children().at(0)->execute(env)));
+    virtual Variable execute(Thread &thread) {
+        uint32_t offset = static_cast<uint32_t>(Int32::getValue(children().at(0)->execute(thread)));
 
-        Variable value = children().at(1)->execute(env);
-        env.heap().setBytes(offset, value.data());
-
+        Variable value = children().at(1)->execute(thread);
+        thread.runtimeEnvironment().heap().setBytes(offset, value.data());
 
         return value;
     }

@@ -12,6 +12,7 @@
 #include "FunctionContext.h"
 #include <memory>
 #include <interpreter/RuntimeEnvironment.h>
+#include <interpreter/Thread.h>
 
 class Instruction;
 
@@ -26,7 +27,7 @@ public:
     Function(FunctionContext& context, Instruction* mainInstruction);
     virtual ~Function();
 
-    Variable execute(RuntimeEnvironment & environment);
+    Variable execute(Thread& thread);
 };
 
 

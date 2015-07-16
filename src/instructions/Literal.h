@@ -31,7 +31,7 @@ public:
         return &literalValue.type();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
+    virtual Variable execute(Thread &thread) {
         return literalValue;
     }
 };

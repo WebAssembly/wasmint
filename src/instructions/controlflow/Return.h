@@ -26,9 +26,9 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
+    virtual Variable execute(Thread &thread) {
         CalledReturn returnCall;
-        returnCall.result = children().at(0)->execute(env);
+        returnCall.result = children().at(0)->execute(thread);
         throw returnCall;
     }
 };

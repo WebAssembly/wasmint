@@ -22,10 +22,10 @@ public:
         return "int32.load";
     }
 
-    virtual Variable execute(RuntimeEnvironment& env) {
-        uint32_t offset = static_cast<uint32_t>(Int32::getValue(children().at(0)->execute(env)));
+    virtual Variable execute(Thread &thread) {
+        uint32_t offset = static_cast<uint32_t>(Int32::getValue(children().at(0)->execute(thread)));
 
-        std::vector<uint8_t> bytes = env.heap().getBytes(offset, Int32::instance()->size());
+        std::vector<uint8_t> bytes = thread.runtimeEnvironment().heap().getBytes(offset, Int32::instance()->size());
 
         Variable result = Variable(Int32::instance()->localType());
         result.setValue(bytes);

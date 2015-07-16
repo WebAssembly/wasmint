@@ -28,12 +28,12 @@ public:
         return functionSignature.returnType();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
+    virtual Variable execute(Thread &thread) {
         std::vector<Variable> parameters;
         for(uint32_t i = 0; i < parameters.size(); i++) {
-            parameters[i] = children().at(i)->execute(env);
+            parameters[i] = children().at(i)->execute(thread);
         }
-        return env.callFunction(functionSignature.name());
+        return thread.callFunction(functionSignature.name());
     }
 };
 

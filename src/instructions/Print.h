@@ -21,9 +21,9 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        Variable v = children().at(0)->execute(env);
-        env.print(std::to_string(Int32::getValue(v)));
+    virtual Variable execute(Thread &thread) {
+        Variable v = children().at(0)->execute(thread);
+        thread.runtimeEnvironment().print(std::to_string(Int32::getValue(v)));
 
         return Variable();
     }

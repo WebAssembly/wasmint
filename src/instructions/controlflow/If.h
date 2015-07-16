@@ -21,11 +21,11 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        Variable condition = children().at(0)->execute(env);
+    virtual Variable execute(Thread &thread) {
+        Variable condition = children().at(0)->execute(thread);
 
         if (Int32::getValue(condition)) {
-            children().at(1)->execute(env);
+            children().at(1)->execute(thread);
         }
 
         return Variable();

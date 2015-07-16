@@ -25,9 +25,9 @@ public:
         return Int32::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        int32_t left = Int32::getValue(children().at(0)->execute(env));
-        int32_t right = Int32::getValue(children().at(1)->execute(env));
+    virtual Variable execute(Thread &thread) {
+        int32_t left = Int32::getValue(children().at(0)->execute(thread));
+        int32_t right = Int32::getValue(children().at(1)->execute(thread));
 
         if (right == 0)
             throw DivisionThroughZero();

@@ -6,10 +6,11 @@
 
 #include <cstdint>
 #include <vector>
-#include <interpreter/RuntimeEnvironment.h>
 
 #include "types/Type.h"
 #include "Variable.h"
+#include <interpreter/Thread.h>
+#include <interpreter/RuntimeEnvironment.h>
 
 class Instruction {
 
@@ -34,7 +35,7 @@ public:
     virtual std::vector<Type*> childrenTypes() = 0;
     virtual Type* returnType() = 0;
 
-    virtual Variable execute(RuntimeEnvironment& env) = 0;
+    virtual Variable execute(Thread &thread) = 0;
 };
 
 

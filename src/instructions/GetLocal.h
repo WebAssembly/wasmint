@@ -31,8 +31,8 @@ public:
         return returnType_;
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        return env.variable(localIndex);
+    virtual Variable execute(Thread &thread) {
+        return thread.variable(localIndex);
     }
 };
 

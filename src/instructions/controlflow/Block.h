@@ -32,9 +32,9 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
+    virtual Variable execute(Thread &thread) {
         for(Instruction* child : children()) {
-            child->execute(env);
+            child->execute(thread);
         }
         return Variable();
     }

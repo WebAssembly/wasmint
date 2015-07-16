@@ -28,6 +28,7 @@ add_library(core
     src/TypeTable.cpp
     src/ModuleContext.cpp
 
+    src/interpreter/Thread.cpp
     src/interpreter/RuntimeEnvironment.cpp
     src/interpreter/Heap.cpp
 

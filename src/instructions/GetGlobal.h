@@ -32,8 +32,8 @@ public:
         return returnType_;
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        return env.global(globalName);
+    virtual Variable execute(Thread &thread) {
+        return thread.runtimeEnvironment().global(globalName);
     }
 };
 

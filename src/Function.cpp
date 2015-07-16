@@ -3,8 +3,8 @@
 #include "Function.h"
 #include <instructions/Instruction.h>
 
-Variable Function::execute(RuntimeEnvironment & environment) {
-    return mainInstruction_->execute(environment);
+Variable Function::execute(Thread& thread) {
+    return mainInstruction_->execute(thread);
 }
 
 Function::Function(FunctionContext& context, Instruction* mainInstruction)
