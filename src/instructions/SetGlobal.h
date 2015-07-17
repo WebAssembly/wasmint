@@ -32,8 +32,16 @@ public:
         return expectedType;
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        return env.global(globalName) = children().at(0)->execute(env);
+    virtual StepResult execute(Thread &thread) {
+        InstructionState& state = thread.getInstructionState();
+        switch(state.state()) {
+            case 0:
+                return children().at(0);
+            default:
+                Variable result = thread.runtimeEnvironment().global(globalName) = state.results().at(0);
+                return result;
+
+        }
     }
 };
 

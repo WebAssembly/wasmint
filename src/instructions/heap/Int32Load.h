@@ -22,15 +22,22 @@ public:
         return "int32.load";
     }
 
-    virtual Variable execute(RuntimeEnvironment& env) {
-        uint32_t offset = static_cast<uint32_t>(Int32::getValue(children().at(0)->execute(env)));
+    virtual StepResult execute(Thread &thread) {
 
-        std::vector<uint8_t> bytes = env.heap().getBytes(offset, Int32::instance()->size());
+        InstructionState& state = thread.getInstructionState();
+        switch(state.state()) {
+            case 0:
+                return StepResult(children().at(0));
+            default:
+                uint32_t offset = static_cast<uint32_t>(Int32::getValue(state.results().back()));
 
-        Variable result = Variable(Int32::instance()->localType());
-        result.setValue(bytes);
+                std::vector<uint8_t> bytes = thread.runtimeEnvironment().heap().getBytes(offset, Int32::instance()->size());
 
-        return result;
+                Variable result = Variable(Int32::instance()->localType());
+                result.setValue(bytes);
+                return result;
+        }
+
     }
 };
 

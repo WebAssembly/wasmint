@@ -21,11 +21,16 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        Variable v = children().at(0)->execute(env);
-        env.print(std::to_string(Int32::getValue(v)));
+    virtual StepResult execute(Thread &thread) {
+        InstructionState& state = thread.getInstructionState();
+        switch(state.state()) {
+            case 0:
+                return children().at(0);
+            default:
+                thread.runtimeEnvironment().print(std::to_string(Int32::getValue(state.results().at(0))));
+                return StepResult();
 
-        return Variable();
+        }
     }
 };
 

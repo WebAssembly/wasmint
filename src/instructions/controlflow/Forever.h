@@ -22,19 +22,21 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        try {
-            while (true) {
-                try {
-                    children().at(0)->execute(env);
-                } catch (CalledContinue) {
-
-                }
-            }
-        } catch (CalledBreak) {
-
+    virtual bool handleSignal(InstructionState& currentState, Signal signal) {
+        if (signal == Signal::Break) {
+            currentState.state(10);
+            return true;
         }
-        return Variable();
+        return signal == Signal::Continue;
+    }
+
+    virtual StepResult execute(Thread &thread) {
+        if (thread.getInstructionState().state() >= 10) {
+            return StepResult();
+        }
+        thread.getInstructionState().clearResults();
+        thread.getInstructionState().state(0);
+        return StepResult(children().front());
     }
 };
 

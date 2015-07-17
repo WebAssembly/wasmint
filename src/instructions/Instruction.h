@@ -6,10 +6,14 @@
 
 #include <cstdint>
 #include <vector>
-#include <interpreter/RuntimeEnvironment.h>
 
 #include "types/Type.h"
 #include "Variable.h"
+#include "StepResult.h"
+#include <interpreter/Thread.h>
+#include <interpreter/RuntimeEnvironment.h>
+
+class InstructionState;
 
 class Instruction {
 
@@ -34,7 +38,9 @@ public:
     virtual std::vector<Type*> childrenTypes() = 0;
     virtual Type* returnType() = 0;
 
-    virtual Variable execute(RuntimeEnvironment& env) = 0;
+    virtual StepResult execute(Thread &thread) = 0;
+
+    virtual bool handleSignal(InstructionState& currentState, Signal signal);
 };
 
 

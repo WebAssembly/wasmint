@@ -21,8 +21,8 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        throw CalledContinue();
+    virtual StepResult execute(Thread &thread) {
+        return StepResult(Signal::Continue);
     }
 };
 

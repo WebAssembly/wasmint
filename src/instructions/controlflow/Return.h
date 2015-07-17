@@ -26,10 +26,15 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        CalledReturn returnCall;
-        returnCall.result = children().at(0)->execute(env);
-        throw returnCall;
+    virtual StepResult execute(Thread &thread) {
+        InstructionState& state = thread.getInstructionState();
+        switch(state.state()) {
+            case 0:
+                return children().at(0);
+            default:
+                return state.results().front();
+
+        }
     }
 };
 

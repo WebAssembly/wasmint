@@ -31,8 +31,8 @@ public:
         return &literalValue.type();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        return literalValue;
+    virtual StepResult execute(Thread &thread) {
+        return StepResult(literalValue);
     }
 };
 

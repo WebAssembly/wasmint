@@ -12,7 +12,7 @@
 class DoWhile : public Instruction {
 public:
     virtual std::vector<Type*> childrenTypes() {
-        return {Int32::instance(), Void::instance()};
+        return {Void::instance(), Int32::instance()};
     }
 
     virtual std::string name() {
@@ -23,24 +23,29 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        Variable condition;
-        try {
-            while (true) {
-                try {
-                    children().at(1)->execute(env);
-                } catch (CalledContinue) {
-
-                }
-                condition = children().at(0)->execute(env);
-                if (!Int32::getValue(condition)) {
-                    break;
-                }
-            }
-        } catch (CalledBreak) {
-
+    virtual bool handleSignal(InstructionState& currentState, Signal signal) {
+        if (signal == Signal::Break) {
+            currentState.state(10);
         }
-        return Variable();
+        return signal == Signal::Continue;
+    }
+
+
+    virtual StepResult execute(Thread &thread) {
+        InstructionState& state = thread.getInstructionState();
+        switch(state.state()) {
+            case 0:
+            case 1:
+                return children().at(0);
+            case 2:
+                return children().at(1);
+            default:
+                if (Int32::getValue(state.results().back()) != 0) {
+                    state.state(0);
+                } else {
+                    return StepResult();
+                }
+        }
     }
 };
 

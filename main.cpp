@@ -41,7 +41,8 @@ int main(int argc, char** argv) {
     }
 
     try {
-        environment.callFunction("main");
+        Thread& thread = environment.createThread();
+        thread.callFunction("main");
     } catch(NoFunctionWithName e) {
         if (e.what() == "main") {
             std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;

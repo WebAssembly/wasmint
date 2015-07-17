@@ -14,4 +14,4 @@ script:
   - cmake .
   - make -j4
   - ctest
-  - valgrind --error-exitcode=1 --leak-check=full ./ExampleModuleTest
+  - bash testValgrind.sh

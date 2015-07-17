@@ -93,7 +93,7 @@ int main() {
                         GET_LOCAL, 0x0, // an variable at index 0x0 as first argument
                         GET_LOCAL, 0x1, // an variable at index 0x1 as second argument
                 CALL, 0x1, // call the test function
-                CALL, 0x1, // call the test function
+                CALL, 0x1, // call the test function again
 
             // the test function
             1, // number of locals
@@ -127,7 +127,8 @@ int main() {
 
     RuntimeEnvironment environment;
     environment.useModule(*m);
-    environment.callFunction("main");
+    Thread& thread = environment.createThread().startAtFunction("main");
+    thread.stepUntilFinished();
 
     // This module should print the number 7 in main and then 3232 in the two times we call the test function
     assert(environment.stdout() == "73232");

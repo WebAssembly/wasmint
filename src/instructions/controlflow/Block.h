@@ -32,11 +32,13 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        for(Instruction* child : children()) {
-            child->execute(env);
+    virtual StepResult execute(Thread &thread) {
+        InstructionState& state = thread.getInstructionState();
+        if (state.state() < children().size()) {
+            return StepResult(children().at(state.state()));
+        } else {
+            return StepResult();
         }
-        return Variable();
     }
 };
 

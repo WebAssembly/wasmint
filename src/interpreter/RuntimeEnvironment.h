@@ -6,6 +6,7 @@
 
 #include <Variable.h>
 #include <vector>
+#include <memory>
 #include <stack>
 #include <map>
 #include <Module.h>
@@ -13,24 +14,15 @@
 
 ExceptionMessage(NoFunctionWithName)
 ExceptionMessage(NoGlobalWithName)
-ExceptionMessage(StackLimitReached)
-ExceptionMessage(IllegalUseageOfBreak)
-ExceptionMessage(IllegalUseageOfContinue)
 
 class CalledBreak;
 class CalledContinue;
-
+class Thread;
 /**
  * Contains all variable values during the interpretation of a program.
  * TODO: It currently also hosts the stack, which should be changed as soon as things get multithreaded...
  */
 class RuntimeEnvironment {
-
-    /**
-     * The stack containing the local variables. The indices of the variables in each vector are equal to their
-     * local indices as used by get_local and set_local.
-     */
-    std::stack<std::vector<Variable>> stack;
 
     /**
      * All functions that are accessible with the currently loaded modules.
@@ -49,50 +41,26 @@ class RuntimeEnvironment {
      */
     Heap heap_;
 
-    uint32_t stackLimit = 50;
-
-    /**
-     * Pushes a new vector on the stack and creates variables with the given types.
-     */
-    void createLocals(std::vector<Type*> variableTypes) {
-        if (stack.size() >= stackLimit)
-            throw StackLimitReached(std::to_string(stack.size()));
-
-        stack.push(std::vector<Variable>());
-        for(Type* type : variableTypes) {
-            stack.top().push_back(Variable(type));
-        }
-    }
-
     /**
      * The stdout of this program. We currently just append to this string and then read it via stdou().
      */
     std::string stdout_;
 
-    void enterFunction(Function& function);
-
-    /**
-     * Leave the last entered function
-     */
-    void leaveFunction() {
-        stack.pop();
-    }
+    // FIXME Use smart pointers if possible...
+    std::vector<Thread*> threads_;
 
 public:
     RuntimeEnvironment() : heap_(1024) {
-
     }
+
+    virtual ~RuntimeEnvironment();
+
+    Thread & createThread();
 
     void useModule(Module& module);
 
-    Variable callFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
-
     Heap& heap() {
         return heap_;
-    }
-
-    Variable& variable(uint32_t index) {
-        return stack.top().at(index);
     }
 
     Variable& global(std::string name) {
@@ -112,6 +80,17 @@ public:
         return stdout_;
     }
 
+    std::map<std::string, Function*>& functions() {
+        return functions_;
+    }
+
+    /**
+     * All globals that are accessible with the currently loaded modules.
+     * The keys are the variable names.
+     */
+    std::map<std::string, Variable>& globals() {
+        return globals_;
+    }
 };
 
 

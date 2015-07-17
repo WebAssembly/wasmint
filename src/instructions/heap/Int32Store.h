@@ -22,14 +22,22 @@ public:
         return "int32.store";
     }
 
-    virtual Variable execute(RuntimeEnvironment& env) {
-        uint32_t offset = static_cast<uint32_t>(Int32::getValue(children().at(0)->execute(env)));
+    virtual StepResult execute(Thread &thread) {
 
-        Variable value = children().at(1)->execute(env);
-        env.heap().setBytes(offset, value.data());
+        InstructionState& state = thread.getInstructionState();
+        switch(state.state()) {
+            case 0:
+                return StepResult(children().at(0));
+            case 1:
+                return StepResult(children().at(1));
+            default:
 
+                uint32_t offset = static_cast<uint32_t>(Int32::getValue(state.results().at(0)));
 
-        return value;
+                Variable value = state.results().at(1);
+                thread.runtimeEnvironment().heap().setBytes(offset, value.data());
+                return StepResult(value);
+        }
     }
 };
 
