@@ -57,3 +57,8 @@ Thread& Thread::startAtFunction(std::string functionName, std::vector<Variable> 
     currentInstructionState = new InstructionState(callFunction(functionName, parameters));
     return *this;
 }
+
+virtual Thread::~Thread() {
+    if (currentInstructionState)
+        delete currentInstructionState;
+}

@@ -44,6 +44,7 @@ class Thread {
 
 public:
     Thread(RuntimeEnvironment& env);
+    virtual ~Thread();
 
     Thread& startAtFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
     Instruction* callFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
