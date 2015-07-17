@@ -32,3 +32,8 @@ Signal InstructionState::step(Thread& thread) {
     }
     return Signal::None;
 }
+
+InstructionState::~InstructionState() {
+    if (childInstruction)
+        delete childInstruction;
+}

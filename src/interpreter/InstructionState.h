@@ -22,6 +22,8 @@ public:
     InstructionState(Instruction* instruction) : instruction_(instruction) {
     }
 
+    virtual ~InstructionState();
+
     Variable result() {
         return result_;
     }
