@@ -58,7 +58,7 @@ Thread& Thread::startAtFunction(std::string functionName, std::vector<Variable> 
     return *this;
 }
 
-virtual Thread::~Thread() {
+Thread::~Thread() {
     if (currentInstructionState)
         delete currentInstructionState;
 }
