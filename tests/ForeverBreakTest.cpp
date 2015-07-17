@@ -6,6 +6,7 @@
 #include <interpreter/RuntimeEnvironment.h>
 #include <cassert>
 #include <types/Int32.h>
+#include <memory>
 
 #define BLOCK 0x7
 #define SET_LOCAL 0x5
@@ -83,7 +84,7 @@ int main() {
 
     ByteStream stream(data);
 
-    Module* m = ModuleParser::parse(stream);
+    std::unique_ptr<Module> m = ModuleParser::parse(stream);
 
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "forever");
