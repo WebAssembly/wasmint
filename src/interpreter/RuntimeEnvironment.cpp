@@ -3,6 +3,7 @@
 #include <instructions/controlflow/Break.h>
 #include <instructions/controlflow/Continue.h>
 #include <Function.h>
+#include "Thread.h"
 
 void RuntimeEnvironment::useModule(Module& module) {
     std::vector<Function*> functions = module.functions();
@@ -14,4 +15,16 @@ void RuntimeEnvironment::useModule(Module& module) {
         globals_[global.name()] = Variable(global.type());
     }
 
+}
+
+Thread &RuntimeEnvironment::createThread() {
+    Thread* newThread = new Thread(*this);
+    threads_.push_back(newThread);
+    return *threads_.back();
+}
+
+RuntimeEnvironment::~RuntimeEnvironment() {
+    for(Thread* thread : threads_) {
+        delete thread;
+    }
 }

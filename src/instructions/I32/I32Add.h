@@ -5,6 +5,7 @@
 
 
 #include <types/Int32.h>
+#include <assert.h>
 #include "instructions/Instruction.h"
 
 class I32Add : public Instruction {
@@ -23,13 +24,23 @@ public:
         return Int32::instance();
     }
 
-    virtual Variable execute(Thread &thread) {
-        int32_t left = Int32::getValue(children().at(0)->execute(thread));
-        int32_t right = Int32::getValue(children().at(1)->execute(thread));
+    virtual StepResult execute(Thread &thread) {
+        InstructionState& state = thread.getInstructionState();
+        assert(state.instruction() == this);
+        switch(state.state()) {
+            case 0:
+                return StepResult(children().at(0));
+            case 1:
+                return StepResult(children().at(1));
+            default:
+                int32_t left = Int32::getValue(state.results().at(0));
+                int32_t right = Int32::getValue(state.results().at(1));
 
-        Variable result = Variable(Int32::instance());
-        Int32::setValue(result, left + right);
-        return result;
+                Variable result = Variable(Int32::instance());
+                Int32::setValue(result, left + right);
+                return result;
+        }
+
     }
 };
 

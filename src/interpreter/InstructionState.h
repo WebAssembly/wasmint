@@ -3,8 +3,10 @@
 
 #include <vector>
 #include <Variable.h>
-#include <instructions/Instruction.h>
+#include <instructions/StepResult.h>
+#include "Thread.h"
 
+class Instruction;
 
 class InstructionState {
 
@@ -12,37 +14,34 @@ class InstructionState {
     InstructionState* childInstruction = nullptr;
     Variable result_;
     bool finished_ = false;
-    std::vector<Variable> results;
+    std::vector<Variable> results_;
     Instruction* instruction_;
 
 
 public:
-    InstructionState(Instruction* instruction) {
+    InstructionState(Instruction* instruction) : instruction_(instruction) {
     }
 
     Variable result() {
         return result_;
     }
 
-    void step(Thread& thread) {
-        if (childInstruction != nullptr) {
-            childInstruction->step(thread);
-            if (childInstruction->finished()) {
-                results.push_back(childInstruction->result());
-                delete childInstruction;
-                childInstruction = nullptr;
-            }
-        } else {
-            instruction_->execute(thread);
-        }
-    }
+    void step(Thread& thread);
 
     bool finished() {
         return finished_;
     }
 
+    Instruction* instruction() {
+        return instruction_;
+    }
+
     uint32_t state() {
         return state_;
+    }
+
+    std::vector<Variable>& results() {
+        return results_;
     }
 
     void state(uint32_t newState) {
@@ -51,8 +50,12 @@ public:
 
     InstructionState& getChildOrThis() {
         if (childInstruction != nullptr)
-            return *childInstruction;
+            return childInstruction->getChildOrThis();
         return *this;
+    }
+
+    void clearResults() {
+        results_.clear();
     }
 
 };

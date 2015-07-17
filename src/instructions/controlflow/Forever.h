@@ -22,8 +22,14 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(Thread &thread) {
-        try {
+    virtual StepResult execute(Thread &thread) {
+        if (thread.getInstructionState().state() != 0) {
+            return StepResult();
+        }
+        thread.getInstructionState().clearResults();
+        return StepResult(children().front());
+
+        /* try {
             while (true) {
                 try {
                     children().at(0)->execute(thread);
@@ -34,7 +40,8 @@ public:
         } catch (CalledBreak) {
 
         }
-        return Variable();
+        return Variable(); */
+        return StepResult();
     }
 };
 

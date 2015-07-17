@@ -2,6 +2,7 @@
 #include <instructions/controlflow/Continue.h>
 #include "Thread.h"
 #include <Function.h>
+#include "InstructionState.h"
 
 
 Thread::Thread(RuntimeEnvironment& env) : env_(env) {
@@ -16,7 +17,7 @@ void Thread::enterFunction(Function& function) {
     stack.push(FunctionState(function));
 }
 
-Variable Thread::callFunction(std::string functionName, std::vector<Variable> parameters) {
+Instruction* Thread::callFunction(std::string functionName, std::vector<Variable> parameters) {
     auto functionIterator = env_.functions().find(functionName);
     if (functionIterator != env_.functions().end()) {
         Function* function = functionIterator->second;
@@ -24,18 +25,32 @@ Variable Thread::callFunction(std::string functionName, std::vector<Variable> pa
         for(uint32_t i = 0; i < parameters.size(); i++) {
             variable(i) = parameters.at(i);
         }
-
-        Variable result;
-        try {
-            result = function->execute(*this);
-        } catch(CalledBreak e) {
-            throw IllegalUseageOfBreak(std::string("break was used outside of a loop in function ") + functionName);
-        } catch(CalledContinue e) {
-            throw IllegalUseageOfContinue(std::string("continue was used outside of a loop in function ") + functionName);
-        }
-        leaveFunction();
-        return result;
+        return function->mainInstruction();
     } else {
         throw NoFunctionWithName(functionName);
     }
+}
+
+void Thread::step() {
+    if (currentInstructionState)
+        currentInstructionState->step(*this);
+}
+
+void Thread::stepUntilFinished() {
+    if (currentInstructionState) {
+        while (!currentInstructionState->finished()) {
+            step();
+        }
+    }
+}
+
+InstructionState &Thread::getInstructionState() {
+    if (currentInstructionState)
+        return currentInstructionState->getChildOrThis();
+    throw ThreadNotRunning("Thread not started");
+}
+
+Thread& Thread::startAtFunction(std::string functionName, std::vector<Variable> parameters) {
+    currentInstructionState = new InstructionState(callFunction(functionName, parameters));
+    return *this;
 }

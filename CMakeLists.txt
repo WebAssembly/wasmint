@@ -42,11 +42,6 @@ add_library(core
     src/instructions/heap/Int32Load.cpp
     src/instructions/heap/Int32Store.cpp
 
-    src/instructions/Print.cpp
-    src/instructions/GetLocal.cpp
-    src/instructions/SetLocal.cpp
-    src/instructions/GetGlobal.cpp
-    src/instructions/SetGlobal.cpp
     src/instructions/controlflow/Block.cpp
     src/instructions/controlflow/Break.cpp
     src/instructions/controlflow/Continue.cpp
@@ -54,8 +49,15 @@ add_library(core
     src/instructions/controlflow/Forever.cpp
     src/instructions/controlflow/If.cpp
     src/instructions/controlflow/Return.cpp
+
+    src/instructions/Print.cpp
+    src/instructions/GetLocal.cpp
+    src/instructions/SetLocal.cpp
+    src/instructions/GetGlobal.cpp
+    src/instructions/SetGlobal.cpp
     src/instructions/FunctionCall.cpp
     src/instructions/Literal.cpp
+    src/instructions/StepResult.cpp
 
     src/types/Int8.cpp
     src/types/Int32.cpp

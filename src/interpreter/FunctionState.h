@@ -3,7 +3,8 @@
 
 
 #include <Variable.h>
-#include <Function.h>
+
+class Function;
 
 class FunctionState {
 
@@ -12,11 +13,8 @@ class FunctionState {
 public:
     FunctionState() {
     }
-    FunctionState(Function& function, Instruction* mainInstruction) {
-        for(Type* type : function.locals()) {
-            variables_.push_back(Variable(type));
-        }
-    }
+
+    FunctionState(Function& function);
 
     Variable& variable(uint32_t index) {
         return variables_.at(index);

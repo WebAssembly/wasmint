@@ -11,14 +11,13 @@
 #include <map>
 #include <Module.h>
 #include "Heap.h"
-#include "Thread.h"
 
 ExceptionMessage(NoFunctionWithName)
 ExceptionMessage(NoGlobalWithName)
 
 class CalledBreak;
 class CalledContinue;
-
+class Thread;
 /**
  * Contains all variable values during the interpretation of a program.
  * TODO: It currently also hosts the stack, which should be changed as soon as things get multithreaded...
@@ -54,17 +53,9 @@ public:
     RuntimeEnvironment() : heap_(1024) {
     }
 
-    virtual ~RuntimeEnvironment() {
-        for(Thread* thread : threads_) {
-            delete thread;
-        }
-    }
+    virtual ~RuntimeEnvironment();
 
-    Thread& createThread() {
-        Thread* newThread = new Thread(*this);
-        threads_.push_back(newThread);
-        return *threads_.back();
-    }
+    Thread & createThread();
 
     void useModule(Module& module);
 

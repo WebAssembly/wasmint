@@ -13,6 +13,7 @@
 #include <memory>
 #include <interpreter/RuntimeEnvironment.h>
 #include <interpreter/Thread.h>
+#include <instructions/Instruction.h>
 
 class Instruction;
 
@@ -27,7 +28,9 @@ public:
     Function(FunctionContext& context, Instruction* mainInstruction);
     virtual ~Function();
 
-    Variable execute(Thread& thread);
+    Instruction* mainInstruction() {
+        return mainInstruction_;
+    }
 };
 
 

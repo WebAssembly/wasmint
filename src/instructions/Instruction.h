@@ -9,13 +9,10 @@
 
 #include "types/Type.h"
 #include "Variable.h"
+#include "StepResult.h"
 #include <interpreter/Thread.h>
 #include <interpreter/RuntimeEnvironment.h>
-
-class StepResult {
-    Instruction* newChildInstruction = nullptr;
-    Variable result;
-};
+#include <interpreter/InstructionState.h>
 
 class Instruction {
 
@@ -40,7 +37,7 @@ public:
     virtual std::vector<Type*> childrenTypes() = 0;
     virtual Type* returnType() = 0;
 
-    virtual Variable execute(Thread &thread) = 0;
+    virtual StepResult execute(Thread &thread) = 0;
 };
 
 

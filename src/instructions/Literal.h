@@ -31,8 +31,8 @@ public:
         return &literalValue.type();
     }
 
-    virtual Variable execute(Thread &thread) {
-        return literalValue;
+    virtual StepResult execute(Thread &thread) {
+        return StepResult(literalValue);
     }
 };
 

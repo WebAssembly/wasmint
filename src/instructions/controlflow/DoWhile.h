@@ -23,8 +23,8 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(Thread &thread) {
-        Variable condition;
+    virtual StepResult execute(Thread &thread) {
+        /*Variable condition;
         try {
             while (true) {
                 try {
@@ -40,7 +40,8 @@ public:
         } catch (CalledBreak) {
 
         }
-        return Variable();
+        return StepResult(); */
+        return StepResult();
     }
 };
 

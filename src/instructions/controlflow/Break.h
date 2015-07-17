@@ -21,8 +21,9 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(Thread &thread) {
-        throw CalledBreak();
+    virtual StepResult execute(Thread &thread) {
+        //throw CalledBreak();
+        return StepResult();
     }
 };
 

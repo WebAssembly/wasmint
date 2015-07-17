@@ -32,7 +32,7 @@ public:
         return returnType_;
     }
 
-    virtual Variable execute(Thread &thread) {
+    virtual StepResult execute(Thread &thread) {
         return thread.runtimeEnvironment().global(globalName);
     }
 };

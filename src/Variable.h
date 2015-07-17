@@ -4,7 +4,6 @@
 #define WASMINT_VARIABLE_H
 
 #include <cstdint>
-#include <string.h>
 #include <vector>
 
 class InvalidDataSize : public std::exception {};

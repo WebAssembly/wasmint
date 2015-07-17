@@ -7,7 +7,6 @@
 #include <map>
 #include <Module.h>
 #include <Function.h>
-#include <instructions/Instruction.h>
 #include "Heap.h"
 #include "FunctionState.h"
 #include "InstructionState.h"
@@ -15,8 +14,10 @@
 ExceptionMessage(StackLimitReached)
 ExceptionMessage(IllegalUseageOfBreak)
 ExceptionMessage(IllegalUseageOfContinue)
+ExceptionMessage(ThreadNotRunning)
 
 class RuntimeEnvironment;
+class InstructionState;
 
 class Thread {
 
@@ -39,13 +40,19 @@ class Thread {
 
     RuntimeEnvironment& env_;
 
+    InstructionState* currentInstructionState = nullptr;
+
 public:
     Thread(RuntimeEnvironment& env);
 
-    Variable callFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
+    Thread& startAtFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
+    Instruction* callFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
 
-    void step() {
-    }
+    void step();
+
+    void stepUntilFinished();
+
+    InstructionState & getInstructionState();
 
     Variable& variable(uint32_t index) {
         return stack.top().variable(index);
