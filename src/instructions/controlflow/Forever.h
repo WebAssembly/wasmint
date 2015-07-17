@@ -22,26 +22,21 @@ public:
         return Void::instance();
     }
 
+    virtual bool handleSignal(InstructionState& currentState, Signal signal) {
+        if (signal == Signal::Break) {
+            currentState.state(10);
+            return true;
+        }
+        return signal == Signal::Continue;
+    }
+
     virtual StepResult execute(Thread &thread) {
-        if (thread.getInstructionState().state() != 0) {
+        if (thread.getInstructionState().state() >= 10) {
             return StepResult();
         }
         thread.getInstructionState().clearResults();
+        thread.getInstructionState().state(0);
         return StepResult(children().front());
-
-        /* try {
-            while (true) {
-                try {
-                    children().at(0)->execute(thread);
-                } catch (CalledContinue) {
-
-                }
-            }
-        } catch (CalledBreak) {
-
-        }
-        return Variable(); */
-        return StepResult();
     }
 };
 

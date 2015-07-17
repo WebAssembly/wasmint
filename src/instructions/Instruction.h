@@ -12,7 +12,8 @@
 #include "StepResult.h"
 #include <interpreter/Thread.h>
 #include <interpreter/RuntimeEnvironment.h>
-#include <interpreter/InstructionState.h>
+
+class InstructionState;
 
 class Instruction {
 
@@ -38,6 +39,8 @@ public:
     virtual Type* returnType() = 0;
 
     virtual StepResult execute(Thread &thread) = 0;
+
+    virtual bool handleSignal(InstructionState& currentState, Signal signal);
 };
 
 

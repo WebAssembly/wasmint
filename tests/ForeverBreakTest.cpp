@@ -101,7 +101,8 @@ int main() {
 
     RuntimeEnvironment environment;
     environment.useModule(*m);
-    environment.callFunction("main");
+    Thread& thread = environment.createThread().startAtFunction("main");
+    thread.stepUntilFinished();
 
     // This module should print the number 6
     assert(environment.stdout() == "6");

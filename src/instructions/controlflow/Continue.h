@@ -22,8 +22,7 @@ public:
     }
 
     virtual StepResult execute(Thread &thread) {
-        //throw CalledContinue();
-        return StepResult();
+        return StepResult(Signal::Continue);
     }
 };
 

@@ -26,7 +26,7 @@ public:
         return result_;
     }
 
-    void step(Thread& thread);
+    Signal step(Thread& thread);
 
     bool finished() {
         return finished_;

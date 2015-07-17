@@ -27,10 +27,14 @@ public:
     }
 
     virtual StepResult execute(Thread &thread) {
-        /*CalledReturn returnCall;
-        returnCall.result = children().at(0)->execute(thread);
-        throw returnCall; */
-        return StepResult();
+        InstructionState& state = thread.getInstructionState();
+        switch(state.state()) {
+            case 0:
+                return children().at(0);
+            default:
+                return state.results().front();
+
+        }
     }
 };
 

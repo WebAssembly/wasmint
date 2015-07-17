@@ -2,22 +2,33 @@
 
 #include <instructions/Instruction.h>
 
-void InstructionState::step(Thread& thread) {
+Signal InstructionState::step(Thread& thread) {
     if (childInstruction != nullptr) {
-        childInstruction->step(thread);
+        Signal signal = childInstruction->step(thread);
         if (childInstruction->finished()) {
             results_.push_back(childInstruction->result());
             delete childInstruction;
             childInstruction = nullptr;
         }
+        if (signal != Signal::None) {
+            if (instruction()->handleSignal(*this, signal)) {
+                delete childInstruction;
+                childInstruction = nullptr;
+                return Signal::None;
+            }
+        }
+        return signal;
     } else {
         StepResult result = instruction_->execute(thread);
         if (result.newChildInstruction()) {
             childInstruction = new InstructionState(result.newChildInstruction());
+        } else if (result.signal() != Signal::None) {
+            return result.signal();
         } else {
             result_ = result.result();
             finished_ = true;
         }
         state_++;
     }
+    return Signal::None;
 }

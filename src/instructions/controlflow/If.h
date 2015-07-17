@@ -22,15 +22,18 @@ public:
     }
 
     virtual StepResult execute(Thread &thread) {
-/*
-        Variable condition = children().at(0)->execute(thread);
+        InstructionState& state = thread.getInstructionState();
+        switch(state.state()) {
+            case 0:
+                return children().at(0);
+            case 1:
+                if (Int32::getValue(state.results().front()) != 0) {
+                    return children().at(1);
+                }
+            default:
+                return StepResult();
 
-        if (Int32::getValue(condition)) {
-            children().at(1)->execute(thread);
         }
-
-        return Variable(); */
-        return StepResult();
     }
 };
 

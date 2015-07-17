@@ -22,8 +22,7 @@ public:
     }
 
     virtual StepResult execute(Thread &thread) {
-        //throw CalledBreak();
-        return StepResult();
+        return StepResult(Signal::Break);
     }
 };
 

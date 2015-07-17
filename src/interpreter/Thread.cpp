@@ -2,6 +2,7 @@
 #include <instructions/controlflow/Continue.h>
 #include "Thread.h"
 #include <Function.h>
+#include <assert.h>
 #include "InstructionState.h"
 
 
@@ -32,8 +33,10 @@ Instruction* Thread::callFunction(std::string functionName, std::vector<Variable
 }
 
 void Thread::step() {
-    if (currentInstructionState)
-        currentInstructionState->step(*this);
+    if (currentInstructionState) {
+        Signal s = currentInstructionState->step(*this);
+        assert(s == Signal::None);
+    }
 }
 
 void Thread::stepUntilFinished() {
