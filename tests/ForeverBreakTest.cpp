@@ -84,7 +84,7 @@ int main() {
 
     ByteStream stream(data);
 
-    std::unique_ptr<Module> m = ModuleParser::parse(stream);
+    std::unique_ptr<Module> m(ModuleParser::parse(stream));
 
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "forever");
