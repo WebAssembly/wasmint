@@ -4,6 +4,7 @@
 #include <Function.h>
 #include <assert.h>
 #include "InstructionState.h"
+#include "RuntimeEnvironment.h"
 
 
 Thread::Thread(RuntimeEnvironment& env) : env_(env) {
