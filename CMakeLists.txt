@@ -19,8 +19,7 @@ add_library(core
     src/interpreter/RuntimeEnvironment.cpp
     src/interpreter/InstructionExecutor.cpp
     src/interpreter/Heap.cpp
-
-    src/instructions/StepResult.cpp
+    src/interpreter/StepResult.cpp
 )
 
 

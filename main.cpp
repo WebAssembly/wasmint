@@ -5,7 +5,8 @@
 #include <parsing/ByteStream.h>
 #include <Module.h>
 #include <parsing/ModuleParser.h>
-
+#include <interpreter/RuntimeEnvironment.h>
+#include <interpreter/Thread.h>
 int main(int argc, char** argv) {
     if (argc == 1) {
         std::cerr << "No modules given. Call programm like this: \n$ wasmint module1.wasm" << std::endl;
@@ -41,8 +42,8 @@ int main(int argc, char** argv) {
     }
 
     try {
-        Thread& thread = environment.createThread();
-        thread.callFunction("main");
+        Thread& thread = environment.createThread().startAtFunction("main");
+        thread.stepUntilFinished();
     } catch(NoFunctionWithName e) {
         if (e.what() == "main") {
             std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;

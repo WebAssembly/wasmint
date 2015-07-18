@@ -2,7 +2,7 @@
 #define WASMINT_INSTRUCTIONEXECUTOR_H
 
 
-#include <instructions/StepResult.h>
+#include <interpreter/StepResult.h>
 #include "Thread.h"
 
 ExceptionMessage(UnknownInstruction)

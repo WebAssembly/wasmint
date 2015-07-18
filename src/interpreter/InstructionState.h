@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <Variable.h>
-#include <instructions/StepResult.h>
+#include <interpreter/StepResult.h>
 
 class Instruction;
 class Thread;
