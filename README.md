@@ -31,6 +31,12 @@ For more information see the [documentation](docs/BinaryFormat.md).
 
 wasmint requires a C++11 compiler (including STL) and CMake as build dependencies.
 
+Make sure to pull all git submodules before the build:
+
+```
+git submodule init
+git submodule update
+```
 ### Linux/OS X/Unix/Posix
 
 To build wasmint on those systems with cmake and make by running:
