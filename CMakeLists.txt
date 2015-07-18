@@ -3,77 +3,24 @@ project(wasmint)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+add_subdirectory(wasm-module)
+
 ####################
 # Common code      #
 ####################
 
+include_directories(wasm-module/src)
 include_directories (src)
 
 add_library(core
-    main.cpp
-    src/ExceptionWithMessage.cpp
-    src/instructions/InstructionSet.cpp
-    src/Module.cpp
-    src/Section.cpp
-    src/FunctionContext.cpp
-    src/FunctionSignature.cpp
-    src/FunctionTable.cpp
-    src/instructions/Instruction.cpp
-    src/OpcodeTable.cpp
-    src/Variable.cpp
-    src/Global.cpp
-    src/GlobalTable.cpp
-    src/Function.cpp
-    src/types/Type.cpp
-    src/TypeTable.cpp
-    src/ModuleContext.cpp
-
     src/interpreter/Thread.cpp
     src/interpreter/FunctionState.cpp
     src/interpreter/InstructionState.cpp
     src/interpreter/RuntimeEnvironment.cpp
+    src/interpreter/InstructionExecutor.cpp
     src/interpreter/Heap.cpp
 
-    src/instructions/I32/I32Add.cpp
-    src/instructions/I32/I32Sub.cpp
-    src/instructions/I32/I32Mul.cpp
-    src/instructions/I32/I32Div.cpp
-
-    src/instructions/heap/Int32Load.cpp
-    src/instructions/heap/Int32Store.cpp
-
-    src/instructions/controlflow/Block.cpp
-    src/instructions/controlflow/Break.cpp
-    src/instructions/controlflow/Continue.cpp
-    src/instructions/controlflow/DoWhile.cpp
-    src/instructions/controlflow/Forever.cpp
-    src/instructions/controlflow/If.cpp
-    src/instructions/controlflow/Return.cpp
-
-    src/instructions/Print.cpp
-    src/instructions/GetLocal.cpp
-    src/instructions/SetLocal.cpp
-    src/instructions/GetGlobal.cpp
-    src/instructions/SetGlobal.cpp
-    src/instructions/FunctionCall.cpp
-    src/instructions/Literal.cpp
     src/instructions/StepResult.cpp
-
-    src/types/Int8.cpp
-    src/types/Int32.cpp
-    src/types/Int64.cpp
-    src/types/Void.cpp
-    src/types/Float32.cpp
-    src/types/Float64.cpp
-
-    src/parsing/ByteStream.cpp
-    src/parsing/GlobalTableParser.cpp
-    src/parsing/FunctionParser.cpp
-    src/parsing/FunctionTableParser.cpp
-    src/parsing/TypeTableParser.cpp
-    src/parsing/ModuleParser.cpp
-    src/parsing/CodeSectionParser.cpp
-    src/parsing/OpcodeTableParser.cpp
 )
 
 
@@ -83,7 +30,7 @@ add_library(core
 
 add_executable(wasmint main.cpp)
 
-target_link_libraries(wasmint core)
+target_link_libraries(wasmint core wasm-module)
 
 
 ####################
@@ -95,6 +42,6 @@ file(GLOB TEST_FILES "tests/*Test.cpp")
 foreach(TEST_FILE ${TEST_FILES})
   get_filename_component(BASENAME ${TEST_FILE} NAME_WE)
   add_executable(${BASENAME} ${TEST_FILE})
-  target_link_libraries(${BASENAME} core)
+  target_link_libraries(${BASENAME} core wasm-module)
   add_test(${BASENAME} ${BASENAME})
 endforeach()

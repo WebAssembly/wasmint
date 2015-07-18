@@ -7,6 +7,7 @@
 #include <cassert>
 #include <types/Int32.h>
 #include <memory>
+#include <interpreter/Thread.h>
 
 #define BLOCK 0x7
 #define SET_LOCAL 0x5

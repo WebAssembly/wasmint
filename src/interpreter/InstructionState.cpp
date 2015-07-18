@@ -1,6 +1,8 @@
 #include "InstructionState.h"
 
 #include <instructions/Instruction.h>
+#include "Thread.h"
+#include "InstructionExecutor.h"
 
 Signal InstructionState::step(Thread& thread) {
     if (childInstruction != nullptr) {
@@ -11,7 +13,7 @@ Signal InstructionState::step(Thread& thread) {
             childInstruction = nullptr;
         }
         if (signal != Signal::None) {
-            if (instruction()->handleSignal(*this, signal)) {
+            if (InstructionExecutor::handleSignal(*instruction(), *this, signal)) {
                 delete childInstruction;
                 childInstruction = nullptr;
                 return Signal::None;
@@ -19,7 +21,7 @@ Signal InstructionState::step(Thread& thread) {
         }
         return signal;
     } else {
-        StepResult result = instruction_->execute(thread);
+        StepResult result = InstructionExecutor::execute(*instruction(), thread);
         if (result.newChildInstruction()) {
             childInstruction = new InstructionState(result.newChildInstruction());
         } else if (result.signal() != Signal::None) {

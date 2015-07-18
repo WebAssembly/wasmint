@@ -4,9 +4,9 @@
 #include <vector>
 #include <Variable.h>
 #include <instructions/StepResult.h>
-#include "Thread.h"
 
 class Instruction;
+class Thread;
 
 class InstructionState {
 
