@@ -28,8 +28,11 @@ add_library(core
     src/TypeTable.cpp
     src/ModuleContext.cpp
 
-    src/interpreter/RuntimeEnvironment.cpp
     src/interpreter/Heap.cpp
+    src/interpreter/Thread.cpp
+    src/interpreter/Thread.h
+    src/interpreter/MachineState.cpp
+    src/interpreter/MachineState.h
 
     src/instructions/I32/I32Add.cpp
     src/instructions/I32/I32Sub.cpp
@@ -65,6 +68,7 @@ add_library(core
     src/parsing/ModuleParser.cpp
     src/parsing/CodeSectionParser.cpp
     src/parsing/OpcodeTableParser.cpp
+
 )
 
 

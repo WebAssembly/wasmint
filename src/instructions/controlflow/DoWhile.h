@@ -23,16 +23,16 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
+    virtual Variable execute(Thread& thread) {
         Variable condition;
         try {
             while (true) {
                 try {
-                    children().at(1)->execute(env);
+                    children().at(1)->execute(thread);
                 } catch (CalledContinue) {
 
                 }
-                condition = children().at(0)->execute(env);
+                condition = children().at(0)->execute(thread);
                 if (!Int32::getValue(condition)) {
                     break;
                 }

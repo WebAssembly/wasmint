@@ -21,7 +21,7 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
+    virtual Variable execute(Thread& thread) {
         throw CalledContinue();
     }
 };

@@ -5,6 +5,7 @@
 #include <parsing/ByteStream.h>
 #include <Module.h>
 #include <parsing/ModuleParser.h>
+#include <interpreter/MachineState.h>
 
 int main(int argc, char** argv) {
     if (argc == 1) {
@@ -12,7 +13,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    RuntimeEnvironment environment;
+    MachineState environment;
 
     for(int i = 1; i < argc; i++) {
         std::string modulePath = argv[i];
@@ -41,7 +42,7 @@ int main(int argc, char** argv) {
     }
 
     try {
-        environment.callFunction("main");
+        environment.createThread().callFunction("main");
     } catch(NoFunctionWithName e) {
         if (e.what() == "main") {
             std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;

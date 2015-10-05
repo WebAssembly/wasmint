@@ -22,11 +22,11 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
+    virtual Variable execute(Thread& thread) {
         try {
             while (true) {
                 try {
-                    children().at(0)->execute(env);
+                    children().at(0)->execute(thread);
                 } catch (CalledContinue) {
 
                 }

@@ -32,8 +32,8 @@ public:
         return expectedType;
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        return env.variable(localIndex) = children().at(0)->execute(env);
+    virtual Variable execute(Thread& thread) {
+        return thread.variable(localIndex) = children().at(0)->execute(thread);
     }
 };
 

@@ -3,3 +3,8 @@
 //
 
 #include "GetGlobal.h"
+#include <interpreter/MachineState.h>
+
+Variable GetGlobal::execute(Thread& thread) {
+    return thread.machineState().global(globalName);
+}

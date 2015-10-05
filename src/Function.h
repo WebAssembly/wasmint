@@ -11,9 +11,9 @@
 #include "FunctionSignature.h"
 #include "FunctionContext.h"
 #include <memory>
-#include <interpreter/RuntimeEnvironment.h>
 
 class Instruction;
+class Thread;
 
 class Function : public FunctionContext {
 
@@ -26,7 +26,7 @@ public:
     Function(FunctionContext& context, Instruction* mainInstruction);
     virtual ~Function();
 
-    Variable execute(RuntimeEnvironment & environment);
+    Variable execute(Thread& thread);
 };
 
 

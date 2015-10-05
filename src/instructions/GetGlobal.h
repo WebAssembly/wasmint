@@ -6,6 +6,7 @@
 #define WASMINT_GETGLOBAL_H
 
 
+#include <ModuleContext.h>
 #include "Instruction.h"
 
 class GetGlobal : public Instruction {
@@ -32,9 +33,7 @@ public:
         return returnType_;
     }
 
-    virtual Variable execute(RuntimeEnvironment & env) {
-        return env.global(globalName);
-    }
+    virtual Variable execute(Thread& thread);
 };
 
 

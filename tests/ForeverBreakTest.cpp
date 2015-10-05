@@ -3,7 +3,7 @@
 #include <parsing/ByteStream.h>
 #include <Module.h>
 #include <parsing/ModuleParser.h>
-#include <interpreter/RuntimeEnvironment.h>
+#include <interpreter/MachineState.h>
 #include <cassert>
 #include <types/Int32.h>
 
@@ -99,9 +99,9 @@ int main() {
 
     assert(m->sections().size() == 1);
 
-    RuntimeEnvironment environment;
+    MachineState environment;
     environment.useModule(*m);
-    environment.callFunction("main");
+    environment.createThread().callFunction("main");
 
     // This module should print the number 6
     assert(environment.stdout() == "6");

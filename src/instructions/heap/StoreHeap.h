@@ -15,7 +15,7 @@ public:
         return Void::instance();
     }
 
-    virtual Variable execute(Environment& env) {
+    virtual Variable execute(Thread& thread) {
     }
 };
 
