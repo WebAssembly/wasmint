@@ -32,7 +32,7 @@ ExceptionMessage(ThreadNotRunning)
  */
 
 
-class RuntimeEnvironment;
+class MachineState;
 class InstructionState;
 
 class Thread {
@@ -54,12 +54,14 @@ class Thread {
 
     void enterFunction(Function& function);
 
-    RuntimeEnvironment& env_;
+    MachineState & env_;
 
     InstructionState* currentInstructionState = nullptr;
 
+    uint32_t weight_ = 1;
+
 public:
-    Thread(RuntimeEnvironment& env);
+    Thread(MachineState & env);
     virtual ~Thread();
 
     Thread& startAtFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
@@ -69,14 +71,24 @@ public:
 
     void stepUntilFinished();
 
+    void stepRoundRobin();
+
     InstructionState & getInstructionState();
 
     Variable& variable(uint32_t index) {
         return stack.top().variable(index);
     }
 
-    RuntimeEnvironment& runtimeEnvironment() {
+    MachineState & runtimeEnvironment() {
         return env_;
+    }
+
+    uint32_t weight() const {
+        return weight_;
+    }
+
+    void weight(uint32_t weight) {
+        this->weight_ = weight;
     }
 };
 

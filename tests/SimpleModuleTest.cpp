@@ -21,7 +21,7 @@
 #include <Module.h>
 #include <parsing/ModuleParser.h>
 #include <memory>
-#include <interpreter/RuntimeEnvironment.h>
+#include <interpreter/MachineState.h>
 #include <types/Int32.h>
 #include <iostream>
 #include <interpreter/Thread.h>
@@ -134,7 +134,7 @@ int main() {
 
     assert(m->sections().size() == 1);
 
-    RuntimeEnvironment environment;
+    MachineState environment;
     environment.useModule(*m);
     Thread& thread = environment.createThread().startAtFunction("main");
     thread.stepUntilFinished();

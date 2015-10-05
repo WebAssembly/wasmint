@@ -18,11 +18,10 @@
 #include <parsing/ByteStream.h>
 #include <Module.h>
 #include <parsing/ModuleParser.h>
-#include <interpreter/RuntimeEnvironment.h>
 #include <cassert>
 #include <types/Int32.h>
-#include <memory>
 #include <interpreter/Thread.h>
+#include <interpreter/MachineState.h>
 
 #define BLOCK 0x7
 #define SET_LOCAL 0x5
@@ -116,7 +115,7 @@ int main() {
 
     assert(m->sections().size() == 1);
 
-    RuntimeEnvironment environment;
+    MachineState environment;
     environment.useModule(*m);
     Thread& thread = environment.createThread().startAtFunction("main");
     thread.stepUntilFinished();

@@ -34,11 +34,11 @@ ExceptionMessage(NoGlobalWithName)
 class CalledBreak;
 class CalledContinue;
 class Thread;
+
 /**
  * Contains all variable values during the interpretation of a program.
- * TODO: It currently also hosts the stack, which should be changed as soon as things get multithreaded...
  */
-class RuntimeEnvironment {
+class MachineState {
 
     /**
      * All functions that are accessible with the currently loaded modules.
@@ -66,10 +66,10 @@ class RuntimeEnvironment {
     std::vector<Thread*> threads_;
 
 public:
-    RuntimeEnvironment() : heap_(1024) {
+    MachineState() : heap_(1024) {
     }
 
-    virtual ~RuntimeEnvironment();
+    virtual ~MachineState();
 
     Thread & createThread();
 

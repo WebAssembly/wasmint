@@ -22,10 +22,10 @@
 #include <Function.h>
 #include <assert.h>
 #include "InstructionState.h"
-#include "RuntimeEnvironment.h"
+#include "MachineState.h"
 
 
-Thread::Thread(RuntimeEnvironment& env) : env_(env) {
+Thread::Thread(MachineState & env) : env_(env) {
 }
 
 void Thread::enterFunction(Function& function) {
@@ -80,4 +80,15 @@ Thread& Thread::startAtFunction(std::string functionName, std::vector<Variable> 
 Thread::~Thread() {
     if (currentInstructionState)
         delete currentInstructionState;
+}
+
+void Thread::stepRoundRobin() {
+    if (currentInstructionState) {
+        for (uint32_t i = 0; i < weight_; i++) {
+            if (currentInstructionState->finished()) {
+                return;
+            }
+            step();
+        }
+    }
 }

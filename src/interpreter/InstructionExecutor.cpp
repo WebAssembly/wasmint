@@ -39,7 +39,7 @@
 #include <instructions/SetGlobal.h>
 #include <instructions/SetLocal.h>
 
-#include "RuntimeEnvironment.h"
+#include "MachineState.h"
 
 StepResult InstructionExecutor::execute(Instruction& instruction, Thread& thread) {
     InstructionState& state = thread.getInstructionState();
