@@ -32,6 +32,8 @@
 #define BREAK 0x2
 #define LITERAL 0x3
 
+using namespace wasmint;
+
 int main() {
     std::deque<uint8_t> data = {
             // Module header
@@ -89,17 +91,17 @@ int main() {
             SET_LOCAL, 0x0, LITERAL, 0x1, 2, // set_local the variable with index 0 to 2
             SET_LOCAL, 0x1, LITERAL, 0x1, 4, // set_local the variable with index 1 to 4
             FOREVER,
-                BLOCK, 0x2, // we start a new block with 2 instructions in it
-                    PRINT, // print the result of
-                        INT32_ADD, // int32.add with
-                            GET_LOCAL, 0x0, // an variable at index 0x0 as first argument
-                            GET_LOCAL, 0x1, // an variable at index 0x1 as second argument
-                    BREAK,
+            BLOCK, 0x2, // we start a new block with 2 instructions in it
+            PRINT, // print the result of
+            INT32_ADD, // int32.add with
+            GET_LOCAL, 0x0, // an variable at index 0x0 as first argument
+            GET_LOCAL, 0x1, // an variable at index 0x1 as second argument
+            BREAK,
     };
 
-    ByteStream stream(data);
+    wasm_module::ByteStream stream(data);
 
-    std::unique_ptr<Module> m(ModuleParser::parse(stream));
+    std::unique_ptr<wasm_module::Module> m(wasm_module::ModuleParser::parse(stream));
 
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "forever");
@@ -109,15 +111,15 @@ int main() {
     assert(m->opcodeTable().getInstruction(0x5) == "set_local");
     assert(m->opcodeTable().getInstruction(0x6) == "print");
 
-    assert(m->typeTable().getType(0x0) == Void::instance());
-    assert(m->typeTable().getType(0x1) == Int32::instance());
+    assert(m->typeTable().getType(0x0) == wasm_module::Void::instance());
+    assert(m->typeTable().getType(0x1) == wasm_module::Int32::instance());
 
 
     assert(m->sections().size() == 1);
 
     MachineState environment;
     environment.useModule(*m);
-    Thread& thread = environment.createThread().startAtFunction("main");
+    Thread &thread = environment.createThread().startAtFunction("main");
     thread.stepUntilFinished();
 
     // This module should print the number 6

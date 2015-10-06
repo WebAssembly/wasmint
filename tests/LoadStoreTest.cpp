@@ -36,6 +36,8 @@
 #define INT32_LOAD 0x8
 #define INT32_STORE 0x9
 
+using namespace wasmint;
+
 int main() {
     std::deque<uint8_t> data = {
             // Module header
@@ -114,10 +116,10 @@ int main() {
                 PRINT, INT32_LOAD, LITERAL, 0x1, 2, // print the int32 with value 3 from the linear memory
     };
 
-    ByteStream stream(data);
+    wasm_module::ByteStream stream(data);
 
-    std::unique_ptr<Module> m;
-    m.reset(ModuleParser::parse(stream));
+    std::unique_ptr<wasm_module::Module> m;
+    m.reset(wasm_module::ModuleParser::parse(stream));
 
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "call_direct");
@@ -130,8 +132,8 @@ int main() {
     assert(m->opcodeTable().getInstruction(0x8) == "int32.load");
     assert(m->opcodeTable().getInstruction(0x9) == "int32.store");
 
-    assert(m->typeTable().getType(0x0) == Void::instance());
-    assert(m->typeTable().getType(0x1) == Int32::instance());
+    assert(m->typeTable().getType(0x0) == wasm_module::Void::instance());
+    assert(m->typeTable().getType(0x1) == wasm_module::Int32::instance());
 
 
     assert(m->sections().size() == 1);
@@ -143,5 +145,4 @@ int main() {
 
     // This module should print the number 3 from the test function
     assert(environment.stdout() == "3");
-
 }

@@ -8,6 +8,9 @@
 #include <interpreter/MachineState.h>
 #include <interpreter/Thread.h>
 
+using namespace wasm_module;
+using namespace wasmint;
+
 int main(int argc, char** argv) {
     if (argc == 1) {
         std::cerr << "No modules given. Call programm like this: \n$ wasmint module1.wasm" << std::endl;

@@ -20,22 +20,28 @@
 
 #include <Variable.h>
 
-class Function;
 
-class FunctionState {
+namespace wasm_module {
+    class Function;
+}
 
-    std::vector<Variable> variables_;
-    
-public:
-    FunctionState() {
-    }
+namespace wasmint {
 
-    FunctionState(Function& function);
+    class FunctionState {
 
-    Variable& variable(uint32_t index) {
-        return variables_.at(index);
-    }
-};
+        std::vector<wasm_module::Variable> variables_;
 
+    public:
+        FunctionState() {
+        }
+
+        FunctionState(wasm_module::Function &function);
+
+        wasm_module::Variable &variable(uint32_t index) {
+            return variables_.at(index);
+        }
+    };
+
+}
 
 #endif //WASMINT_FUNCTIONSTATE_H

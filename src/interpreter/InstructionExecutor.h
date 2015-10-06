@@ -21,14 +21,18 @@
 #include <interpreter/StepResult.h>
 #include "Thread.h"
 
-ExceptionMessage(UnknownInstruction)
+namespace wasmint {
 
-class InstructionExecutor {
+    ExceptionMessage(UnknownInstruction)
 
-public:
-    static StepResult execute(Instruction& instruction, Thread& thread);
-    static bool handleSignal(Instruction& instruction, InstructionState& currentState, Signal signal);
-};
+    class InstructionExecutor {
 
+    public:
+        static StepResult execute(wasm_module::Instruction &instruction, Thread &thread);
+
+        static bool handleSignal(wasm_module::Instruction &instruction, InstructionState &currentState, Signal signal);
+    };
+
+}
 
 #endif //WASMINT_INSTRUCTIONEXECUTOR_H

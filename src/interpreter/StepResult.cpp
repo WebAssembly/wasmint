@@ -16,3 +16,7 @@
 
 
 #include "StepResult.h"
+
+namespace wasmint {
+
+}

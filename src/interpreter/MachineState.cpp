@@ -21,26 +21,30 @@
 #include <Function.h>
 #include "Thread.h"
 
-void MachineState::useModule(Module& module) {
-    std::vector<Function*> functions = module.functions();
-    for(Function* function : functions) {
-        functions_[function->name()] = function;
+namespace wasmint {
+
+    void MachineState::useModule(wasm_module::Module &module) {
+        std::vector<wasm_module::Function *> functions = module.functions();
+        for (wasm_module::Function *function : functions) {
+            functions_[function->name()] = function;
+        }
+
+        for (wasm_module::Global &global : module.globals()) {
+            globals_[global.name()] = wasm_module::Variable(global.type());
+        }
+
     }
 
-    for(Global& global : module.globals()) {
-        globals_[global.name()] = Variable(global.type());
+    Thread &MachineState::createThread() {
+        Thread *newThread = new Thread(*this);
+        threads_.push_back(newThread);
+        return *threads_.back();
     }
 
-}
-
-Thread &MachineState::createThread() {
-    Thread* newThread = new Thread(*this);
-    threads_.push_back(newThread);
-    return *threads_.back();
-}
-
-MachineState::~MachineState() {
-    for(Thread* thread : threads_) {
-        delete thread;
+    MachineState::~MachineState() {
+        for (Thread *thread : threads_) {
+            delete thread;
+        }
     }
+
 }

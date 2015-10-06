@@ -17,3 +17,7 @@
 
 
 #include "Heap.h"
+
+namespace wasmint {
+
+}

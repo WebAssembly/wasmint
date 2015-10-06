@@ -20,6 +20,8 @@
 #include <cassert>
 #include <types/Int32.h>
 
+using namespace wasm_module;
+
 int main() {
     Variable v2;
     {

@@ -28,86 +28,92 @@
 #include <Module.h>
 #include "Heap.h"
 
-ExceptionMessage(NoFunctionWithName)
-ExceptionMessage(NoGlobalWithName)
+namespace wasmint {
 
-class CalledBreak;
-class CalledContinue;
-class Thread;
+    ExceptionMessage(NoFunctionWithName)
+
+    ExceptionMessage(NoGlobalWithName)
+
+    class CalledBreak;
+
+    class CalledContinue;
+
+    class Thread;
 
 /**
  * Contains all variable values during the interpretation of a program.
  */
-class MachineState {
+    class MachineState {
 
-    /**
+        /**
      * All functions that are accessible with the currently loaded modules.
      * The keys are the function names.
      */
-    std::map<std::string, Function*> functions_;
+        std::map<std::string, wasm_module::Function *> functions_;
 
-    /**
+        /**
      * All globals that are accessible with the currently loaded modules.
      * The keys are the variable names.
      */
-    std::map<std::string, Variable> globals_;
+        std::map<std::string, wasm_module::Variable> globals_;
 
-    /**
+        /**
      * The current heap.
      */
-    Heap heap_;
+        Heap heap_;
 
-    /**
+        /**
      * The stdout of this program. We currently just append to this string and then read it via stdou().
      */
-    std::string stdout_;
+        std::string stdout_;
 
-    // FIXME Use smart pointers if possible...
-    std::vector<Thread*> threads_;
+        // FIXME Use smart pointers if possible...
+        std::vector<Thread *> threads_;
 
-public:
-    MachineState() : heap_(1024) {
-    }
-
-    virtual ~MachineState();
-
-    Thread & createThread();
-
-    void useModule(Module& module);
-
-    Heap& heap() {
-        return heap_;
-    }
-
-    Variable& global(std::string name) {
-        auto globalIterator = globals_.find(name);
-        if (globalIterator != globals_.end()) {
-           return globalIterator->second;
-        } else {
-            throw NoGlobalWithName(name);
+    public:
+        MachineState() : heap_(1024) {
         }
-    }
 
-    void print(std::string s) {
-        stdout_ += s;
-    }
+        virtual ~MachineState();
 
-    std::string stdout() {
-        return stdout_;
-    }
+        Thread &createThread();
 
-    std::map<std::string, Function*>& functions() {
-        return functions_;
-    }
+        void useModule(wasm_module::Module &module);
 
-    /**
+        Heap &heap() {
+            return heap_;
+        }
+
+        wasm_module::Variable &global(std::string name) {
+            auto globalIterator = globals_.find(name);
+            if (globalIterator != globals_.end()) {
+                return globalIterator->second;
+            } else {
+                throw NoGlobalWithName(name);
+            }
+        }
+
+        void print(std::string s) {
+            stdout_ += s;
+        }
+
+        std::string stdout() {
+            return stdout_;
+        }
+
+        std::map<std::string, wasm_module::Function *> &functions() {
+            return functions_;
+        }
+
+        /**
      * All globals that are accessible with the currently loaded modules.
      * The keys are the variable names.
      */
-    std::map<std::string, Variable>& globals() {
-        return globals_;
-    }
-};
+        std::map<std::string, wasm_module::Variable> &globals() {
+            return globals_;
+        }
+    };
 
+}
 
 #endif //WASMINT_ENVIRONMENT_H

@@ -18,8 +18,12 @@
 
 #include <Function.h>
 
-FunctionState::FunctionState(Function& function) {
-    for(Type* type : function.locals()) {
-        variables_.push_back(Variable(type));
+namespace wasmint {
+
+    FunctionState::FunctionState(wasm_module::Function &function) {
+        for (wasm_module::Type *type : function.locals()) {
+            variables_.push_back(wasm_module::Variable(type));
+        }
     }
+
 }

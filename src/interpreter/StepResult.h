@@ -21,43 +21,52 @@
 
 #include <Variable.h>
 
-class Instruction;
+namespace wasm_module {
+    class Instruction;
+}
 
-enum class Signal {
-    None,
-    Break,
-    Continue,
-    Return
-};
+namespace wasmint {
 
-class StepResult {
-    Instruction* newChildInstruction_ = nullptr;
-    Variable result_;
-    Signal signal_ = Signal::None;
+    enum class Signal {
+        None,
+        Break,
+        Continue,
+        Return
+    };
 
-public:
-    StepResult(Instruction* newChildInstruction) : newChildInstruction_(newChildInstruction) {
-    }
-    StepResult(Variable& result) : result_(result){
-    }
-    StepResult(Signal signal, Variable result = Variable())
-    : signal_(signal), result_(result) {
-    }
-    StepResult() {
+    class StepResult {
+        wasm_module::Instruction *newChildInstruction_ = nullptr;
+        wasm_module::Variable result_;
+        Signal signal_ = Signal::None;
 
-    }
+    public:
+        StepResult(wasm_module::Instruction *newChildInstruction) : newChildInstruction_(newChildInstruction) {
+        }
 
-    Variable result() {
-        return result_;
-    }
+        StepResult(wasm_module::Variable &result) : result_(result) {
+        }
 
-    Instruction* newChildInstruction() {
-        return newChildInstruction_;
-    }
+        StepResult(Signal signal, wasm_module::Variable result = wasm_module::Variable())
+                : signal_(signal), result_(result) {
+        }
 
-    Signal signal() {
-        return signal_;
-    }
-};
+        StepResult() {
+
+        }
+
+        wasm_module::Variable result() {
+            return result_;
+        }
+
+        wasm_module::Instruction *newChildInstruction() {
+            return newChildInstruction_;
+        }
+
+        Signal signal() {
+            return signal_;
+        }
+    };
+
+}
 
 #endif //WASMINT_STEPRESULT_H

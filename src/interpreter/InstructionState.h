@@ -21,62 +21,68 @@
 #include <Variable.h>
 #include <interpreter/StepResult.h>
 
-class Instruction;
-class Thread;
+namespace wasm_module {
+    class Instruction;
+}
 
-class InstructionState {
+namespace wasmint {
 
-    uint32_t state_ = 0;
-    InstructionState* childInstruction = nullptr;
-    Variable result_;
-    bool finished_ = false;
-    std::vector<Variable> results_;
-    Instruction* instruction_;
+    class Thread;
+
+    class InstructionState {
+
+        uint32_t state_ = 0;
+        InstructionState *childInstruction = nullptr;
+        wasm_module::Variable result_;
+        bool finished_ = false;
+        std::vector<wasm_module::Variable> results_;
+        wasm_module::Instruction *instruction_;
 
 
-public:
-    InstructionState(Instruction* instruction) : instruction_(instruction) {
-    }
+    public:
+        InstructionState(wasm_module::Instruction *instruction) : instruction_(instruction) {
+        }
 
-    virtual ~InstructionState();
+        virtual ~InstructionState();
 
-    Variable result() {
-        return result_;
-    }
+        wasm_module::Variable result() {
+            return result_;
+        }
 
-    Signal step(Thread& thread);
+        Signal step(Thread &thread);
 
-    bool finished() {
-        return finished_;
-    }
+        bool finished() {
+            return finished_;
+        }
 
-    Instruction* instruction() {
-        return instruction_;
-    }
+        wasm_module::Instruction *instruction() {
+            return instruction_;
+        }
 
-    uint32_t state() {
-        return state_;
-    }
+        uint32_t state() {
+            return state_;
+        }
 
-    std::vector<Variable>& results() {
-        return results_;
-    }
+        std::vector<wasm_module::Variable> &results() {
+            return results_;
+        }
 
-    void state(uint32_t newState) {
-        state_ = newState;
-    }
+        void state(uint32_t newState) {
+            state_ = newState;
+        }
 
-    InstructionState& getChildOrThis() {
-        if (childInstruction != nullptr)
-            return childInstruction->getChildOrThis();
-        return *this;
-    }
+        InstructionState &getChildOrThis() {
+            if (childInstruction != nullptr)
+                return childInstruction->getChildOrThis();
+            return *this;
+        }
 
-    void clearResults() {
-        results_.clear();
-    }
+        void clearResults() {
+            results_.clear();
+        }
 
-};
+    };
 
+}
 
 #endif //WASMINT_INSTRUCTIONSTATE_H

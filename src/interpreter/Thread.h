@@ -1,20 +1,3 @@
-#ifndef WASMINT_THREAD_H
-#define WASMINT_THREAD_H
-
-#include <Variable.h>
-#include <vector>
-#include <stack>
-#include <map>
-#include <Module.h>
-#include <Function.h>
-#include "Heap.h"
-#include "FunctionState.h"
-#include "InstructionState.h"
-
-ExceptionMessage(StackLimitReached)
-ExceptionMessage(IllegalUseageOfBreak)
-ExceptionMessage(IllegalUseageOfContinue)
-ExceptionMessage(ThreadNotRunning)
 /*
  * Copyright 2015 WebAssembly Community Group
  *
@@ -31,66 +14,86 @@ ExceptionMessage(ThreadNotRunning)
  * limitations under the License.
  */
 
+#ifndef WASMINT_THREAD_H
+#define WASMINT_THREAD_H
 
-class MachineState;
-class InstructionState;
+#include <Variable.h>
+#include <vector>
+#include <stack>
+#include <map>
+#include <Module.h>
+#include <Function.h>
+#include "Heap.h"
+#include "FunctionState.h"
+#include "InstructionState.h"
 
-class Thread {
+namespace wasmint {
 
-    uint32_t stackLimit = 50;
+    ExceptionMessage(StackLimitReached)
+    ExceptionMessage(IllegalUseageOfBreak)
+    ExceptionMessage(IllegalUseageOfContinue)
+    ExceptionMessage(ThreadNotRunning)
 
-    /**
-     * The stack containing the states of all called functions. The most recently called
-     * function state is always on top of the stack.
-     */
-    std::stack<FunctionState> stack;
+    class MachineState;
+    class InstructionState;
 
-    /**
-     * Leave the last entered function
-     */
-    void leaveFunction() {
-        stack.pop();
-    }
+    class Thread {
 
-    void enterFunction(Function& function);
+        uint32_t stackLimit = 50;
 
-    MachineState & env_;
+        /**
+         * The stack containing the states of all called functions. The most recently called
+         * function state is always on top of the stack.
+         */
+        std::stack<FunctionState> stack;
 
-    InstructionState* currentInstructionState = nullptr;
+        /**
+         * Leave the last entered function
+         */
+        void leaveFunction() {
+            stack.pop();
+        }
 
-    uint32_t weight_ = 1;
+        void enterFunction(wasm_module::Function& function);
 
-public:
-    Thread(MachineState & env);
-    virtual ~Thread();
+        MachineState & env_;
 
-    Thread& startAtFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
-    Instruction* callFunction(std::string functionName, std::vector<Variable> parameters = std::vector<Variable>());
+        InstructionState* currentInstructionState = nullptr;
 
-    void step();
+        uint32_t weight_ = 1;
 
-    void stepUntilFinished();
+    public:
+        Thread(MachineState & env);
+        virtual ~Thread();
 
-    void stepRoundRobin();
+        Thread& startAtFunction(std::string functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
+        wasm_module::Instruction* callFunction(std::string functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
 
-    InstructionState & getInstructionState();
+        void step();
 
-    Variable& variable(uint32_t index) {
-        return stack.top().variable(index);
-    }
+        void stepUntilFinished();
 
-    MachineState & runtimeEnvironment() {
-        return env_;
-    }
+        void stepRoundRobin();
 
-    uint32_t weight() const {
-        return weight_;
-    }
+        InstructionState & getInstructionState();
 
-    void weight(uint32_t weight) {
-        this->weight_ = weight;
-    }
-};
+        wasm_module::Variable& variable(uint32_t index) {
+            return stack.top().variable(index);
+        }
 
+        MachineState & runtimeEnvironment() {
+            return env_;
+        }
+
+        uint32_t weight() const {
+            return weight_;
+        }
+
+        void weight(uint32_t weight) {
+            this->weight_ = weight;
+        }
+    };
+
+}
 
 #endif //WASMINT_THREAD_H

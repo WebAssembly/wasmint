@@ -20,6 +20,8 @@
 #include <interpreter/Heap.h>
 #include <limits>
 
+using namespace wasmint;
+
 int main() {
     uint32_t size = 1024;
     Heap heap(size);
@@ -63,29 +65,29 @@ int main() {
     }
 
     /**
-     * Overflow tests
-     */
+ * Overflow tests
+ */
 
     try {
-        heap.getBytes(std::numeric_limits<uint32_t>::max()/2, std::numeric_limits<uint32_t>::max()/2);
+        heap.getBytes(std::numeric_limits<uint32_t>::max() / 2, std::numeric_limits<uint32_t>::max() / 2);
         assert(false);
     } catch (OutOfBounds e) {
         // should only throw OutOfBonds, but no exception about overflows
     }
     try {
-        heap.getBytes(std::numeric_limits<uint32_t>::max()/2 + 1, std::numeric_limits<uint32_t>::max()/2);
+        heap.getBytes(std::numeric_limits<uint32_t>::max() / 2 + 1, std::numeric_limits<uint32_t>::max() / 2);
         assert(false);
     } catch (OverFlowInHeapAccess e) {
         // uint32 overflow
     }
     try {
-        heap.getBytes(std::numeric_limits<uint32_t>::max()/2, std::numeric_limits<uint32_t>::max()/2 + 1);
+        heap.getBytes(std::numeric_limits<uint32_t>::max() / 2, std::numeric_limits<uint32_t>::max() / 2 + 1);
         assert(false);
     } catch (OverFlowInHeapAccess e) {
         // uint32 overflow
     }
     try {
-        heap.getBytes(std::numeric_limits<uint32_t>::max()/2 + 1, std::numeric_limits<uint32_t>::max()/2 + 1);
+        heap.getBytes(std::numeric_limits<uint32_t>::max() / 2 + 1, std::numeric_limits<uint32_t>::max() / 2 + 1);
         assert(false);
     } catch (OverFlowInHeapAccess e) {
         // uint32 overflow
