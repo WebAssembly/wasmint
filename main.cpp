@@ -35,10 +35,10 @@ int main(int argc, char** argv) {
         }
         else std::cerr << "Unable to open module " << modulePath;
 
-        ByteStream stream(std::deque<uint8_t>(data.begin(), data.end()));
+        binary::ByteStream stream(std::deque<uint8_t>(data.begin(), data.end()));
 
         try {
-            Module *m = ModuleParser::parse(stream);
+            Module *m = binary::ModuleParser::parse(stream);
             environment.useModule(*m);
         } catch (std::exception e) {
             std::cerr << "Got exception while parsing module " << modulePath << ": " << e.what() << std::endl;

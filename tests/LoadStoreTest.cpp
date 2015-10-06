@@ -116,10 +116,10 @@ int main() {
                 PRINT, INT32_LOAD, LITERAL, 0x1, 2, // print the int32 with value 3 from the linear memory
     };
 
-    wasm_module::ByteStream stream(data);
+    wasm_module::binary::ByteStream stream(data);
 
     std::unique_ptr<wasm_module::Module> m;
-    m.reset(wasm_module::ModuleParser::parse(stream));
+    m.reset(wasm_module::binary::ModuleParser::parse(stream));
 
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "call_direct");

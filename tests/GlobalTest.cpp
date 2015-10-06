@@ -122,10 +122,10 @@ int main() {
             PRINT, GET_GLOBAL, 0x0, // print the 32 from the global (that was set in main)
     };
 
-    wasm_module::ByteStream stream(data);
+    wasm_module::binary::ByteStream stream(data);
 
     std::unique_ptr<wasm_module::Module> m;
-    m.reset(wasm_module::ModuleParser::parse(stream));
+    m.reset(wasm_module::binary::ModuleParser::parse(stream));
 
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "call_direct");

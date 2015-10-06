@@ -99,9 +99,9 @@ int main() {
             BREAK,
     };
 
-    wasm_module::ByteStream stream(data);
+    wasm_module::binary::ByteStream stream(data);
 
-    std::unique_ptr<wasm_module::Module> m(wasm_module::ModuleParser::parse(stream));
+    std::unique_ptr<wasm_module::Module> m(wasm_module::binary::ModuleParser::parse(stream));
 
     assert(m->opcodeTable().getInstruction(0x0) == "int32.add");
     assert(m->opcodeTable().getInstruction(0x1) == "forever");
