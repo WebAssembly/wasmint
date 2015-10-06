@@ -1,3 +1,4 @@
 [submodule "wasm-module"]
 	path = wasm-module
 	url = https://github.com/Teemperor/wasm-module.git
+	branch = master
