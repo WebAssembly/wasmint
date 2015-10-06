@@ -2,9 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <parsing/ByteStream.h>
+#include <binary_parsing/ByteStream.h>
 #include <Module.h>
-#include <parsing/ModuleParser.h>
+#include <binary_parsing/ModuleParser.h>
 #include <interpreter/MachineState.h>
 #include <interpreter/Thread.h>
 
