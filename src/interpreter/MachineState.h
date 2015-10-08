@@ -30,6 +30,8 @@
 
 namespace wasmint {
 
+    ExceptionMessage(NoModuleWithName)
+
     ExceptionMessage(NoFunctionWithName)
 
     ExceptionMessage(NoGlobalWithName)
@@ -46,29 +48,25 @@ namespace wasmint {
     class MachineState {
 
         /**
-     * All functions that are accessible with the currently loaded modules.
-     * The keys are the function names.
-     */
-        std::map<std::string, wasm_module::Function *> functions_;
-
-        /**
-     * All globals that are accessible with the currently loaded modules.
-     * The keys are the variable names.
-     */
+         * All globals that are accessible with the currently loaded modules.
+         * The keys are the variable names.
+         */
         std::map<std::string, wasm_module::Variable> globals_;
 
         /**
-     * The current heap.
-     */
+         * The current heap.
+         */
         Heap heap_;
 
         /**
-     * The stdout of this program. We currently just append to this string and then read it via stdou().
-     */
+         * The stdout of this program. We currently just append to this string and then read it via stdou().
+         */
         std::string stdout_;
 
         // FIXME Use smart pointers if possible...
         std::vector<Thread *> threads_;
+
+        std::map<std::string, wasm_module::Module*> modules_;
 
     public:
         MachineState() : heap_(1024) {
@@ -101,14 +99,23 @@ namespace wasmint {
             return stdout_;
         }
 
-        std::map<std::string, wasm_module::Function *> &functions() {
-            return functions_;
+        wasm_module::Module& getModule(const std::string& moduleName) {
+            auto iter = modules_.find(moduleName);
+            if (iter != modules_.end()) {
+                return *iter->second;
+            } else {
+                throw NoModuleWithName(moduleName);
+            }
+        }
+
+        wasm_module::Function& getFunction(const std::string& moduleName, const std::string& functionName) {
+            return getModule(moduleName).getFunction(functionName);
         }
 
         /**
-     * All globals that are accessible with the currently loaded modules.
-     * The keys are the variable names.
-     */
+         * All globals that are accessible with the currently loaded modules.
+         * The keys are the variable names.
+         */
         std::map<std::string, wasm_module::Variable> &globals() {
             return globals_;
         }

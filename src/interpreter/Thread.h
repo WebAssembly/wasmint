@@ -66,8 +66,9 @@ namespace wasmint {
         Thread(MachineState & env);
         virtual ~Thread();
 
-        Thread& startAtFunction(std::string functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
-        wasm_module::Instruction* callFunction(std::string functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
+        Thread& startAtFunction(std::string moduleName, std::string functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
+
+        wasm_module::Instruction* callFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
 
         void step();
 

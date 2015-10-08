@@ -17,6 +17,8 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    Module* mainModule = nullptr;
+
     MachineState environment;
 
     for(int i = 1; i < argc; i++) {
@@ -40,15 +42,33 @@ int main(int argc, char** argv) {
         try {
             Module *m = binary::ModuleParser::parse(stream);
             environment.useModule(*m);
+            try {
+                m->getFunction("main");
+
+                if (mainModule != nullptr) {
+                    std::cerr << "Multiple modules with a main function! Aborting..." << std::endl;
+                    std::cerr << "Module 1 was " << m->name() << ", Module 2 was " << mainModule->name() << std::endl;
+                    return 1;
+                }
+                mainModule = m;
+            } catch (const std::exception& ex) {
+                // has no main function
+            }
+
         } catch (std::exception e) {
             std::cerr << "Got exception while parsing module " << modulePath << ": " << e.what() << std::endl;
         }
     }
 
+    if (mainModule == nullptr) {
+        std::cerr << "No module loaded with a main function! Aborting..." << std::endl;
+        return 1;
+    }
+
     try {
-        Thread& thread = environment.createThread().startAtFunction("main");
+        Thread& thread = environment.createThread().startAtFunction(mainModule->name(), "main");
         thread.stepUntilFinished();
-    } catch(NoFunctionWithName e) {
+    } catch(wasm_module::NoFunctionWithName e) {
         if (e.what() == "main") {
             std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;
         }

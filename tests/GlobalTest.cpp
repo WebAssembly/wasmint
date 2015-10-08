@@ -146,7 +146,7 @@ int main() {
 
     MachineState environment;
     environment.useModule(*m);
-    Thread &thread = environment.createThread().startAtFunction("main");
+    Thread &thread = environment.createThread().startAtFunction(m->name(), "main");
     thread.stepUntilFinished();
 
     // This module should print the number 7 in main and then 3232 in the two times we call the test function

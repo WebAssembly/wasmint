@@ -24,15 +24,11 @@
 namespace wasmint {
 
     void MachineState::useModule(wasm_module::Module &module) {
-        std::vector<wasm_module::Function *> functions = module.functions();
-        for (wasm_module::Function *function : functions) {
-            functions_[function->name()] = function;
-        }
+        modules_[module.name()] = &module;
 
         for (wasm_module::Global &global : module.globals()) {
             globals_[global.name()] = wasm_module::Variable(global.type());
         }
-
     }
 
     Thread &MachineState::createThread() {

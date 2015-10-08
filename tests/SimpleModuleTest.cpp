@@ -138,7 +138,7 @@ int main() {
 
     MachineState environment;
     environment.useModule(*m);
-    Thread &thread = environment.createThread().startAtFunction("main");
+    Thread &thread = environment.createThread().startAtFunction(m->name(), "main");
     thread.stepUntilFinished();
 
     assert(wasm_module::Int32::getValue(thread.getInstructionState().result()) == 5);

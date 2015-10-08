@@ -16,7 +16,7 @@ add_library(core
     src/interpreter/Thread.cpp
     src/interpreter/FunctionState.cpp
     src/interpreter/InstructionState.cpp
-        src/interpreter/MachineState.cpp
+    src/interpreter/MachineState.cpp
     src/interpreter/InstructionExecutor.cpp
     src/interpreter/Heap.cpp
     src/interpreter/StepResult.cpp

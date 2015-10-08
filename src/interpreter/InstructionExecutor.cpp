@@ -47,8 +47,8 @@ namespace wasmint {
         InstructionState &state = thread.getInstructionState();
 
         /**
-     * Control flow
-     */
+         * Control flow
+         */
         if (typeid(instruction) == typeid(wasm_module::Block)) {
             if (state.state() < instruction.children().size()) {
                 return StepResult(instruction.children().at(state.state()));
@@ -101,9 +101,9 @@ namespace wasmint {
 
             }
         }
-            /**
-     * heap access
-     */
+        /**
+         * heap access
+         */
         else if (typeid(instruction) == typeid(wasm_module::Int32Load)) {
             switch (state.state()) {
                 case 0:
@@ -133,9 +133,9 @@ namespace wasmint {
                     return StepResult(value);
             }
         }
-            /**
-     * i32 instructions
-     */
+        /**
+         * i32 instructions
+         */
         else if (typeid(instruction) == typeid(wasm_module::I32Add)) {
             switch (state.state()) {
                 case 0:
@@ -197,9 +197,9 @@ namespace wasmint {
                     return result;
             }
         }
-            /**
-     * other instructions
-     */
+        /**
+         * other instructions
+         */
         else if (typeid(instruction) == typeid(wasm_module::FunctionCall)) {
             if (state.state() < instruction.children().size()) {
                 return StepResult(instruction.children().at(0));
@@ -208,8 +208,8 @@ namespace wasmint {
                 for (uint32_t i = 0; i < parameters.size(); i++) {
                     parameters[i] = state.results().at(i);
                 }
-                return StepResult(
-                        thread.callFunction(dynamic_cast<wasm_module::FunctionCall &>(instruction).functionSignature.name()));
+                wasm_module::FunctionCall & functionCall = dynamic_cast<wasm_module::FunctionCall &>(instruction);
+                return StepResult(thread.callFunction(functionCall.moduleName, functionCall.functionSignature.name()));
             } else {
                 return state.results().back();
             }

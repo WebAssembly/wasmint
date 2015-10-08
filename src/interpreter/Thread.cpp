@@ -38,18 +38,28 @@ namespace wasmint {
         stack.push(FunctionState(function));
     }
 
-    wasm_module::Instruction *Thread::callFunction(std::string functionName, std::vector<wasm_module::Variable> parameters) {
-        auto functionIterator = env_.functions().find(functionName);
-        if (functionIterator != env_.functions().end()) {
-            wasm_module::Function *function = functionIterator->second;
-            enterFunction(*function);
-            for (uint32_t i = 0; i < parameters.size(); i++) {
-                variable(i) = parameters.at(i);
-            }
-            return function->mainInstruction();
-        } else {
-            throw NoFunctionWithName(functionName);
+    wasm_module::Instruction* Thread::callFunction(
+            const std::string& moduleName, const std::string& functionName,
+            std::vector<wasm_module::Variable> parameters) {
+
+        wasm_module::Function* func = nullptr;
+
+        try {
+            wasm_module::Module& module = env_.getModule(moduleName);
+            const ModuleImport& moduleImport = module.getImport(functionName);
+
+            func = &env_.getFunction(moduleImport.module(), moduleImport.function());
+        } catch (const wasm_module::NoImportWithName& ex) {
+            func = &env_.getFunction(moduleName, functionName);
         }
+
+        enterFunction(*func);
+
+        for (uint32_t i = 0; i < parameters.size(); i++) {
+            variable(i) = parameters.at(i);
+        }
+
+        return func->mainInstruction();
     }
 
     void Thread::step() {
@@ -73,8 +83,8 @@ namespace wasmint {
         throw ThreadNotRunning("Thread not started");
     }
 
-    Thread &Thread::startAtFunction(std::string functionName, std::vector<wasm_module::Variable> parameters) {
-        currentInstructionState = new InstructionState(callFunction(functionName, parameters));
+    Thread &Thread::startAtFunction(std::string moduleName, std::string functionName, std::vector<wasm_module::Variable> parameters) {
+        currentInstructionState = new InstructionState(callFunction(moduleName, functionName, parameters));
         return *this;
     }
 
