@@ -38,6 +38,7 @@
 #include <instructions/Print.h>
 #include <instructions/SetGlobal.h>
 #include <instructions/SetLocal.h>
+#include <instructions/NativeInstruction.h>
 
 #include "MachineState.h"
 
@@ -205,20 +206,22 @@ namespace wasmint {
                 return StepResult(instruction.children().at(0));
             } else if (state.state() == instruction.children().size()) {
                 std::vector<wasm_module::Variable> parameters;
-                for (uint32_t i = 0; i < parameters.size(); i++) {
-                    parameters[i] = state.results().at(i);
+                for (uint32_t i = 0; i < state.results().size(); i++) {
+                    parameters.push_back(state.results().at(i));
                 }
-                wasm_module::FunctionCall & functionCall = dynamic_cast<wasm_module::FunctionCall &>(instruction);
-                return StepResult(thread.callFunction(functionCall.moduleName, functionCall.functionSignature.name()));
+                wasm_module::FunctionCall& functionCall = dynamic_cast<wasm_module::FunctionCall &>(instruction);
+                return StepResult(thread.callFunction(functionCall.moduleName, functionCall.functionSignature.name(), parameters));
             } else {
                 return state.results().back();
             }
         } else if (typeid(instruction) == typeid(wasm_module::GetGlobal)) {
             return thread.runtimeEnvironment().global(dynamic_cast<wasm_module::GetGlobal &>(instruction).globalName);
+        } else if (typeid(instruction) == typeid(wasm_module::NativeInstruction)) {
+            return StepResult(dynamic_cast<wasm_module::NativeInstruction &>(instruction).call(thread.locals()));
         } else if (typeid(instruction) == typeid(wasm_module::GetLocal)) {
             return thread.variable(dynamic_cast<wasm_module::GetLocal &>(instruction).localIndex);
         } else if (typeid(instruction) == typeid(wasm_module::Literal)) {
-            return StepResult(dynamic_cast<wasm_module::Literal &>(instruction).literalValue);
+            return StepResult(dynamic_cast<wasm_module::Literal &>(instruction).literalValue());
         } else if (typeid(instruction) == typeid(wasm_module::Print)) {
             switch (state.state()) {
                 case 0:
@@ -226,7 +229,6 @@ namespace wasmint {
                 default:
                     thread.runtimeEnvironment().print(std::to_string(wasm_module::Int32::getValue(state.results().at(0))));
                     return StepResult();
-
             }
         } else if (typeid(instruction) == typeid(wasm_module::SetGlobal)) {
             switch (state.state()) {
@@ -246,10 +248,8 @@ namespace wasmint {
                     wasm_module::Variable result = thread.variable(
                             dynamic_cast<wasm_module::SetLocal &>(instruction).localIndex) = state.results().at(0);
                     return result;
-
             }
         }
-
         else {
             throw UnknownInstruction(std::string("Pointer points to an unkown Instruction type"));
         }

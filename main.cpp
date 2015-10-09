@@ -7,9 +7,18 @@
 #include <binary_parsing/ModuleParser.h>
 #include <interpreter/MachineState.h>
 #include <interpreter/Thread.h>
+#include <sexpr_parsing/ModuleParser.h>
+#include <sexpr_parsing/SExprParser.h>
+#include <builtins/StdioModule.h>
 
 using namespace wasm_module;
 using namespace wasmint;
+
+inline bool ends_with(std::string const & value, std::string const & ending)
+{
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
 
 int main(int argc, char** argv) {
     if (argc == 1) {
@@ -21,26 +30,61 @@ int main(int argc, char** argv) {
 
     MachineState environment;
 
+    environment.useModule(*StdioModule::create());
+
     for(int i = 1; i < argc; i++) {
         std::string modulePath = argv[i];
 
-        std::streampos size;
-        std::vector<uint8_t> data;
+        Module* m;
 
-        std::ifstream file(modulePath.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
-        if (file.is_open()) {
-            size = file.tellg();
-            data.resize(size);
-            file.seekg(0, std::ios::beg);
-            file.read((char *) data.data(), size);
-            file.close();
+        bool binary = !ends_with(modulePath, ".wast");
+
+        if (binary) {
+            std::streampos size;
+            std::vector<uint8_t> data;
+
+            std::ifstream file(modulePath.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
+            if (file.is_open()) {
+                size = file.tellg();
+                data.resize(size);
+                file.seekg(0, std::ios::beg);
+                file.read((char *) data.data(), size);
+                file.close();
+            }
+            else std::cerr << "Unable to open module " << modulePath;
+
+            binary::ByteStream stream(std::deque<uint8_t>(data.begin(), data.end()));
+
+
+            try {
+                m = binary::ModuleParser::parse(stream);
+            } catch (const std::exception& e) {
+                std::cerr << "Got exception while parsing sexpr module "
+                << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
+                << std::endl;
+                return 1;
+            }
+
+        } else {
+
+            std::ifstream moduleFile(modulePath);
+            std::string moduleData((std::istreambuf_iterator<char>(moduleFile)),
+                            std::istreambuf_iterator<char>());
+            sexpr::CharacterStream stream(moduleData);
+
+
+            try {
+                sexpr::SExpr expr = sexpr::SExprParser(stream).parse(true);
+                m = sexpr::ModuleParser::parse(expr[0]);
+            } catch (const std::exception& e) {
+                std::cerr << "Got exception while parsing sexpr module "
+                << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
+                << std::endl;
+                return 1;
+            }
         }
-        else std::cerr << "Unable to open module " << modulePath;
-
-        binary::ByteStream stream(std::deque<uint8_t>(data.begin(), data.end()));
 
         try {
-            Module *m = binary::ModuleParser::parse(stream);
             environment.useModule(*m);
             try {
                 m->getFunction("main");
@@ -55,7 +99,7 @@ int main(int argc, char** argv) {
                 // has no main function
             }
 
-        } catch (std::exception e) {
+        } catch (const std::exception& e) {
             std::cerr << "Got exception while parsing module " << modulePath << ": " << e.what() << std::endl;
         }
     }
@@ -68,10 +112,12 @@ int main(int argc, char** argv) {
     try {
         Thread& thread = environment.createThread().startAtFunction(mainModule->name(), "main");
         thread.stepUntilFinished();
-    } catch(wasm_module::NoFunctionWithName e) {
+    } catch(const wasm_module::NoFunctionWithName& e) {
         if (e.what() == "main") {
             std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;
+        } else {
+            std::cerr << "Exiting because we can't find function with name: " << e.what() << std::endl;
         }
     }
-    std::cout << environment.stdout() << std::endl;
+    std::cout << "Stdout:" << environment.stdout() << std::endl;
 }

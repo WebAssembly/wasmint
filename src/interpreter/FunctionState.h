@@ -40,6 +40,10 @@ namespace wasmint {
         wasm_module::Variable &variable(uint32_t index) {
             return variables_.at(index);
         }
+
+        const std::vector<wasm_module::Variable>& variables() {
+            return variables_;
+        }
     };
 
 }

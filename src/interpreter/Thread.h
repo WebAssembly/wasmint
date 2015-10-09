@@ -82,6 +82,10 @@ namespace wasmint {
             return stack.top().variable(index);
         }
 
+        const std::vector<wasm_module::Variable>& locals() {
+            return stack.top().variables();
+        }
+
         MachineState & runtimeEnvironment() {
             return env_;
         }

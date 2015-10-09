@@ -20,7 +20,7 @@ add_library(core
     src/interpreter/InstructionExecutor.cpp
     src/interpreter/Heap.cpp
     src/interpreter/StepResult.cpp
-)
+        src/builtins/StdioModule.cpp src/builtins/StdioModule.h)
 
 
 ####################
@@ -44,3 +44,10 @@ foreach(TEST_FILE ${TEST_FILES})
   target_link_libraries(${BASENAME} core wasm-module)
   add_test(${BASENAME} ${BASENAME})
 endforeach()
+
+file(GLOB TEST_WAST_FILES "wast_tests/*.wast")
+foreach(TEST_WAST_FILE ${TEST_WAST_FILES})
+    get_filename_component(BASENAME ${TEST_WAST_FILE} NAME)
+    add_test(NAME ${BASENAME} COMMAND ./wasmint ${TEST_WAST_FILE})
+endforeach()
+
