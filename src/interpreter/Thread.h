@@ -33,6 +33,8 @@ namespace wasmint {
     ExceptionMessage(IllegalUseageOfBreak)
     ExceptionMessage(IllegalUseageOfContinue)
     ExceptionMessage(ThreadNotRunning)
+    ExceptionMessage(AssertTrap)
+    ExceptionMessage(UnhandledSignal)
 
     class MachineState;
     class InstructionState;

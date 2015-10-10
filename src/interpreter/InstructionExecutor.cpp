@@ -39,6 +39,7 @@
 #include <instructions/SetGlobal.h>
 #include <instructions/SetLocal.h>
 #include <instructions/NativeInstruction.h>
+#include <instructions/assert/I32AssertReturn.h>
 
 #include "MachineState.h"
 
@@ -201,7 +202,23 @@ namespace wasmint {
         /**
          * other instructions
          */
-        else if (typeid(instruction) == typeid(wasm_module::FunctionCall)) {
+        else if (typeid(instruction) == typeid(wasm_module::I32AssertReturn)) {
+            switch (state.state()) {
+                case 0:
+                    return StepResult(instruction.children().at(0));
+                case 1:
+                    return StepResult(instruction.children().at(1));
+                default:
+                    int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                    int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                    if (left != right) {
+                        return StepResult(Signal::AssertTrap);
+                    } else {
+                        return StepResult(Signal::None);
+                    }
+            }
+        } else if (typeid(instruction) == typeid(wasm_module::FunctionCall)) {
             if (state.state() < instruction.children().size()) {
                 return StepResult(instruction.children().at(0));
             } else if (state.state() == instruction.children().size()) {
@@ -256,6 +273,7 @@ namespace wasmint {
     }
 
     bool InstructionExecutor::handleSignal(wasm_module::Instruction &instruction, InstructionState &currentState, Signal signal) {
+
         if (typeid(instruction) == typeid(wasm_module::Forever) || typeid(instruction) == typeid(wasm_module::DoWhile)) {
             if (signal == Signal::Break) {
                 currentState.state(10);

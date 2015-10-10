@@ -31,7 +31,8 @@ namespace wasmint {
         None,
         Break,
         Continue,
-        Return
+        Return,
+        AssertTrap,
     };
 
     class StepResult {

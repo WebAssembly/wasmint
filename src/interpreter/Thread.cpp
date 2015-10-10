@@ -65,7 +65,12 @@ namespace wasmint {
     void Thread::step() {
         if (currentInstructionState) {
             Signal s = currentInstructionState->step(*this);
-            assert(s == Signal::None);
+
+            if (s == Signal::AssertTrap) {
+                throw AssertTrap("TODO"); //TODO
+            } else if (s != Signal::None) {
+                throw UnhandledSignal("TODO"); //TODO
+            }
         }
     }
 
