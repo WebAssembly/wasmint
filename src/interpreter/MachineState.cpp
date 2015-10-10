@@ -29,6 +29,9 @@ namespace wasmint {
         for (wasm_module::Global &global : module.globals()) {
             globals_[global.name()] = wasm_module::Variable(global.type());
         }
+        if (takeMemoryOwnership) {
+            modulesToDelete_.push_back(&module);
+        }
     }
 
     Thread &MachineState::createThread() {
