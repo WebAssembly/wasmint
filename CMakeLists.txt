@@ -20,7 +20,8 @@ add_library(core
     src/interpreter/InstructionExecutor.cpp
     src/interpreter/Heap.cpp
     src/interpreter/StepResult.cpp
-        src/builtins/StdioModule.cpp src/builtins/StdioModule.h)
+    src/builtins/StdioModule.cpp
+)
 
 
 ####################

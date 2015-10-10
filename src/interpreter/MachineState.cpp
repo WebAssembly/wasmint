@@ -23,7 +23,7 @@
 
 namespace wasmint {
 
-    void MachineState::useModule(wasm_module::Module &module) {
+    void MachineState::useModule(wasm_module::Module &module, bool takeMemoryOwnership) {
         modules_[module.name()] = &module;
 
         for (wasm_module::Global &global : module.globals()) {
@@ -40,6 +40,9 @@ namespace wasmint {
     MachineState::~MachineState() {
         for (Thread *thread : threads_) {
             delete thread;
+        }
+        for (wasm_module::Module* module : modulesToDelete_) {
+            delete module;
         }
     }
 

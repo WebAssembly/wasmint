@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 
     MachineState environment;
 
-    environment.useModule(*StdioModule::create());
+    environment.useModule(*StdioModule::create(), true);
 
     for(int i = 1; i < argc; i++) {
         std::string modulePath = argv[i];
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
         }
 
         try {
-            environment.useModule(*m);
+            environment.useModule(*m, true);
             try {
                 m->getFunction("main");
 
@@ -119,5 +119,4 @@ int main(int argc, char** argv) {
             std::cerr << "Exiting because we can't find function with name: " << e.what() << std::endl;
         }
     }
-    std::cout << "Stdout:" << environment.stdout() << std::endl;
 }

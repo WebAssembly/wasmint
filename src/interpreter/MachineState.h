@@ -68,6 +68,8 @@ namespace wasmint {
 
         std::map<std::string, wasm_module::Module*> modules_;
 
+        std::vector<wasm_module::Module*> modulesToDelete_;
+
     public:
         MachineState() : heap_(1024) {
         }
@@ -76,7 +78,7 @@ namespace wasmint {
 
         Thread &createThread();
 
-        void useModule(wasm_module::Module &module);
+        void useModule(wasm_module::Module &module, bool takeMemoryOwnership = false);
 
         Heap &heap() {
             return heap_;
