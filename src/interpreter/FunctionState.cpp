@@ -21,7 +21,7 @@
 namespace wasmint {
 
     FunctionState::FunctionState(wasm_module::Function &function) {
-        for (wasm_module::Type *type : function.locals()) {
+        for (const wasm_module::Type* type : function.locals()) {
             variables_.push_back(wasm_module::Variable(type));
         }
     }
