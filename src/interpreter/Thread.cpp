@@ -46,12 +46,15 @@ namespace wasmint {
 
         wasm_module::Function* func = nullptr;
 
-        try {
-            wasm_module::Module& module = env_.getModule(moduleName);
+
+        wasm_module::Module& module = env_.getModule(moduleName);
+
+        if (module.hasImport(functionName)) {
+
             const wasm_module::ModuleImport& moduleImport = module.getImport(functionName);
 
             func = &env_.getFunction(moduleImport.module(), moduleImport.signature().name());
-        } catch (const wasm_module::NoImportWithName& ex) {
+        } else {
             func = &env_.getFunction(moduleName, functionName);
         }
 

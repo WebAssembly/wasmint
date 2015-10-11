@@ -14,37 +14,38 @@
  * limitations under the License.
  */
 
-#ifndef WASMINT_STDIOMODULE_H
-#define WASMINT_STDIOMODULE_H
+#ifndef WASMINT_SDLMODULE_H
+#define WASMINT_SDLMODULE_H
 
 
 #include <Module.h>
-#include <types/Int32.h>
 #include <iostream>
-#include <interpreter/Thread.h>
-#include <unistd.h>
+#include <types/Int32.h>
+#include <SDL.h>
+#include <unordered_map>
 
 namespace wasmint {
-    class StdioModule {
+    class SDLModule : public wasm_module::Module {
+
+        int textureIndex = 1;
+
+        SDL_Window* window_;
+        SDL_Renderer *ren;
+
+        std::unordered_map<int32_t, SDL_Texture*> textures_;
+
+        SDLModule();
 
     public:
+
         static wasm_module::Module* create() {
             using namespace wasm_module;
-            Module* module = new Module();
-            module->context().name("\"stdio\"");
 
-            module->addFunction("\"print\"", Void::instance(), {Int32::instance()}, [](std::vector<Variable> parameters) {
-                std::cout << "print_i32 " << Int32::getValue(parameters.at(0)) << std::endl;
-                return Void::instance();
-            });
+            Module* module = new SDLModule();
 
-            module->addFunction("\"sleep\"", Void::instance(), {Int32::instance()}, [](std::vector<Variable> parameters) {
-                sleep(Int32::getValue(parameters.at(0)));
-                return Void::instance();
-            });
             return module;
         }
     };
 }
 
-#endif //WASMINT_STDIOMODULE_H
+#endif //WASMINT_SDLMODULE_H

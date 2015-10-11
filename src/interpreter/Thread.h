@@ -49,12 +49,6 @@ namespace wasmint {
          */
         std::stack<FunctionState> stack;
 
-        /**
-         * Leave the last entered function
-         */
-        void leaveFunction() {
-            stack.pop();
-        }
 
         void enterFunction(wasm_module::Function& function);
 
@@ -74,6 +68,13 @@ namespace wasmint {
 
         std::size_t stackSize() {
             return stack.size();
+        }
+
+        /**
+         * Leave the last entered function
+         */
+        void leaveFunction() {
+            stack.pop();
         }
 
         void step();

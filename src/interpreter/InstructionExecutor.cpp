@@ -220,7 +220,7 @@ namespace wasmint {
             }
         } else if (typeid(instruction) == typeid(wasm_module::FunctionCall)) {
             if (state.state() < instruction.children().size()) {
-                return StepResult(instruction.children().at(0));
+                return StepResult(instruction.children().at(state.state()));
             } else if (state.state() == instruction.children().size()) {
                 std::vector<wasm_module::Variable> parameters;
                 for (uint32_t i = 0; i < state.results().size(); i++) {
@@ -229,6 +229,7 @@ namespace wasmint {
                 wasm_module::FunctionCall& functionCall = dynamic_cast<wasm_module::FunctionCall &>(instruction);
                 return StepResult(thread.callFunction(functionCall.moduleName, functionCall.functionSignature.name(), parameters));
             } else {
+                thread.leaveFunction();
                 return state.results().back();
             }
         } else if (typeid(instruction) == typeid(wasm_module::GetGlobal)) {

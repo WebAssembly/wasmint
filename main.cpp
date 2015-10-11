@@ -10,6 +10,7 @@
 #include <sexpr_parsing/ModuleParser.h>
 #include <sexpr_parsing/SExprParser.h>
 #include <builtins/StdioModule.h>
+#include <builtins/SDLModule.h>
 
 using namespace wasm_module;
 using namespace wasmint;
@@ -29,6 +30,10 @@ int main(int argc, char** argv) {
     Module* mainModule = nullptr;
 
     MachineState environment;
+
+#ifdef WASMINT_HAS_SDL
+    environment.useModule(*SDLModule::create(), true);
+#endif
 
     environment.useModule(*StdioModule::create(), true);
 
