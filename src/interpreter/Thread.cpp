@@ -26,6 +26,8 @@
 
 namespace wasmint {
 
+    thread_local Thread* currentThread_ = nullptr;
+
     Thread::Thread(MachineState &env) : env_(env) {
     }
 
@@ -63,6 +65,7 @@ namespace wasmint {
     }
 
     void Thread::step() {
+        currentThread_ = this;
         if (currentInstructionState) {
             Signal s = currentInstructionState->step(*this);
 

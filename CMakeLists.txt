@@ -46,7 +46,7 @@ foreach(TEST_FILE ${TEST_FILES})
   add_test(${BASENAME} ${BASENAME})
 endforeach()
 
-file(GLOB TEST_WAST_FILES "wast_tests/*.wast")
+file(GLOB TEST_WAST_FILES "tests/wast_tests/*.wast")
 foreach(TEST_WAST_FILE ${TEST_WAST_FILES})
     get_filename_component(BASENAME ${TEST_WAST_FILE} NAME)
     add_test(NAME ${BASENAME} COMMAND ./wasmint ${TEST_WAST_FILE})

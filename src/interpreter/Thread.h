@@ -72,6 +72,10 @@ namespace wasmint {
 
         wasm_module::Instruction* callFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
 
+        std::size_t stackSize() {
+            return stack.size();
+        }
+
         void step();
 
         void stepUntilFinished();
@@ -101,6 +105,7 @@ namespace wasmint {
         }
     };
 
+    extern thread_local Thread* currentThread_;
 }
 
 #endif //WASMINT_THREAD_H
