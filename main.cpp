@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
                 sexpr::SExpr expr = sexpr::SExprParser(stream).parse(true);
                 m = sexpr::ModuleParser::parse(expr[0]);
             } catch (const std::exception& e) {
-                std::cerr << "Got exception while parsing sexpr module "
+                std::cout << "Got exception while parsing sexpr module "
                 << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
                 << std::endl;
                 return 1;
