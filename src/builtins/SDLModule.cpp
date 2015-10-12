@@ -19,10 +19,10 @@
 wasmint::SDLModule::SDLModule() {
     using namespace wasm_module;
 
-    context().name("\"sdl\"");
+    context().name("sdl");
 
 #ifdef WASMINT_HAS_SDL
-    addFunction("\"init\"", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
+    addFunction("init", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
         if (SDL_Init(SDL_INIT_VIDEO) == 0) {
             window_ = SDL_CreateWindow("SDL Window", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
             if (window_ == nullptr){
@@ -52,7 +52,7 @@ wasmint::SDLModule::SDLModule() {
         return variable;
     });
 
-    addFunction("\"load_bmp\"", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
+    addFunction("load_bmp", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
         SDL_Surface *bmp = SDL_LoadBMP("/home/teemperor/workspace/wasm/wasmint/examples/pong/ball.bmp");
         if (bmp == nullptr){
             std::cout << "SDL_LoadPNG Error: " << SDL_GetError() << std::endl;
@@ -86,7 +86,7 @@ wasmint::SDLModule::SDLModule() {
         return variable;
     });
 
-    addFunction("\"render\"", Void::instance(), {Int32::instance(), Int32::instance(), Int32::instance()}, [this](std::vector<Variable> parameters) {
+    addFunction("render", Void::instance(), {Int32::instance(), Int32::instance(), Int32::instance()}, [this](std::vector<Variable> parameters) {
         SDL_Rect DestR;
 
         DestR.x = Int32::getValue(parameters.at(1));
@@ -105,7 +105,7 @@ wasmint::SDLModule::SDLModule() {
         return variable;
     });
 
-    addFunction("\"quit\"", Void::instance(), {}, [this](std::vector<Variable> parameters) {
+    addFunction("quit", Void::instance(), {}, [this](std::vector<Variable> parameters) {
         for (auto texturePair : textures_) {
             SDL_DestroyTexture(texturePair.second);
         }

@@ -31,14 +31,14 @@ namespace wasmint {
         static wasm_module::Module* create() {
             using namespace wasm_module;
             Module* module = new Module();
-            module->context().name("\"stdio\"");
+            module->context().name("stdio");
 
-            module->addFunction("\"print\"", Void::instance(), {Int32::instance()}, [](std::vector<Variable> parameters) {
+            module->addFunction("print", Void::instance(), {Int32::instance()}, [](std::vector<Variable> parameters) {
                 std::cout << "print_i32 " << Int32::getValue(parameters.at(0)) << std::endl;
                 return Void::instance();
             });
 
-            module->addFunction("\"sleep\"", Void::instance(), {Int32::instance()}, [](std::vector<Variable> parameters) {
+            module->addFunction("sleep", Void::instance(), {Int32::instance()}, [](std::vector<Variable> parameters) {
                 sleep(Int32::getValue(parameters.at(0)));
                 return Void::instance();
             });
