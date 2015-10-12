@@ -24,7 +24,7 @@ wasmint::SDLModule::SDLModule() {
 #ifdef WASMINT_HAS_SDL
     addFunction("init", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
         if (SDL_Init(SDL_INIT_VIDEO) == 0) {
-            window_ = SDL_CreateWindow("SDL Window", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
+            window_ = SDL_CreateWindow("SDL Window", 100, 100, windowWidth_ = 340, windowHeight_ = 240, SDL_WINDOW_SHOWN);
             if (window_ == nullptr){
                 std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
                 SDL_Quit();
@@ -94,14 +94,23 @@ wasmint::SDLModule::SDLModule() {
         DestR.w = 20;
         DestR.h = 20;
 
-        std::cout << "x " << DestR.x << std::endl;
-        std::cout << "y " << DestR.y << std::endl;
-
         SDL_RenderClear(ren);
         SDL_RenderCopy(ren, textures_.at(Int32::getValue(parameters.at(0))), NULL, &DestR);
         SDL_RenderPresent(ren);
 
         Variable variable(Void::instance());
+        return variable;
+    });
+
+    addFunction("get_window_width", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
+        Variable variable(Int32::instance());
+        Int32::setValue(variable, windowWidth_);
+        return variable;
+    });
+
+    addFunction("get_window_height", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
+        Variable variable(Int32::instance());
+        Int32::setValue(variable, windowHeight_);
         return variable;
     });
 

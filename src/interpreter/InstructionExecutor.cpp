@@ -30,6 +30,8 @@
 #include <instructions/I32/I32Div.h>
 #include <instructions/I32/I32Mul.h>
 #include <instructions/I32/I32Sub.h>
+#include <instructions/I32/I32LessThanSigned.h>
+#include <instructions/I32/I32LessEqualSigned.h>
 
 #include <instructions/FunctionCall.h>
 #include <instructions/GetGlobal.h>
@@ -89,6 +91,8 @@ namespace wasmint {
                 case 1:
                     if (wasm_module::Int32::getValue(state.results().front()) != 0) {
                         return instruction.children().at(1);
+                    } else {
+                        return instruction.children().at(2);
                     }
                 default:
                     return StepResult();
@@ -198,10 +202,50 @@ namespace wasmint {
                     wasm_module::Int32::setValue(result, left - right);
                     return result;
             }
+        } else if (typeid(instruction) == typeid(wasm_module::I32LessThanSigned)) {
+            switch (state.state()) {
+                case 0:
+                    return StepResult(instruction.children().at(0));
+                case 1:
+                    return StepResult(instruction.children().at(1));
+                default:
+                    int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                    int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                    if (left < right) {
+                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
+                        wasm_module::Int32::setValue(result, 1);
+                        return result;
+                    } else {
+                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
+                        wasm_module::Int32::setValue(result, 0);
+                        return result;
+                    }
+            }
+        } else if (typeid(instruction) == typeid(wasm_module::I32LessEqualSigned)) {
+            switch (state.state()) {
+                case 0:
+                    return StepResult(instruction.children().at(0));
+                case 1:
+                    return StepResult(instruction.children().at(1));
+                default:
+                    int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                    int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                    if (left <= right) {
+                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
+                        wasm_module::Int32::setValue(result, 1);
+                        return result;
+                    } else {
+                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
+                        wasm_module::Int32::setValue(result, 0);
+                        return result;
+                    }
+            }
         }
-        /**
-         * other instructions
-         */
+            /**
+             * other instructions
+             */
         else if (typeid(instruction) == typeid(wasm_module::I32AssertReturn)) {
             switch (state.state()) {
                 case 0:

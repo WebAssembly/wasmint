@@ -39,7 +39,7 @@ namespace wasmint {
             });
 
             module->addFunction("sleep", Void::instance(), {Int32::instance()}, [](std::vector<Variable> parameters) {
-                sleep(Int32::getValue(parameters.at(0)));
+                usleep(Int32::getValue(parameters.at(0)));
                 return Void::instance();
             });
             return module;

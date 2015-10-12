@@ -29,6 +29,8 @@ namespace wasmint {
 
         int textureIndex = 1;
 
+        int32_t windowWidth_, windowHeight_;
+
         SDL_Window* window_;
         SDL_Renderer *ren;
 
