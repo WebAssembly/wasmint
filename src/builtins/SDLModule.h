@@ -21,12 +21,17 @@
 #include <Module.h>
 #include <iostream>
 #include <types/Int32.h>
+
+#ifdef WASMINT_HAS_SDL
 #include <SDL.h>
+#endif
+
 #include <unordered_map>
 
 namespace wasmint {
     class SDLModule : public wasm_module::Module {
 
+#ifdef WASMINT_HAS_SDL
         int textureIndex = 1;
 
         int32_t windowWidth_, windowHeight_;
@@ -35,6 +40,8 @@ namespace wasmint {
         SDL_Renderer *ren;
 
         std::unordered_map<int32_t, SDL_Texture*> textures_;
+
+#endif
 
         SDLModule();
 
