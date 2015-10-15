@@ -24,6 +24,7 @@
 namespace wasmint {
 
     ExceptionMessage(UnknownInstruction)
+    ExceptionMessage(DivisionThroughZero) //TODO should be a trap
 
     class InstructionExecutor {
 

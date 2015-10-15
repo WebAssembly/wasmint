@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-
-
-#include <instructions/controlflow/Break.h>
-#include <instructions/controlflow/Continue.h>
 #include "Thread.h"
 #include <Function.h>
 #include <assert.h>
