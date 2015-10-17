@@ -16,8 +16,6 @@
 
 #include "InstructionExecutor.h"
 
-#include <instructions/assert/I32AssertReturn.h>
-#include <instructions/Print.h>
 #include <instructions/Instructions.h>
 
 #include "MachineState.h"
@@ -25,11 +23,349 @@
 namespace wasmint {
 
     StepResult InstructionExecutor::execute(wasm_module::Instruction &instruction, Thread &thread) {
+        using namespace wasm_module;
+
         InstructionState &state = thread.getInstructionState();
 
-
-
         switch (instruction.id()) {
+            case InstructionId::I32Add:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
+                        wasm_module::Int32::setValue(result, left + right);
+                        return result;
+                }
+            case InstructionId::I32Sub:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
+                        wasm_module::Int32::setValue(result, left - right);
+                        return result;
+                }
+            case InstructionId::I32Mul:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                        wasm_module::Variable result = (int32_t)(left * right);
+                        return result;
+                }
+            case InstructionId::I32DivSigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                        // TODO that exception should be in the interpreter namespace
+                        if (right == 0)
+                            throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
+
+                        wasm_module::Variable result = (uint32_t)(left / right);
+                        return result;
+                }
+            case InstructionId::I32DivUnsigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        // TODO that exception should be in the interpreter namespace
+                        if (right == 0)
+                            throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
+
+                        wasm_module::Variable result = (uint32_t)(left / right);
+                        return result;
+                }
+            case InstructionId::I32RemainderSigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                        // TODO that exception should be in the interpreter namespace
+                        if (right == 0)
+                            throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
+
+                        wasm_module::Variable result = (int32_t)(left % right);
+                        return result;
+                }
+            case InstructionId::I32RemainderUnsigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        // TODO that exception should be in the interpreter namespace
+                        if (right == 0)
+                            throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
+
+                        wasm_module::Variable result = (uint32_t)(left / right);
+                        return result;
+                }
+            case InstructionId::I32And:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        wasm_module::Variable result = (uint32_t)(left & right);
+                        return result;
+                }
+            case InstructionId::I32Or:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        wasm_module::Variable result = (uint32_t)(left | right);
+                        return result;
+                }
+            case InstructionId::I32Xor:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        wasm_module::Variable result = (uint32_t)(left ^ right);
+                        return result;
+                }
+            case InstructionId::I32Equal:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        if (left == right) {
+                            wasm_module::Variable result = (uint32_t)(1);
+                            return result;
+                        } else {
+                            wasm_module::Variable result = (uint32_t)(0);
+                            return result;
+                        }
+                }
+            case InstructionId::I32NotEqual:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        if (left != right) {
+                            wasm_module::Variable result = (uint32_t)(1);
+                            return result;
+                        } else {
+                            wasm_module::Variable result = (uint32_t)(0);
+                            return result;
+                        }
+                }
+            case InstructionId::I32LessThanSigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                        if (left < right) {
+                            return wasm_module::Variable((int32_t) 1);
+                        } else {
+                            return wasm_module::Variable((int32_t) 0);
+                        }
+                }
+            case InstructionId::I32LessEqualSigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                        if (left <= right) {
+                            return wasm_module::Variable((int32_t) 1);
+                        } else {
+                            return wasm_module::Variable((int32_t) 0);
+                        }
+                }
+            case InstructionId::I32LessThanUnsigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        if (left < right) {
+                            return wasm_module::Variable((int32_t) 1);
+                        } else {
+                            return wasm_module::Variable((int32_t) 0);
+                        }
+                }
+            case InstructionId::I32LessEqualUnsigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        if (left <= right) {
+                            return wasm_module::Variable((int32_t) 1);
+                        } else {
+                            return wasm_module::Variable((int32_t) 0);
+                        }
+                }
+            case InstructionId::I32GreaterThanSigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                        if (left > right) {
+                            return wasm_module::Variable((int32_t) 1);
+                        } else {
+                            return wasm_module::Variable((int32_t) 0);
+                        }
+                }
+            case InstructionId::I32GreaterEqualSigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
+                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+
+                        if (left >= right) {
+                            return wasm_module::Variable((int32_t) 1);
+                        } else {
+                            return wasm_module::Variable((int32_t) 0);
+                        }
+                }
+            case InstructionId::I32GreaterThanUnsigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        if (left > right) {
+                            return wasm_module::Variable((int32_t) 1);
+                        } else {
+                            return wasm_module::Variable((int32_t) 0);
+                        }
+                }
+            case InstructionId::I32GreaterEqualUnsigned:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        if (left >= right) {
+                            return wasm_module::Variable((int32_t) 1);
+                        } else {
+                            return wasm_module::Variable((int32_t) 0);
+                        }
+                }
+            case InstructionId::Comma:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        return StepResult(instruction.children().at(1));
+                    default:
+                        return state.results().back();
+                }
+            case InstructionId::Conditional:
+                switch (state.state()) {
+                    case 0:
+                        return StepResult(instruction.children().at(0));
+                    case 1:
+                        {
+                            Variable condition = state.results().front();
+                            if (Int32::getUnsignedValue(condition) == 0) {
+                                return instruction.children().at(2);
+                            } else {
+                                return instruction.children().at(1);
+                            }
+                        }
+                    default:
+                        return state.results().back();
+                }
+
             case InstructionId::Block:
                 if (state.state() < instruction.children().size()) {
                     return StepResult(instruction.children().at(state.state()));
@@ -81,126 +417,7 @@ namespace wasmint {
                         return state.results().front();
 
                 }
-            case InstructionId::I32Add:
-                switch (state.state()) {
-                    case 0:
-                        return StepResult(instruction.children().at(0));
-                    case 1:
-                        return StepResult(instruction.children().at(1));
-                    default:
-                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
-                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left + right);
-                        return result;
-                }
-            case InstructionId::I32DivSigned:
-                switch (state.state()) {
-                    case 0:
-                        return StepResult(instruction.children().at(0));
-                    case 1:
-                        return StepResult(instruction.children().at(1));
-                    default:
-                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
-                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
-
-                        // TODO that exception should be in the interpreter namespace
-                        if (right == 0)
-                            throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
-
-                        wasm_module::Variable result = (uint32_t)(left / right);
-                        return result;
-                }
-            case InstructionId::I32DivUnsigned:
-                switch (state.state()) {
-                    case 0:
-                        return StepResult(instruction.children().at(0));
-                    case 1:
-                        return StepResult(instruction.children().at(1));
-                    default:
-                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
-                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
-
-                        // TODO that exception should be in the interpreter namespace
-                        if (right == 0)
-                            throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
-
-                        wasm_module::Variable result = (uint32_t)(left / right);
-                        return result;
-                }
-            case InstructionId::I32And:
-                switch (state.state()) {
-                    case 0:
-                        return StepResult(instruction.children().at(0));
-                    case 1:
-                        return StepResult(instruction.children().at(1));
-                    default:
-                        uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
-                        uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
-
-                        wasm_module::Variable result = (uint32_t)(left & right);
-                        return result;
-                }
-            case InstructionId::I32Mul:
-                switch (state.state()) {
-                    case 0:
-                        return StepResult(instruction.children().at(0));
-                    case 1:
-                        return StepResult(instruction.children().at(1));
-                    default:
-                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
-                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
-
-                        wasm_module::Variable result = (int32_t)(left * right);
-                        return result;
-                }
-            case InstructionId::I32Sub:
-                switch (state.state()) {
-                    case 0:
-                        return StepResult(instruction.children().at(0));
-                    case 1:
-                        return StepResult(instruction.children().at(1));
-                    default:
-                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
-                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
-
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left - right);
-                        return result;
-                }
-            case InstructionId::I32LessThanSigned:
-                switch (state.state()) {
-                    case 0:
-                        return StepResult(instruction.children().at(0));
-                    case 1:
-                        return StepResult(instruction.children().at(1));
-                    default:
-                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
-                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
-
-                        if (left < right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
-                }
-            case InstructionId::I32LessEqualSigned:
-                switch (state.state()) {
-                    case 0:
-                        return StepResult(instruction.children().at(0));
-                    case 1:
-                        return StepResult(instruction.children().at(1));
-                    default:
-                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
-                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
-
-                        if (left <= right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
-                }
             case InstructionId::I32AssertReturn:
                 switch (state.state()) {
                     case 0:

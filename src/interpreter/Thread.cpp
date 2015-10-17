@@ -27,7 +27,7 @@ namespace wasmint {
     Thread::Thread(MachineState &env) : env_(env) {
     }
 
-    void Thread::enterFunction(wasm_module::Function &function) {
+    void Thread::enterFunction(wasm_module::Function& function) {
         if (stack.size() >= stackLimit)
             throw StackLimitReached(std::to_string(stack.size()));
 
@@ -111,4 +111,16 @@ namespace wasmint {
         }
     }
 
+    Heap &Thread::getHeap(const wasm_module::Module& module) {
+        auto iter = heapsByModuleName_.find(module.name());
+        if (iter != heapsByModuleName_.end()) {
+            return heapsByModuleName_[module.name()];
+        } else {
+            return heapsByModuleName_[module.name()] = Heap(module.heapData());
+        }
+    }
+
+    Heap &Thread::getCurrentHeap() {
+        getHeap(stack.top().module());
+    }
 }

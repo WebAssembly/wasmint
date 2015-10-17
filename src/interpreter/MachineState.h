@@ -54,11 +54,6 @@ namespace wasmint {
         std::map<std::string, wasm_module::Variable> globals_;
 
         /**
-         * The current heap.
-         */
-        Heap heap_;
-
-        /**
          * The stdout of this program. We currently just append to this string and then read it via stdou().
          */
         std::string stdout_;
@@ -71,7 +66,7 @@ namespace wasmint {
         std::vector<wasm_module::Module*> modulesToDelete_;
 
     public:
-        MachineState() : heap_(1024) {
+        MachineState()  {
         }
 
         virtual ~MachineState();
@@ -79,10 +74,6 @@ namespace wasmint {
         Thread &createThread();
 
         void useModule(wasm_module::Module &module, bool takeMemoryOwnership = false);
-
-        Heap &heap() {
-            return heap_;
-        }
 
         wasm_module::Variable &global(std::string name) {
             auto globalIterator = globals_.find(name);

@@ -22,6 +22,8 @@
 #include <cstdint>
 #include <vector>
 #include <ExceptionWithMessage.h>
+#include <HeapData.h>
+#include <string.h>
 
 namespace wasmint {
 
@@ -31,7 +33,7 @@ namespace wasmint {
 
     class Heap {
 
-        std::vector<uint8_t> data;
+        std::vector<uint8_t> data_;
 
         bool highestBitSet(uint32_t a) {
             return (a & (1u << 31)) != 0;
@@ -42,8 +44,16 @@ namespace wasmint {
         }
 
     public:
-        Heap(uint32_t size) {
-            data.resize(size);
+        Heap() {
+        }
+
+        Heap(const wasm_module::HeapData& data) {
+            data_.resize(data.startSize());
+
+            for (const wasm_module::HeapSegment& segment : data.segments()) {
+                std::copy(segment.data().begin(), segment.data().end(), data_.begin() + segment.offset());
+            }
+
         }
 
         std::vector<uint8_t> getBytes(uint32_t offset, uint32_t size) {
@@ -51,7 +61,7 @@ namespace wasmint {
                 throw OverFlowInHeapAccess(std::string("Offset ") + std::to_string(offset)
                                                                     + " + size " + std::to_string(size));
 
-            if (offset + size > data.size()) {
+            if (offset + size > data_.size()) {
                 throw OutOfBounds(std::string("Offset ") + std::to_string(offset)
                                                            + " + size " + std::to_string(size));
             }
@@ -60,7 +70,7 @@ namespace wasmint {
             result.resize(size);
 
             for (uint32_t i = offset; i < offset + size; i++) {
-                result[i - offset] = data[i];
+                result[i - offset] = data_[i];
             }
             return result;
         }
@@ -70,13 +80,13 @@ namespace wasmint {
                 throw OverFlowInHeapAccess(std::string("Offset ") + std::to_string(offset)
                                                                     + " + size " + std::to_string(bytes.size()));
 
-            if (offset + bytes.size() > data.size()) {
+            if (offset + bytes.size() > data_.size()) {
                 throw OutOfBounds(std::string("Offset ") + std::to_string(offset)
                                                            + " + size " + std::to_string(bytes.size()));
             }
 
             for (uint32_t i = offset; i < offset + bytes.size(); i++) {
-                data[i] = bytes[i - offset];
+                data_[i] = bytes[i - offset];
             }
         }
 

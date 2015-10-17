@@ -19,6 +19,7 @@
 
 
 #include <Variable.h>
+#include <Module.h>
 
 
 namespace wasm_module {
@@ -30,6 +31,8 @@ namespace wasmint {
     class FunctionState {
 
         std::vector<wasm_module::Variable> variables_;
+
+        const wasm_module::Module* module_;
 
     public:
         FunctionState() {
@@ -43,6 +46,10 @@ namespace wasmint {
 
         const std::vector<wasm_module::Variable>& variables() {
             return variables_;
+        }
+
+        const wasm_module::Module& module() const {
+            return *module_;
         }
     };
 

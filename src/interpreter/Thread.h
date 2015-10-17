@@ -58,6 +58,8 @@ namespace wasmint {
 
         uint32_t weight_ = 1;
 
+        std::map<std::string, Heap> heapsByModuleName_;
+
     public:
         Thread(MachineState & env);
         virtual ~Thread();
@@ -82,6 +84,10 @@ namespace wasmint {
         void stepUntilFinished();
 
         void stepRoundRobin();
+
+        Heap& getCurrentHeap();
+
+        Heap& getHeap(const wasm_module::Module& module);
 
         InstructionState & getInstructionState();
 
