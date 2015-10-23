@@ -56,6 +56,10 @@ namespace wasmint {
 
         }
 
+        void grow(uint32_t size) {
+            data_.resize(data_.size() + size);
+        }
+
         std::vector<uint8_t> getBytes(uint32_t offset, uint32_t size) {
             if (!addition_is_safe(offset, size))
                 throw OverFlowInHeapAccess(std::string("Offset ") + std::to_string(offset)

@@ -85,7 +85,7 @@ namespace wasmint {
 
         void stepRoundRobin();
 
-        Heap& getCurrentHeap();
+        Heap&heap();
 
         Heap& getHeap(const wasm_module::Module& module);
 

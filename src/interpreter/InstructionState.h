@@ -59,7 +59,7 @@ namespace wasmint {
             return instruction_;
         }
 
-        uint32_t state() {
+        uint32_t state() const {
             return state_;
         }
 

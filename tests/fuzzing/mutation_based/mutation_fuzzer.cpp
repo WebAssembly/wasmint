@@ -27,7 +27,7 @@ namespace wasmint {
 
 
 int main(int argc, char** argv) {
-    unsigned long tries = 5000;
+    unsigned long tries = 3000;
 
     wasmint::DataRescuer::attachHandler();
 

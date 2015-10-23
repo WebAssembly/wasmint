@@ -120,7 +120,7 @@ namespace wasmint {
         }
     }
 
-    Heap &Thread::getCurrentHeap() {
+    Heap &Thread::heap() {
         getHeap(stack.top().module());
     }
 }
