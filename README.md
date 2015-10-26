@@ -3,21 +3,6 @@
 
 A WebAssembly (**WASM**) **Int**erpreter licensed under the Apache 2.0 License.
 
-Supports:
-
-* Global and local variables
-* I32 calculations
-* Function calls (but no cross module calls and no return values so far)
-* Control flow (if, do_while, break, continue)
-* Printing numbers to terminal (to have some IO)
-* Type checking
-
-
-## Known Bugs
-
-* The LEB128 parser could be buggy for big(ger) 32 bit integers
-* Not all instructions from the draft are supported yet.
-
 ## Binary format
 
 As the binary format of WASM is still up to decision, this interpreter is currently using it's own 

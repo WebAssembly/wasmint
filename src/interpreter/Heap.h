@@ -49,6 +49,7 @@ namespace wasmint {
 
         Heap(const wasm_module::HeapData& data) {
             data_.resize(data.startSize());
+            std::fill(data_.begin(), data_.end(), 0);
 
             for (const wasm_module::HeapSegment& segment : data.segments()) {
                 std::copy(segment.data().begin(), segment.data().end(), data_.begin() + segment.offset());
@@ -57,7 +58,9 @@ namespace wasmint {
         }
 
         void grow(uint32_t size) {
+            std::size_t oldSize = data_.size();
             data_.resize(data_.size() + size);
+            std::fill(data_.begin() + oldSize, data_.end(), 0);
         }
 
         std::vector<uint8_t> getBytes(uint32_t offset, uint32_t size) {
@@ -92,6 +95,25 @@ namespace wasmint {
             for (uint32_t i = offset; i < offset + bytes.size(); i++) {
                 data_[i] = bytes[i - offset];
             }
+        }
+
+        std::string getString(uint32_t offset) {
+            uint32_t endOffset = 0;
+            bool foundOffset = false;
+            for(uint32_t i = offset; i < data_.size(); i++) {
+                if (data_[i] == '\0') {
+                    endOffset = i;
+                    foundOffset = true;
+                }
+            }
+
+            std::string result;
+            result.reserve(endOffset - offset);
+
+            for(uint32_t i = offset; i < endOffset; i++) {
+                result[i - offset] = data_[i];
+            }
+            return result;
         }
 
     };

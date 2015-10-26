@@ -22,16 +22,19 @@ wasmint::SDLModule::SDLModule() {
     context().name("sdl");
 
 #ifdef WASMINT_HAS_SDL
-    addFunction("init", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
+    addFunction("init", Int32::instance(), {Int32::instance(), Int32::instance(), Int32::instance(), Int32::instance()}, [this](std::vector<Variable> parameters) {
         if (SDL_Init(SDL_INIT_VIDEO) == 0) {
-            window_ = SDL_CreateWindow("SDL Window", 100, 100, windowWidth_ = 340, windowHeight_ = 240, SDL_WINDOW_SHOWN);
+            int32_t windowX = parameters.at(0).int32();
+            int32_t windowY = parameters.at(1).int32();
+            windowWidth_ = parameters.at(2).int32();
+            windowHeight_ = parameters.at(3).int32();
+
+            window_ = SDL_CreateWindow("wasm SDL Window", windowX, windowY, windowWidth_, windowHeight_, SDL_WINDOW_SHOWN);
             if (window_ == nullptr){
                 std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
                 SDL_Quit();
 
-                Variable variable(Int32::instance());
-                Int32::setValue(variable, 1);
-                return variable;
+                return (int32_t) 1;
             }
 
             ren = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -39,20 +42,18 @@ wasmint::SDLModule::SDLModule() {
                 SDL_DestroyWindow(window_);
                 std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
                 SDL_Quit();
-                Variable variable(Int32::instance());
-                Int32::setValue(variable, 1);
-                return variable;
+
+                return (int32_t) 1;
             }
         } else {
             std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
-            abort();
+            return (int32_t) 1;
         }
-        Variable variable(Int32::instance());
-        Int32::setValue(variable, 0);
-        return variable;
+
+        return (int32_t) 0;
     });
 
-    addFunction("load_bmp", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
+    addFunction("load_bmp", Int32::instance(), {Int32::instance()}, [this](std::vector<Variable> parameters) {
         SDL_Surface *bmp = SDL_LoadBMP("/home/teemperor/workspace/wasm/wasmint/examples/pong/ball.bmp");
         if (bmp == nullptr){
             std::cout << "SDL_LoadPNG Error: " << SDL_GetError() << std::endl;
@@ -60,9 +61,7 @@ wasmint::SDLModule::SDLModule() {
             SDL_DestroyWindow(window_);
             SDL_Quit();
 
-            Variable variable(Int32::instance());
-            Int32::setValue(variable, 1);
-            return variable;
+            return (int32_t) 0;
         }
         SDL_Texture *tex = SDL_CreateTextureFromSurface(ren, bmp);
         SDL_FreeSurface(bmp);
@@ -73,61 +72,94 @@ wasmint::SDLModule::SDLModule() {
             SDL_DestroyWindow(window_);
             SDL_Quit();
 
-            Variable variable(Int32::instance());
-            Int32::setValue(variable, 1);
-            return variable;
+            return (int32_t) 0;
         }
 
-        int index = textureIndex++;
+        int32_t index = textureIndex;
         textures_[index] = tex;
 
-        Variable variable(Int32::instance());
-        Int32::setValue(variable, 0);
-        return variable;
+        return (int32_t) index;
     });
 
-    addFunction("render", Void::instance(), {Int32::instance(), Int32::instance(), Int32::instance()}, [this](std::vector<Variable> parameters) {
+    addFunction("render", Void::instance(), {Int32::instance(), Int32::instance(), Int32::instance(), Int32::instance(), Int32::instance()}, [this](std::vector<Variable> parameters) {
         SDL_Rect DestR;
 
         DestR.x = Int32::getValue(parameters.at(1));
         DestR.y = Int32::getValue(parameters.at(2));
-        DestR.w = 20;
-        DestR.h = 20;
+        DestR.w = Int32::getValue(parameters.at(3));
+        DestR.h = Int32::getValue(parameters.at(4));
 
-        SDL_RenderClear(ren);
         SDL_RenderCopy(ren, textures_.at(Int32::getValue(parameters.at(0))), NULL, &DestR);
-        SDL_RenderPresent(ren);
 
-        Variable variable(Void::instance());
-        return variable;
+        return Variable::Void();
     });
 
+    addFunction("clear", Void::instance(), {Int32::instance(), Int32::instance(), Int32::instance()}, [this](std::vector<Variable> parameters) {
+        SDL_RenderClear(ren);
+        return Variable::Void();
+    });
+
+    addFunction("present", Void::instance(), {Int32::instance(), Int32::instance(), Int32::instance()}, [this](std::vector<Variable> parameters) {
+        SDL_RenderPresent(ren);
+        return Variable::Void();
+    });
+
+    addFunction("key_down", Int32::instance(), {Int32::instance()}, [this](std::vector<Variable> parameters) {
+        SDL_PumpEvents();
+
+        const Uint8* state = SDL_GetKeyboardState(NULL);
+        SDL_Scancode code = SDL_SCANCODE_0;
+
+        int32_t param = parameters.at(0).int32();
+
+        switch(param) {
+            case 0:
+                code = SDL_SCANCODE_UP;
+                break;
+            case 1:
+                code = SDL_SCANCODE_DOWN;
+                break;
+            case 2:
+                code = SDL_SCANCODE_ESCAPE;
+                break;
+            default:
+                return (int32_t) 0;
+        }
+
+        if (state[code]) {
+            return (int32_t) 1;
+        } else {
+            return (int32_t) 0;
+        }
+    });
+
+
+
     addFunction("get_window_width", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
-        Variable variable(Int32::instance());
-        Int32::setValue(variable, windowWidth_);
-        return variable;
+        return (int32_t) windowWidth_;
     });
 
     addFunction("get_window_height", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
-        Variable variable(Int32::instance());
-        Int32::setValue(variable, windowHeight_);
-        return variable;
+        return (int32_t) windowHeight_;
     });
 
     addFunction("quit", Void::instance(), {}, [this](std::vector<Variable> parameters) {
-        for (auto texturePair : textures_) {
-            SDL_DestroyTexture(texturePair.second);
-        }
-        textures_.clear();
+        quit();
 
-        SDL_DestroyRenderer(ren);
-        SDL_DestroyWindow(window_);
-        SDL_Quit();
-
-        Variable variable(Void::instance());
-        return variable;
+        return Variable::Void();
     });
 
 #endif
 
+}
+
+void wasmint::SDLModule::quit() {
+    for (auto texturePair : textures_) {
+        SDL_DestroyTexture(texturePair.second);
+    }
+    textures_.clear();
+
+    SDL_DestroyRenderer(ren);
+    SDL_DestroyWindow(window_);
+    SDL_Quit();
 }

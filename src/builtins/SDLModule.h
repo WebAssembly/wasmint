@@ -34,18 +34,22 @@ namespace wasmint {
 #ifdef WASMINT_HAS_SDL
         int textureIndex = 1;
 
-        int32_t windowWidth_, windowHeight_;
+        int32_t windowWidth_ = 0, windowHeight_ = 0;
 
-        SDL_Window* window_;
-        SDL_Renderer *ren;
+        SDL_Renderer* ren = nullptr;
+        SDL_Window* window_ = nullptr;
 
         std::unordered_map<int32_t, SDL_Texture*> textures_;
-
 #endif
+
+        void quit();
 
         SDLModule();
 
     public:
+        virtual ~SDLModule() {
+            quit();
+        }
 
         static wasm_module::Module* create() {
             using namespace wasm_module;
