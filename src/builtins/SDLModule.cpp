@@ -154,6 +154,7 @@ wasmint::SDLModule::SDLModule() {
 }
 
 void wasmint::SDLModule::quit() {
+#ifdef WASMINT_HAS_SDL
     for (auto texturePair : textures_) {
         SDL_DestroyTexture(texturePair.second);
     }
@@ -162,4 +163,5 @@ void wasmint::SDLModule::quit() {
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(window_);
     SDL_Quit();
+#endif
 }
