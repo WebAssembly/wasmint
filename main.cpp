@@ -23,7 +23,7 @@ inline bool ends_with(std::string const & value, std::string const & ending)
 
 int main(int argc, char** argv) {
     if (argc == 1) {
-        std::cerr << "No modules given. Call programm like this: \n$ wasmint module1.wasm" << std::endl;
+        std::cerr << "No modules given. Call program like this: \n$ wasmint module1.wasm" << std::endl;
         return 1;
     }
 
