@@ -1,5 +1,5 @@
 # wasmint
-[![Build Status](https://travis-ci.org/Teemperor/wasmint.svg?branch=master)](https://travis-ci.org/Teemperor/wasmint)
+[![Build Status](https://travis-ci.org/WebAssembly/wasmint.svg?branch=master)](https://travis-ci.org/WebAssembly/wasmint)
 
 A WebAssembly (**WASM**) **Int**erpreter with a focus on debugging licensed under the Apache 2.0 License.
 
