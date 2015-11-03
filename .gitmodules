@@ -1,4 +1,9 @@
 [submodule "wasm-module"]
 	path = wasm-module
-	url = https://github.com/Teemperor/wasm-module.git
+	url = https://github.com/WebAssembly/wasm-module.git
+	branch = master
+
+[submodule "testsuite"]
+	path = testsuite
+	url = https://github.com/WebAssembly/testsuite.git
 	branch = master

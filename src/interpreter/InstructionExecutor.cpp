@@ -1740,9 +1740,10 @@ namespace wasmint {
                     default:
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
+                        double resultValue = left * right;
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, left * right);
+                        wasm_module::Float64::setValue(result, resultValue);
                         return result;
                 }
 
@@ -1864,6 +1865,7 @@ namespace wasmint {
                     default:
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
+                        std::cout << left << " " << right << std::endl;
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
                         wasm_module::Int32::setValue(result, left == right ? 1 : 0);

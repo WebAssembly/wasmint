@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 
         Module* m;
 
-        bool binary = !ends_with(modulePath, ".wast");
+        bool binary = !ends_with(modulePath, ".wasm");
 
         if (binary) {
             std::streampos size;
@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
             try {
                 m = binary::ModuleParser::parse(stream);
             } catch (const std::exception& e) {
-                std::cerr << "Got exception while parsing sexpr module "
+                std::cerr << "Got exception while parsing binary module "
                 << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
                 << std::endl;
                 return 1;
@@ -125,5 +125,9 @@ int main(int argc, char** argv) {
         } else {
             std::cerr << "Exiting because we can't find function with name: " << e.what() << std::endl;
         }
+    } catch(const std::exception& ex) {
+        std::cout << "Got exception while executing: " << ex.what() << " (typeid name " << typeid(ex).name() << ")"
+        << std::endl;
+        return 1;
     }
 }

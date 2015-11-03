@@ -101,3 +101,10 @@ add_library(fuzzing_common
 add_executable(mutation_fuzzer tests/fuzzing/mutation_based/mutation_fuzzer.cpp)
 target_link_libraries(mutation_fuzzer core wasm-module fuzzing_common)
 add_test(NAME mutation_fuzzing COMMAND ./mutation_fuzzer)
+
+####################
+# Test suite       #
+####################
+
+configure_file(runTestsuite.sh runTestsuite.sh)
+configure_file(testValgrind.sh testValgrind.sh COPYONLY)
