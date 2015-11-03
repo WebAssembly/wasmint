@@ -20,6 +20,7 @@
 #include <vector>
 #include <Variable.h>
 #include <interpreter/StepResult.h>
+#include <stdexcept>
 
 namespace wasm_module {
     class Instruction;
