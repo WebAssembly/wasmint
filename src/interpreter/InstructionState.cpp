@@ -41,7 +41,7 @@ namespace wasmint {
         } else {
             StepResult result = InstructionExecutor::execute(*instruction(), thread);
             if (result.newChildInstruction()) {
-                childInstruction = new InstructionState(result.newChildInstruction());
+                childInstruction = new InstructionState(result.newChildInstruction(), this);
             } else if (result.signal() != Signal::None) {
                 return result.signal();
             } else {
@@ -58,4 +58,7 @@ namespace wasmint {
             delete childInstruction;
     }
 
+    InstructionState::InstructionState(wasm_module::Instruction *instruction, InstructionState* parent)
+            : instruction_(instruction), parent_(parent) {
+    }
 }

@@ -40,7 +40,7 @@ add_library(core
     src/interpreter/StepResult.cpp
     src/builtins/StdioModule.cpp
     src/builtins/SDLModule.cpp
-)
+        src/builtins/AssertModule.cpp src/builtins/AssertModule.h)
 
 
 ###########################

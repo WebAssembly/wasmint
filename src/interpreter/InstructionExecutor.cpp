@@ -42,11 +42,12 @@ namespace wasmint {
                     case 1:
                         return StepResult(instruction.children().at(state.state()));
                     default:
-                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
-                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+                        uint32_t left = state.results().at(0).uint32();
+                        uint32_t right = state.results().at(1).uint32();
+                        uint32_t resultValue = left + right;
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left + right);
+                        wasm_module::Int32::setUnsignedValue(result, resultValue);
                         return result;
                 }
             case InstructionId::I32Sub:
@@ -114,6 +115,8 @@ namespace wasmint {
                     default:
                         int32_t left = wasm_module::Int32::getValue(state.results().at(0));
                         int32_t right = wasm_module::Int32::getValue(state.results().at(1));
+                        if (right < 0)
+                            right = -right;
 
                         // TODO that exception should be in the interpreter namespace
                         if (right == 0)
@@ -135,7 +138,7 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        wasm_module::Variable result = (uint32_t)(left / right);
+                        wasm_module::Variable result = (uint32_t)(left % right);
                         return result;
                 }
             case InstructionId::I32And:
@@ -186,6 +189,11 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
+                        if (right >= 32u) {
+                            // that would be unspecified in C, so we do it manually
+                            return wasm_module::Variable((uint32_t) 0);
+                        }
+
                         wasm_module::Variable result = (uint32_t)(left << right);
                         return result;
                 }
@@ -198,6 +206,11 @@ namespace wasmint {
                     default:
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
+
+                        if (right >= 32u) {
+                            // that would be unspecified in C, so we do it manually
+                            return wasm_module::Variable((uint32_t) 0);
+                        }
 
                         wasm_module::Variable result = (uint32_t)(left >> right);
                         return result;
@@ -212,16 +225,29 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
+                        int32_t leftSigned = wasm_module::Int32::getValue(state.results().at(0));
+
+
+                        if (right >= 32u) {
+                            // that would be unspecified in C, so we do it manually
+                            if (leftSigned < 0) {
+                                return wasm_module::Variable((uint32_t) std::numeric_limits<uint32_t>::max());
+                            } else {
+                                return wasm_module::Variable((uint32_t) 0);
+                            }
+                        }
 
                         uint32_t resultInt = left >> right;
 
-                        if ((left & (0x1u << 31u)) != 0) {
-                            uint32_t bitMask = 0;
-                            for(uint32_t i = 0; i < right; i++) {
-                                bitMask >>= 1u;
-                                bitMask |= (0x1u << 31u);
+                        if (leftSigned < 0) {
+                            if ((left & (0x1u << 31u)) != 0) {
+                                uint32_t bitMask = 0;
+                                for (uint32_t i = 0; i < right; i++) {
+                                    bitMask >>= 1u;
+                                    bitMask |= (0x1u << 31u);
+                                }
+                                resultInt |= bitMask;
                             }
-                            resultInt |= bitMask;
                         }
 
                         wasm_module::Variable result = (uint32_t)(resultInt);
@@ -402,6 +428,10 @@ namespace wasmint {
 
                         uint32_t leadingZeroes = 0;
 
+                        if (value == 0) {
+                            return wasm_module::Variable((uint32_t) 32);
+                        }
+
                         while (true) {
                             if ((value & (0x1u << 31u)) == 0) {
                                 leadingZeroes++;
@@ -409,6 +439,8 @@ namespace wasmint {
                             } else {
                                 break;
                             }
+                            if (value == 0)
+                                break;
                         }
 
                         return wasm_module::Variable((uint32_t) leadingZeroes);
@@ -422,6 +454,10 @@ namespace wasmint {
 
                         uint32_t trailingZeroes = 0;
 
+                        if (value == 0) {
+                            return wasm_module::Variable((uint32_t) 32);
+                        }
+
                         while (true) {
                             if ((value & 0x1u) == 0) {
                                 trailingZeroes++;
@@ -429,6 +465,8 @@ namespace wasmint {
                             } else {
                                 break;
                             }
+                            if (value == 0)
+                                break;
                         }
 
                         return wasm_module::Variable((uint32_t) trailingZeroes);
@@ -446,8 +484,8 @@ namespace wasmint {
                         while (true) {
                             if ((value & 0x1u) == 1) {
                                 population++;
-                                value >>= 1;
                             }
+                            value >>= 1;
                             if (value == 0)
                                 break;
                         }
@@ -610,6 +648,11 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
+                        if (right >= 64u) {
+                            // that would be unspecified in C, so we do it manually
+                            return wasm_module::Variable((uint64_t) 0);
+                        }
+
                         wasm_module::Variable result = (uint64_t)(left << right);
                         return result;
                 }
@@ -622,6 +665,11 @@ namespace wasmint {
                     default:
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
+
+                        if (right >= 64u) {
+                            // that would be unspecified in C, so we do it manually
+                            return wasm_module::Variable((uint64_t) 0);
+                        }
 
                         wasm_module::Variable result = (uint64_t)(left >> right);
                         return result;
@@ -636,6 +684,10 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
+                        if (right >= 64u) {
+                            // that would be unspecified in C, so we do it manually
+                            return wasm_module::Variable((uint64_t) 0);
+                        }
 
                         uint64_t resultInt = left >> right;
 
@@ -824,15 +876,21 @@ namespace wasmint {
                     default:
                         uint64_t value = wasm_module::Int64::getUnsignedValue(state.results().at(0));
 
-                        uint64_t leadingZeroes = 0;
+                        uint32_t leadingZeroes = 0;
+
+                        if (value == 0) {
+                            return wasm_module::Variable((uint64_t) 64);
+                        }
 
                         while (true) {
-                            if ((value & (0x1ul << 63u)) == 0) {
+                            if ((value & (0x1ul << 63ul)) == 0) {
                                 leadingZeroes++;
                                 value <<= 1;
                             } else {
                                 break;
                             }
+                            if (value == 0)
+                                break;
                         }
 
                         return wasm_module::Variable((uint64_t) leadingZeroes);
@@ -846,6 +904,10 @@ namespace wasmint {
 
                         uint64_t trailingZeroes = 0;
 
+                        if (value == 0) {
+                            return wasm_module::Variable((uint64_t) 64);
+                        }
+
                         while (true) {
                             if ((value & 0x1u) == 0) {
                                 trailingZeroes++;
@@ -853,6 +915,8 @@ namespace wasmint {
                             } else {
                                 break;
                             }
+                            if (value == 0)
+                                break;
                         }
 
                         return wasm_module::Variable((uint64_t) trailingZeroes);
@@ -870,8 +934,8 @@ namespace wasmint {
                         while (true) {
                             if ((value & 0x1u) == 1) {
                                 population++;
-                                value >>= 1;
                             }
+                            value >>= 1;
                             if (value == 0)
                                 break;
                         }

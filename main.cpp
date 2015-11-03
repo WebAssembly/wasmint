@@ -11,6 +11,7 @@
 #include <sexpr_parsing/SExprParser.h>
 #include <builtins/StdioModule.h>
 #include <builtins/SDLModule.h>
+#include <builtins/AssertModule.h>
 
 using namespace wasm_module;
 using namespace wasmint;
@@ -35,6 +36,7 @@ int main(int argc, char** argv) {
     environment.useModule(*SDLModule::create(), true);
 #endif
 
+    environment.useModule(*AssertModule::create(), true);
     environment.useModule(*StdioModule::create(), true);
 
     for(int i = 1; i < argc; i++) {

@@ -38,10 +38,10 @@ namespace wasmint {
         std::vector<wasm_module::Variable> results_;
         wasm_module::Instruction *instruction_;
 
+        InstructionState* parent_ = nullptr;
 
     public:
-        InstructionState(wasm_module::Instruction *instruction) : instruction_(instruction) {
-        }
+        InstructionState(wasm_module::Instruction *instruction, InstructionState* parent = nullptr);
 
         virtual ~InstructionState();
 
@@ -79,6 +79,12 @@ namespace wasmint {
 
         void clearResults() {
             results_.clear();
+        }
+
+        InstructionState* parent() {
+            if (parent_ == nullptr)
+                throw std::domain_error("InstructionState has no parent. parent() can't be executed");
+            return parent_;
         }
 
     };
