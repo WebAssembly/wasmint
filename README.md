@@ -1,16 +1,7 @@
 # wasmint
-[![Build Status](https://travis-ci.org/Teemperor/wasmint.svg?branch=master)](https://travis-ci.org/Teemperor/wasmint)
+[![Build Status](https://travis-ci.org/WebAssembly/wasmint.svg?branch=master)](https://travis-ci.org/WebAssembly/wasmint)
 
-A WebAssembly (**WASM**) **Int**erpreter licensed under the Apache 2.0 License.
-
-## Binary format
-
-As the binary format of WASM is still up to decision, this interpreter is currently using it's own 
-binary format that tries to be as close as possible to the draft by the W3C group.
-If you find any differences between the current binary format and the one from the draft, 
-please create a issue on github.
-
-For more information see the [documentation](docs/BinaryFormat.md).
+A WebAssembly (**WASM**) **Int**erpreter with a focus on debugging licensed under the Apache 2.0 License.
 
 ## Building
 
