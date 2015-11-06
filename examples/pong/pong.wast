@@ -47,6 +47,7 @@
                         (set_local $vy (i32.sub (i32.const 0) (get_local $vy)))
                         (set_local $bally  (i32.const 580))
                     )
+                    ()
                 )
                 (if (i32.gt_s (get_local $ballX) (i32.const 780))
                     (
@@ -62,12 +63,14 @@
                             )
                         )
                     )
+                    ()
                 )
                 (if (i32.lt_s (get_local $bally) (i32.const 0))
                     (
                         (set_local $vy (i32.sub (i32.const 0) (get_local $vy)))
                         (set_local $bally  (i32.const 0))
                     )
+                    ()
                 )
                 (if (i32.lt_s (get_local $ballX) (i32.const 0))
                     (
@@ -83,17 +86,20 @@
                             )
                         )
                     )
+                    ()
                 )
 
                 (if (call $sdl_key_down (i32.const 1))
                     (
                         (set_local $p1y (i32.add (get_local $p1y) (i32.const 5)))
                     )
+                    ()
                 )
                 (if (call $sdl_key_down (i32.const 0))
                     (
                         (set_local $p1y (i32.sub (get_local $p1y) (i32.const 5) ))
                     )
+                    ()
                 )
 
                 (set_local $p2y (i32.sub (get_local $bally) (i32.const 40)))
@@ -110,10 +116,12 @@
 
                 (if (i32.gt_s (get_local $startTimer) (i32.const 0))
                     (set_local $startTimer (i32.sub (get_local $startTimer) (i32.const 66)))
+                    ()
                 )
 
                 (if (call $sdl_key_down (i32.const 2))
                     (break)
+                    ()
                 )
             )
         )

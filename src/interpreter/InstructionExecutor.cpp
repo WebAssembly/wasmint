@@ -88,7 +88,7 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        wasm_module::Variable result = (uint32_t)(left / right);
+                        wasm_module::Variable result = (int32_t)(left / right);
                         return result;
                 }
             case InstructionId::I32DivUnsigned:
@@ -549,7 +549,7 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        wasm_module::Variable result = (uint64_t)(left / right);
+                        wasm_module::Variable result = (int64_t)(left / right);
                         return result;
                 }
             case InstructionId::I64DivUnsigned:
@@ -714,10 +714,10 @@ namespace wasmint {
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
                         if (left == right) {
-                            wasm_module::Variable result = (uint64_t)(1);
+                            wasm_module::Variable result = (uint32_t)(1);
                             return result;
                         } else {
-                            wasm_module::Variable result = (uint64_t)(0);
+                            wasm_module::Variable result = (uint32_t)(0);
                             return result;
                         }
                 }
@@ -732,10 +732,10 @@ namespace wasmint {
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
                         if (left != right) {
-                            wasm_module::Variable result = (uint64_t)(1);
+                            wasm_module::Variable result = (uint32_t)(1);
                             return result;
                         } else {
-                            wasm_module::Variable result = (uint64_t)(0);
+                            wasm_module::Variable result = (uint32_t)(0);
                             return result;
                         }
                 }
@@ -750,9 +750,9 @@ namespace wasmint {
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
                         if (left < right) {
-                            return wasm_module::Variable((int64_t) 1);
+                            return wasm_module::Variable((int32_t) 1);
                         } else {
-                            return wasm_module::Variable((int64_t) 0);
+                            return wasm_module::Variable((int32_t) 0);
                         }
                 }
 
@@ -766,9 +766,9 @@ namespace wasmint {
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
                         if (left <= right) {
-                            return wasm_module::Variable((int64_t) 1);
+                            return wasm_module::Variable((int32_t) 1);
                         } else {
-                            return wasm_module::Variable((int64_t) 0);
+                            return wasm_module::Variable((int32_t) 0);
                         }
                 }
 
@@ -782,9 +782,9 @@ namespace wasmint {
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
                         if (left < right) {
-                            return wasm_module::Variable((int64_t) 1);
+                            return wasm_module::Variable((int32_t) 1);
                         } else {
-                            return wasm_module::Variable((int64_t) 0);
+                            return wasm_module::Variable((int32_t) 0);
                         }
                 }
 
@@ -798,9 +798,9 @@ namespace wasmint {
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
                         if (left <= right) {
-                            return wasm_module::Variable((int64_t) 1);
+                            return wasm_module::Variable((int32_t) 1);
                         } else {
-                            return wasm_module::Variable((int64_t) 0);
+                            return wasm_module::Variable((int32_t) 0);
                         }
                 }
 
@@ -814,9 +814,9 @@ namespace wasmint {
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
                         if (left > right) {
-                            return wasm_module::Variable((int64_t) 1);
+                            return wasm_module::Variable((int32_t) 1);
                         } else {
-                            return wasm_module::Variable((int64_t) 0);
+                            return wasm_module::Variable((int32_t) 0);
                         }
                 }
 
@@ -830,9 +830,9 @@ namespace wasmint {
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
                         if (left >= right) {
-                            return wasm_module::Variable((int64_t) 1);
+                            return wasm_module::Variable((int32_t) 1);
                         } else {
-                            return wasm_module::Variable((int64_t) 0);
+                            return wasm_module::Variable((int32_t) 0);
                         }
                 }
 
@@ -846,9 +846,9 @@ namespace wasmint {
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
                         if (left > right) {
-                            return wasm_module::Variable((int64_t) 1);
+                            return wasm_module::Variable((int32_t) 1);
                         } else {
-                            return wasm_module::Variable((int64_t) 0);
+                            return wasm_module::Variable((int32_t) 0);
                         }
                 }
 
@@ -862,9 +862,9 @@ namespace wasmint {
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
                         if (left >= right) {
-                            return wasm_module::Variable((int64_t) 1);
+                            return wasm_module::Variable((int32_t) 1);
                         } else {
-                            return wasm_module::Variable((int64_t) 0);
+                            return wasm_module::Variable((int32_t) 0);
                         }
                 }
 
@@ -976,7 +976,9 @@ namespace wasmint {
                 if (state.state() < instruction.children().size()) {
                     return StepResult(instruction.children().at(state.state()));
                 } else {
-                    return StepResult();
+                    if (state.results().empty())
+                        return StepResult();
+                    return StepResult(state.results().back());
                 }
 
             case InstructionId::Break:
@@ -1011,6 +1013,8 @@ namespace wasmint {
                     case 1:
                         if (wasm_module::Int32::getValue(state.results().front()) != 0) {
                             return instruction.children().at(1);
+                        } else {
+                            return instruction.children().at(2);
                         }
                     default:
                         return StepResult();
@@ -1054,6 +1058,7 @@ namespace wasmint {
                     return StepResult(thread.callFunction(functionCall.moduleName, functionCall.functionSignature.name(), parameters));
                 } else {
                     thread.leaveFunction();
+
                     return state.results().back();
                 }
             case InstructionId::NativeInstruction:
@@ -1111,7 +1116,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
 
@@ -1132,7 +1138,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
                         std::vector<uint8_t> bytes = {loadedBytes.at(0), 0x0, 0x0, 0x0};
@@ -1147,7 +1154,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
 
@@ -1168,7 +1176,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
                         std::vector<uint8_t> bytes = {loadedBytes.at(0), loadedBytes.at(1), 0x0, 0x0};
@@ -1182,7 +1191,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> bytes = thread.heap().getBytes(offset, static_cast<uint32_t>(wasm_module::Int32::instance()->size()));
 
@@ -1197,7 +1207,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
 
@@ -1218,7 +1229,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
                         std::vector<uint8_t> bytes = {loadedBytes.at(0), 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
@@ -1233,7 +1245,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
 
@@ -1254,7 +1267,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
                         std::vector<uint8_t> bytes = {loadedBytes.at(0), loadedBytes.at(1), 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
@@ -1269,7 +1283,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 4u);
 
@@ -1291,7 +1306,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 4u);
                         std::vector<uint8_t> bytes =
@@ -1307,7 +1323,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> bytes = thread.heap().getBytes
                                 (offset, static_cast<uint32_t>(wasm_module::Int64::instance()->size()));
@@ -1322,7 +1339,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> bytes = thread.heap().getBytes
                                 (offset, static_cast<uint32_t>(wasm_module::Float32::instance()->size()));
@@ -1337,7 +1355,8 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back());
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> bytes = thread.heap().getBytes
                                 (offset, static_cast<uint32_t>(wasm_module::Float64::instance()->size()));
@@ -1353,7 +1372,8 @@ namespace wasmint {
                     case 1:
                         return StepResult(instruction.children().at(state.state()));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, {value.data().at(0)});
@@ -1366,7 +1386,8 @@ namespace wasmint {
                     case 1:
                         return StepResult(instruction.children().at(state.state()));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, {value.data().at(0), value.data().at(1)});
@@ -1379,7 +1400,8 @@ namespace wasmint {
                     case 1:
                         return StepResult(instruction.children().at(state.state()));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, {value.data().at(0)});
@@ -1392,7 +1414,8 @@ namespace wasmint {
                     case 1:
                         return StepResult(instruction.children().at(state.state()));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, {value.data().at(0), value.data().at(1)});
@@ -1405,7 +1428,8 @@ namespace wasmint {
                     case 1:
                         return StepResult(instruction.children().at(state.state()));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, {value.data().at(0), value.data().at(1), value.data().at(2), value.data().at(3)});
@@ -1421,7 +1445,8 @@ namespace wasmint {
                     case 1:
                         return StepResult(instruction.children().at(state.state()));
                     default:
-                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0));
+                        uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
+                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, value.data());
@@ -1483,7 +1508,7 @@ namespace wasmint {
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, left + right);
+                        wasm_module::Float32::setValue(result, left / right);
                         return result;
                 }
 
@@ -1757,7 +1782,7 @@ namespace wasmint {
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, left + right);
+                        wasm_module::Float64::setValue(result, left / right);
                         return result;
                 }
 
@@ -1865,7 +1890,6 @@ namespace wasmint {
                     default:
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
-                        std::cout << left << " " << right << std::endl;
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
                         wasm_module::Int32::setValue(result, left == right ? 1 : 0);
@@ -2180,7 +2204,7 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int64::instance());
+                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
                         memcpy(result.value(), state.results().at(0).value(), result.type().size());
                         return result;
                 }
@@ -2246,7 +2270,7 @@ namespace wasmint {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int64::instance());
+                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
                         memcpy(result.value(), state.results().at(0).value(), result.type().size());
                         return result;
                 }

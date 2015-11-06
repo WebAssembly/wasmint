@@ -8,7 +8,6 @@ echo "#####################################"
 
 totalTests=0
 failedTests=0
-FAILEDTESTS=()
 
 echo "#####################################"
 echo "###    Running positive tests     ###"
@@ -18,12 +17,12 @@ for i in ./positive/*.wasm; do
     #valgrind --error-exitcode=1 -q ./wasmint $i
     { ./wasmint $i ;}
     if [ $? -ne 0 ]; then
-        FAILEDTESTS+=("$i")
         failedTests=$((failedTests+1))
-        printf "[FAIL %50s]\n" "`basename $i`"
+        printf "[FAIL %50s] " "`basename $i`"
         echo "Full path: `readlink -f $i`"
-    else
-        printf "[ OK  %50s]\n" "`basename $i`"
+        echo ""
+    #else
+    #    printf "[ OK  %50s]\n" "`basename $i`"
     fi
 
     totalTests=$((totalTests+1))
@@ -37,16 +36,15 @@ for i in ./negative/trap/*.wasm; do
     #valgrind --error-exitcode=1 -q ./wasmint $i
     { ./wasmint $i ;} &> /dev/null
     if [ $? -eq 0 ]; then
-        FAILEDTESTS+=("$i")
         failedTests=$((failedTests+1))
-        printf "[FAIL %50s]\n" "$i"
+        printf "[FAIL %50s] " "$i"
         echo "Full path: `readlink -f $i`"
-    else
-        printf "[ OK  %50s]\n" "$i"
+        echo ""
+    #else
+    #    printf "[ OK  %50s]\n" "$i"
     fi
 
     totalTests=$((totalTests+1))
 done
 
 echo "$failedTests out of $totalTests failed:"
-echo "$FAILEDTESTS"

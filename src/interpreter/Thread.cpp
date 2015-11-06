@@ -17,6 +17,7 @@
 #include "Thread.h"
 #include <Function.h>
 #include <assert.h>
+#include <iostream>
 #include "InstructionState.h"
 #include "MachineState.h"
 

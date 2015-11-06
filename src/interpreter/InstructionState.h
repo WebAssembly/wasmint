@@ -21,12 +21,15 @@
 #include <Variable.h>
 #include <interpreter/StepResult.h>
 #include <stdexcept>
+#include <ExceptionWithMessage.h>
 
 namespace wasm_module {
     class Instruction;
 }
 
 namespace wasmint {
+
+    ExceptionMessage(IncompatibleChildReturnType)
 
     class Thread;
 

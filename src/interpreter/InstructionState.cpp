@@ -19,6 +19,7 @@
 #include <instructions/Instruction.h>
 #include "Thread.h"
 #include "InstructionExecutor.h"
+#include <types/Type.h>
 
 namespace wasmint {
 
@@ -46,6 +47,11 @@ namespace wasmint {
                 return result.signal();
             } else {
                 result_ = result.result();
+                if (!wasm_module::Type::typeCompatible(instruction()->returnType(), &result_.type())) {
+                    throw IncompatibleChildReturnType(instruction()->name() + " is supposed to return "
+                                                      + instruction()->returnType()->name() + " but returned "
+                                                      + result_.type().name());
+                }
                 finished_ = true;
             }
             state_++;
