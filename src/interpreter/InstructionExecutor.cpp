@@ -1289,7 +1289,7 @@ namespace wasmint {
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 4u);
 
                         std::vector<uint8_t> bytes =
-                                {loadedBytes.at(0), loadedBytes.at(1), loadedBytes.at(2), loadedBytes.at(3), 0x0, 0x0};
+                                {loadedBytes.at(0), loadedBytes.at(1), loadedBytes.at(2), loadedBytes.at(3), 0x0, 0x0, 0x0, 0x0};
 
                         // sign extend if the loaded byte is negative
                         if (loadedBytes.at(1) > 127) {
@@ -1311,7 +1311,7 @@ namespace wasmint {
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 4u);
                         std::vector<uint8_t> bytes =
-                                {loadedBytes.at(0), loadedBytes.at(1), loadedBytes.at(2), loadedBytes.at(3), 0x0, 0x0};
+                                {loadedBytes.at(0), loadedBytes.at(1), loadedBytes.at(2), loadedBytes.at(3), 0x0, 0x0, 0x0, 0x0};
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Int64::instance()->localType());
                         result.setValue(bytes);
