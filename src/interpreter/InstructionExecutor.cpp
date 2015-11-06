@@ -1270,7 +1270,7 @@ namespace wasmint {
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
                                           + static_cast<LoadStoreInstruction&>(instruction).offset();
 
-                        std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
+                        std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
                         std::vector<uint8_t> bytes = {loadedBytes.at(0), loadedBytes.at(1), 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Int64::instance()->localType());
