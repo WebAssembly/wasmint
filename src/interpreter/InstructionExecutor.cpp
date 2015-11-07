@@ -1017,7 +1017,7 @@ namespace wasmint {
                             return instruction.children().at(2);
                         }
                     default:
-                        return StepResult();
+                        return state.results().back();
 
                 }
             case InstructionId::Return:
