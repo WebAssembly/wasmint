@@ -1061,6 +1061,21 @@ namespace wasmint {
 
                     return state.results().back();
                 }
+            case InstructionId::CallImport:
+                if (state.state() < instruction.children().size()) {
+                    return StepResult(instruction.children().at(state.state()));
+                } else if (state.state() == instruction.children().size()) {
+                    std::vector<wasm_module::Variable> parameters;
+                    for (uint32_t i = 0; i < state.results().size(); i++) {
+                        parameters.push_back(state.results().at(i));
+                    }
+                    wasm_module::CallImport & functionCall = dynamic_cast<wasm_module::CallImport &>(instruction);
+                    return StepResult(thread.callFunction(functionCall.moduleName, functionCall.functionSignature.name(), parameters));
+                } else {
+                    thread.leaveFunction();
+
+                    return state.results().back();
+                }
             case InstructionId::NativeInstruction:
                 return StepResult(dynamic_cast<wasm_module::NativeInstruction &>(instruction).call(thread.locals()));
             case InstructionId::GetLocal:
@@ -1179,7 +1194,7 @@ namespace wasmint {
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
                                           + static_cast<LoadStoreInstruction&>(instruction).offset();
 
-                        std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
+                        std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
                         std::vector<uint8_t> bytes = {loadedBytes.at(0), loadedBytes.at(1), 0x0, 0x0};
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance()->localType());
@@ -1599,7 +1614,15 @@ namespace wasmint {
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
 
-                        if (fabsf(ceilValue - value) < fabsf(floorValue - value)) {
+                        float ceilDiff = fabsf(ceilValue - value);
+                        float floorDiff = fabsf(floorValue - value);
+
+                        if (ceilDiff == floorDiff) {
+                            if (value < 0)
+                                value = ceilValue;
+                            else
+                                value = floorValue;
+                        } else if (ceilDiff < floorDiff) {
                             value = ceilValue;
                         } else {
                             value = floorValue;
@@ -1872,8 +1895,15 @@ namespace wasmint {
                         double floorValue = std::floor(value);
 
                         wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
+                        double ceilDiff = fabs(ceilValue - value);
+                        double floorDiff = fabs(floorValue - value);
 
-                        if (fabs(ceilValue - value) < fabs(floorValue - value)) {
+                        if (ceilDiff == floorDiff) {
+                            if (value < 0)
+                                value = ceilValue;
+                            else
+                                value = floorValue;
+                        } else if (ceilDiff < floorDiff) {
                             value = ceilValue;
                         } else {
                             value = floorValue;

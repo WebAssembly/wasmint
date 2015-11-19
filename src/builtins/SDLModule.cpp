@@ -55,7 +55,7 @@ wasmint::SDLModule::SDLModule() {
 
     addFunction("load_bmp", Int32::instance(), {Int32::instance()}, [this](std::vector<Variable> parameters) {
         SDL_Surface *bmp = SDL_LoadBMP("/home/teemperor/workspace/wasm/wasmint/examples/pong/ball.bmp");
-        if (bmp == nullptr){
+        if (bmp == nullptr) {
             std::cout << "SDL_LoadPNG Error: " << SDL_GetError() << std::endl;
             SDL_DestroyRenderer(ren);
             SDL_DestroyWindow(window_);
@@ -107,12 +107,12 @@ wasmint::SDLModule::SDLModule() {
     addFunction("key_down", Int32::instance(), {Int32::instance()}, [this](std::vector<Variable> parameters) {
         SDL_PumpEvents();
 
-        const Uint8* state = SDL_GetKeyboardState(NULL);
+        const Uint8 *state = SDL_GetKeyboardState(NULL);
         SDL_Scancode code = SDL_SCANCODE_0;
 
         int32_t param = parameters.at(0).int32();
 
-        switch(param) {
+        switch (param) {
             case 0:
                 code = SDL_SCANCODE_UP;
                 break;

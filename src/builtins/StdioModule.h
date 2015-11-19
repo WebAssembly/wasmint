@@ -33,15 +33,17 @@ namespace wasmint {
             Module* module = new Module();
             module->context().name("stdio");
 
-            module->addFunction("print", Void::instance(), {Int32::instance()}, [](std::vector<Variable> parameters) {
-                std::cout << "print_i32 " << Int32::getValue(parameters.at(0)) << std::endl;
-                return Void::instance();
-            });
+            module->addFunction("print", Void::instance(), {Int32::instance()},
+                                        [](std::vector<Variable> parameters) {
+                                            std::cout << "print_i32 " << Int32::getValue(parameters.at(0)) << std::endl;
+                                            return Void::instance();
+                                        });
 
-            module->addFunction("sleep", Void::instance(), {Int32::instance()}, [](std::vector<Variable> parameters) {
-                usleep(Int32::getValue(parameters.at(0)));
-                return Void::instance();
-            });
+            module->addFunction("sleep", Void::instance(), {Int32::instance()},
+                                        [](std::vector<Variable> parameters) {
+                                            usleep(Int32::getValue(parameters.at(0)));
+                                            return Void::instance();
+                                        });
             return module;
         }
     };

@@ -21,8 +21,8 @@ for i in ./positive/*.wasm; do
         printf "[FAIL %50s] " "`basename $i`"
         echo "Full path: `readlink -f $i`"
         echo ""
-    #else
-    #    printf "[ OK  %50s]\n" "`basename $i`"
+    else
+        printf "[ OK  %50s]\n" "`basename $i`"
     fi
 
     totalTests=$((totalTests+1))
@@ -40,8 +40,8 @@ for i in ./negative/trap/*.wasm; do
         printf "[FAIL %50s] " "$i"
         echo "Full path: `readlink -f $i`"
         echo ""
-    #else
-    #    printf "[ OK  %50s]\n" "$i"
+    else
+        printf "[ OK  %50s]\n" "$i"
     fi
 
     totalTests=$((totalTests+1))

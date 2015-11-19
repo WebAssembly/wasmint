@@ -47,9 +47,7 @@ namespace wasmint {
         wasm_module::Module& module = env_.getModule(moduleName);
 
         if (module.hasImport(functionName)) {
-
             const wasm_module::ModuleImport& moduleImport = module.getImport(functionName);
-
             func = &env_.getFunction(moduleImport.module(), moduleImport.signature().name());
         } else {
             func = &env_.getFunction(moduleName, functionName);
