@@ -1014,6 +1014,20 @@ namespace wasmint {
                         if (wasm_module::Int32::getValue(state.results().front()) != 0) {
                             return instruction.children().at(1);
                         } else {
+                            return StepResult();
+                        }
+                    default:
+                        return state.results().back();
+
+                }
+            case InstructionId::IfElse:
+                switch (state.state()) {
+                    case 0:
+                        return instruction.children().at(0);
+                    case 1:
+                        if (wasm_module::Int32::getValue(state.results().front()) != 0) {
+                            return instruction.children().at(1);
+                        } else {
                             return instruction.children().at(2);
                         }
                     default:
@@ -1070,7 +1084,7 @@ namespace wasmint {
                         parameters.push_back(state.results().at(i));
                     }
                     wasm_module::CallImport & functionCall = dynamic_cast<wasm_module::CallImport &>(instruction);
-                    return StepResult(thread.callFunction(functionCall.moduleName, functionCall.functionSignature.name(), parameters));
+                    return StepResult(thread.callFunction(functionCall.functionSignature.name(), functionCall.functionSignature.name(), parameters));
                 } else {
                     thread.leaveFunction();
 
@@ -1085,6 +1099,16 @@ namespace wasmint {
             case InstructionId::F32Const:
             case InstructionId::F64Const:
                 return StepResult(dynamic_cast<wasm_module::Literal &>(instruction).literalValue());
+            case InstructionId::HasFeature:
+                {
+                    Variable result(Int32::instance());
+                    if (dynamic_cast<wasm_module::HasFeature &>(instruction).featureName() == "wasm") {
+                        result.uint32(1);
+                    } else {
+                        result.uint32(0);
+                    }
+                    return result;
+                }
             case InstructionId::Print:
                 switch (state.state()) {
                     case 0:
