@@ -121,6 +121,8 @@ namespace wasmint {
                         // TODO that exception should be in the interpreter namespace
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
+                        if (right < 0)
+                            right = -right;
 
                         wasm_module::Variable result = (int32_t)(left % right);
                         return result;
@@ -189,10 +191,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        if (right >= 32u) {
-                            // that would be unspecified in C, so we do it manually
-                            return wasm_module::Variable((uint32_t) 0);
-                        }
+                        right %= 32;
 
                         wasm_module::Variable result = (uint32_t)(left << right);
                         return result;
@@ -207,10 +206,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        if (right >= 32u) {
-                            // that would be unspecified in C, so we do it manually
-                            return wasm_module::Variable((uint32_t) 0);
-                        }
+                        right %= 32;
 
                         wasm_module::Variable result = (uint32_t)(left >> right);
                         return result;
@@ -579,6 +575,8 @@ namespace wasmint {
                         // TODO that exception should be in the interpreter namespace
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
+                        if (right < 0)
+                            right = -right;
 
                         wasm_module::Variable result = (int64_t)(left % right);
                         return result;
@@ -596,7 +594,7 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        wasm_module::Variable result = (uint64_t)(left / right);
+                        wasm_module::Variable result = (uint64_t) (left % right);
                         return result;
                 }
             case InstructionId::I64And:
@@ -647,10 +645,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        if (right >= 64u) {
-                            // that would be unspecified in C, so we do it manually
-                            return wasm_module::Variable((uint64_t) 0);
-                        }
+                        right %= 64;
 
                         wasm_module::Variable result = (uint64_t)(left << right);
                         return result;
@@ -665,10 +660,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        if (right >= 64u) {
-                            // that would be unspecified in C, so we do it manually
-                            return wasm_module::Variable((uint64_t) 0);
-                        }
+                        right %= 64;
 
                         wasm_module::Variable result = (uint64_t)(left >> right);
                         return result;
@@ -683,10 +675,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        if (right >= 64u) {
-                            // that would be unspecified in C, so we do it manually
-                            return wasm_module::Variable((uint64_t) 0);
-                        }
+                        right %= 64;
 
                         uint64_t resultInt = left >> right;
 
@@ -1032,7 +1021,7 @@ namespace wasmint {
                     case 0:
                         return instruction.children().at(0);
                     default:
-                        return state.results().front();
+                        return StepResult::createSignal(Signal::Return, state.results().front());
                 }
 
 
@@ -1087,7 +1076,7 @@ namespace wasmint {
                 }
             case InstructionId::Unreachable:
                 if (instruction.hasParent()) {
-                    if (instruction.hasParent()) {
+                    if (instruction.parent()->hasParent()) {
                         std::cerr << instruction.parent()->parent()->toSExprString() << std::endl;
                     } else {
                         std::cerr << instruction.parent()->toSExprString() << std::endl;
@@ -2346,8 +2335,6 @@ namespace wasmint {
                 }
                 return true;
             }
-        } else if (signal == Signal::Return) {
-            // TODO
         }
 
         return false;

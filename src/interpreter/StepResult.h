@@ -56,10 +56,11 @@ namespace wasmint {
         }
 
         static StepResult createBranch(wasm_module::Variable result, uint32_t branchLabel) {
-            if (branchLabel > 1000) {
-                throw std::domain_error("dafsf");
-            }
             return StepResult(Signal::Branch, result, branchLabel);
+        }
+
+        static StepResult createSignal(Signal signal, wasm_module::Variable result) {
+            return StepResult(signal, result);
         }
 
         StepResult() {
