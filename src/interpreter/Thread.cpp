@@ -43,7 +43,6 @@ namespace wasmint {
 
         wasm_module::Function* func = nullptr;
 
-
         wasm_module::Module& module = env_.getModule(moduleName);
 
         if (module.importedFunctionTable().hasFunctionSignature(functionName)) {
@@ -65,7 +64,8 @@ namespace wasmint {
     void Thread::step() {
         currentThread_ = this;
         if (currentInstructionState) {
-            Signal s = currentInstructionState->step(*this);
+            StepResult stepResult = currentInstructionState->step(*this);
+            Signal s = stepResult.signal();
 
             if (s == Signal::AssertTrap) {
                 throw AssertTrap("TODO"); //TODO

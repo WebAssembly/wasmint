@@ -31,7 +31,7 @@ namespace wasmint {
     public:
         static StepResult execute(wasm_module::Instruction &instruction, Thread &thread);
 
-        static bool handleSignal(wasm_module::Instruction &instruction, InstructionState &currentState, Signal signal);
+        static bool handleSignal(wasm_module::Instruction &instruction, InstructionState &currentState, StepResult& stepResult);
     };
 
 }

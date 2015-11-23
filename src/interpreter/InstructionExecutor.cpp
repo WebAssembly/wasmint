@@ -271,7 +271,6 @@ namespace wasmint {
                             return result;
                         }
                 }
-
             case InstructionId::I32NotEqual:
                 switch (state.state()) {
                     case 0:
@@ -947,32 +946,10 @@ namespace wasmint {
              ************** Control Flow Operations ***************
              ******************************************************/
 
-            case InstructionId::Comma:
-                switch (state.state()) {
-                    case 0:
-                    case 1:
-                        return StepResult(instruction.children().at(state.state()));
-                    default:
-                        return state.results().back();
-                }
-            case InstructionId::Conditional:
-                switch (state.state()) {
-                    case 0:
-                        return StepResult(instruction.children().at(0));
-                    case 1:
-                        {
-                            Variable condition = state.results().front();
-                            if (Int32::getUnsignedValue(condition) == 0) {
-                                return instruction.children().at(2);
-                            } else {
-                                return instruction.children().at(1);
-                            }
-                        }
-                    default:
-                        return state.results().back();
-                }
-
             case InstructionId::Block:
+                if (state.hasBranchValue())
+                    return state.branchValue();
+
                 if (state.state() < instruction.children().size()) {
                     return StepResult(instruction.children().at(state.state()));
                 } else {
@@ -981,31 +958,47 @@ namespace wasmint {
                     return StepResult(state.results().back());
                 }
 
-            case InstructionId::Break:
-                return StepResult(Signal::Break);
-            case InstructionId::Continue:
-                return StepResult(Signal::Continue);
-            case InstructionId::DoWhile:
+            case InstructionId::Branch:
                 switch (state.state()) {
                     case 0:
-                    case 1:
                         return instruction.children().at(0);
-                    case 2:
+                    default:
+                        return StepResult::createBranch(state.results().back(), dynamic_cast<Branch&>(instruction).branchLabel());
+                }
+
+            case InstructionId::BranchIf:
+                switch (state.state()) {
+                    case 0:
+                        return instruction.children().at(0);
+                    case 1:
                         return instruction.children().at(1);
                     default:
-                        if (wasm_module::Int32::getValue(state.results().back()) != 0) {
-                            state.state(0);
-                        } else {
-                            return StepResult();
-                        }
+                        return StepResult::createBranch(state.results().back(), dynamic_cast<BranchIf&>(instruction).branchLabel());
                 }
-            case InstructionId::Forever:
-                if (thread.getInstructionState().state() >= 10) {
-                    return StepResult();
+
+            case InstructionId::Loop:
+                if (state.hasBranchValue())
+                    return state.branchValue();
+
+                if (state.state() < instruction.children().size()) {
+                    return StepResult(instruction.children().at(state.state()));
+                } else {
+                    if (state.results().empty())
+                        return StepResult();
+                    return StepResult(state.results().back());
                 }
-                thread.getInstructionState().clearResults();
-                thread.getInstructionState().state(0);
-                return StepResult(instruction.children().front());
+
+            case InstructionId::Label:
+                if (state.hasBranchValue())
+                    return state.branchValue();
+
+                switch (state.state()) {
+                    case 0:
+                        return instruction.children().at(0);
+                    default:
+                        return state.results().back();
+                }
+
             case InstructionId::If:
                 switch (state.state()) {
                     case 0:
@@ -1040,26 +1033,9 @@ namespace wasmint {
                         return instruction.children().at(0);
                     default:
                         return state.results().front();
-
                 }
 
-            case InstructionId::I32AssertReturn:
-                switch (state.state()) {
-                    case 0:
-                    case 1:
-                        return StepResult(instruction.children().at(state.state()));
-                    default:
-                        int32_t left = wasm_module::Int32::getValue(state.results().at(0));
-                        int32_t right = wasm_module::Int32::getValue(state.results().at(1));
 
-                        if (left != right) {
-                            // TODO don't print this to stdout
-                            std::cout << "Trap: " << left << " != " << right << std::endl;
-                            return StepResult(Signal::AssertTrap);
-                        } else {
-                            return StepResult(Signal::None);
-                        }
-                }
             case InstructionId::Call:
                 if (state.state() < instruction.children().size()) {
                     return StepResult(instruction.children().at(state.state()));
@@ -1109,14 +1085,16 @@ namespace wasmint {
                     }
                     return result;
                 }
-            case InstructionId::Print:
-                switch (state.state()) {
-                    case 0:
-                        return instruction.children().at(0);
-                    default:
-                        thread.runtimeEnvironment().print(std::to_string(wasm_module::Int32::getValue(state.results().at(0))));
-                        return StepResult();
+            case InstructionId::Unreachable:
+                if (instruction.hasParent()) {
+                    if (instruction.hasParent()) {
+                        std::cerr << instruction.parent()->parent()->toSExprString() << std::endl;
+                    } else {
+                        std::cerr << instruction.parent()->toSExprString() << std::endl;
+                    }
                 }
+
+                return StepResult(Signal::AssertTrap);
             case InstructionId::SetLocal:
                 switch (state.state()) {
                     case 0:
@@ -1140,6 +1118,10 @@ namespace wasmint {
                         Variable result;
                         return StepResult(result);
                 }
+
+            case InstructionId::Nop:
+                return StepResult();
+
 
             case InstructionId::PageSize:
                 {
@@ -2335,14 +2317,37 @@ namespace wasmint {
         }
     }
 
-    bool InstructionExecutor::handleSignal(wasm_module::Instruction &instruction, InstructionState &currentState, Signal signal) {
+    bool InstructionExecutor::handleSignal(wasm_module::Instruction &instruction, InstructionState &currentState, StepResult& stepResult) {
 
-        if (typeid(instruction) == typeid(wasm_module::Forever) || typeid(instruction) == typeid(wasm_module::DoWhile)) {
-            if (signal == Signal::Break) {
-                currentState.state(10);
+        Signal signal = stepResult.signal();
+        if (signal == Signal::Branch) {
+            if (stepResult.tryReduceBranchLabel(instruction.labelCount())) {
+                return false;
+            } else {
+                if (instruction.id() == InstructionId::Block) {
+                    currentState.branchValue(stepResult.result());
+                } else if (instruction.id() == InstructionId::Label) {
+                    currentState.branchValue(stepResult.result());
+                } else if (instruction.id() == InstructionId::Loop) {
+                    switch(stepResult.branchLabel()) {
+                        case 0:
+                            currentState.state(0);
+                            break;
+                        case 1:
+                            currentState.branchValue(stepResult.result());
+                            break;
+                        default:
+                            throw std::domain_error("Loop has only 2 labels, but labelCount() was "
+                                                    + std::to_string(instruction.labelCount()));
+                    }
+                } else {
+                    throw std::domain_error("Instruction " + instruction.dataString() + " is no valid branch target. "
+                                                                                                "This is an internal interpreter error");
+                }
                 return true;
             }
-            return signal == Signal::Continue;
+        } else if (signal == Signal::Return) {
+            // TODO
         }
 
         return false;

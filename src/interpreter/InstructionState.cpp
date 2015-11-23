@@ -23,28 +23,28 @@
 
 namespace wasmint {
 
-    Signal InstructionState::step(Thread &thread) {
+    StepResult InstructionState::step(Thread &thread) {
         if (childInstruction != nullptr) {
-            Signal signal = childInstruction->step(thread);
+            StepResult stepResult = childInstruction->step(thread);
             if (childInstruction->finished()) {
                 results_.push_back(childInstruction->result());
                 delete childInstruction;
                 childInstruction = nullptr;
             }
-            if (signal != Signal::None) {
-                if (InstructionExecutor::handleSignal(*instruction(), *this, signal)) {
+            if (stepResult.signal() != Signal::None) {
+                if (InstructionExecutor::handleSignal(*instruction(), *this, stepResult)) {
                     delete childInstruction;
                     childInstruction = nullptr;
                     return Signal::None;
                 }
             }
-            return signal;
+            return stepResult;
         } else {
             StepResult result = InstructionExecutor::execute(*instruction(), thread);
             if (result.newChildInstruction()) {
                 childInstruction = new InstructionState(result.newChildInstruction(), this);
             } else if (result.signal() != Signal::None) {
-                return result.signal();
+                return result;
             } else {
                 result_ = result.result();
                 if (!wasm_module::Type::typeCompatible(instruction()->returnType(), &result_.type())) {

@@ -29,9 +29,8 @@ namespace wasmint {
 
     enum class Signal {
         None,
-        Break,
-        Continue,
         Return,
+        Branch,
         AssertTrap,
     };
 
@@ -39,9 +38,14 @@ namespace wasmint {
         wasm_module::Instruction *newChildInstruction_ = nullptr;
         wasm_module::Variable result_;
         Signal signal_ = Signal::None;
+        uint32_t branchLabel_ = 0;
+
+        StepResult(Signal signal, wasm_module::Variable result, uint32_t branchLabel)
+                : signal_(signal), result_(result), branchLabel_(branchLabel) {
+        }
 
     public:
-        StepResult(wasm_module::Instruction *newChildInstruction) : newChildInstruction_(newChildInstruction) {
+        StepResult(wasm_module::Instruction* newChildInstruction) : newChildInstruction_(newChildInstruction) {
         }
 
         StepResult(const wasm_module::Variable &result) : result_(result) {
@@ -51,20 +55,42 @@ namespace wasmint {
                 : signal_(signal), result_(result) {
         }
 
-        StepResult() {
-
+        static StepResult createBranch(wasm_module::Variable result, uint32_t branchLabel) {
+            if (branchLabel > 1000) {
+                throw std::domain_error("dafsf");
+            }
+            return StepResult(Signal::Branch, result, branchLabel);
         }
 
-        wasm_module::Variable result() {
+        StepResult() {
+        }
+
+        wasm_module::Variable result() const {
             return result_;
         }
 
-        wasm_module::Instruction *newChildInstruction() {
+        wasm_module::Instruction* newChildInstruction() {
             return newChildInstruction_;
         }
 
-        Signal signal() {
+        Signal signal() const {
             return signal_;
+        }
+
+        uint32_t branchLabel() const {
+            return branchLabel_;
+        }
+
+        /**
+         * Returns true if and only if the branchLabel can be reduced by the given value.
+         */
+        bool tryReduceBranchLabel(uint32_t minusDelta) {
+            if (minusDelta <= branchLabel_) {
+                branchLabel_ -= minusDelta;
+                return true;
+            } else {
+                return false;
+            }
         }
     };
 

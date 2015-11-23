@@ -30,6 +30,7 @@ namespace wasm_module {
 namespace wasmint {
 
     ExceptionMessage(IncompatibleChildReturnType)
+    ExceptionMessage(StateHasNoBranchValue)
 
     class Thread;
 
@@ -44,6 +45,9 @@ namespace wasmint {
 
         InstructionState* parent_ = nullptr;
 
+        wasm_module::Variable branchValue_;
+        bool hasBranchValue_ = false;
+
     public:
         InstructionState(wasm_module::Instruction *instruction, InstructionState* parent = nullptr);
 
@@ -53,7 +57,7 @@ namespace wasmint {
             return result_;
         }
 
-        Signal step(Thread &thread);
+        StepResult step(Thread &thread);
 
         bool finished() {
             return finished_;
@@ -91,6 +95,20 @@ namespace wasmint {
             return parent_;
         }
 
+        const wasm_module::Variable& branchValue() const {
+            if (!hasBranchValue_)
+                throw StateHasNoBranchValue("branchValue() was called on InstructionState instance without a branchValue");
+            return branchValue_;
+        }
+
+        void branchValue(const wasm_module::Variable& newValue) {
+            branchValue_ = newValue;
+            hasBranchValue_ = true;
+        }
+
+        bool hasBranchValue() const {
+            return hasBranchValue_;
+        }
     };
 
 }
