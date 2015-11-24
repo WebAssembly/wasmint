@@ -29,6 +29,8 @@ namespace wasmint {
 
         InstructionState &state = thread.getInstructionState();
 
+        using namespace wasm_module;
+
         switch (instruction.id()) {
 
             /******************************************************
@@ -46,9 +48,7 @@ namespace wasmint {
                         uint32_t right = state.results().at(1).uint32();
                         uint32_t resultValue = left + right;
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setUnsignedValue(result, resultValue);
-                        return result;
+                        return Variable::createUInt32(resultValue);
                 }
             case InstructionId::I32Sub:
                 switch (state.state()) {
@@ -59,9 +59,7 @@ namespace wasmint {
                         int32_t left = wasm_module::Int32::getValue(state.results().at(0));
                         int32_t right = wasm_module::Int32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left - right);
-                        return result;
+                        return Variable::createInt32(left - right);
                 }
             case InstructionId::I32Mul:
                 switch (state.state()) {
@@ -72,8 +70,7 @@ namespace wasmint {
                         int32_t left = wasm_module::Int32::getValue(state.results().at(0));
                         int32_t right = wasm_module::Int32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = (int32_t)(left * right);
-                        return result;
+                        return Variable::createInt32(left * right);
                 }
             case InstructionId::I32DivSigned:
                 switch (state.state()) {
@@ -88,8 +85,7 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        wasm_module::Variable result = (int32_t)(left / right);
-                        return result;
+                        return Variable::createInt32(left / right);
                 }
             case InstructionId::I32DivUnsigned:
                 switch (state.state()) {
@@ -104,8 +100,8 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        wasm_module::Variable result = (uint32_t)(left / right);
-                        return result;
+                        return Variable::createUInt32(left - right);
+
                 }
             case InstructionId::I32RemainderSigned:
                 switch (state.state()) {
@@ -124,8 +120,8 @@ namespace wasmint {
                         if (right < 0)
                             right = -right;
 
-                        wasm_module::Variable result = (int32_t)(left % right);
-                        return result;
+                        return Variable::createInt32(left % right);
+
                 }
             case InstructionId::I32RemainderUnsigned:
                 switch (state.state()) {
@@ -140,8 +136,8 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        wasm_module::Variable result = (uint32_t)(left % right);
-                        return result;
+                        return Variable::createInt32(left % right);
+
                 }
             case InstructionId::I32And:
                 switch (state.state()) {
@@ -152,8 +148,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        wasm_module::Variable result = (uint32_t)(left & right);
-                        return result;
+                        return Variable::createUInt32(left & right);
                 }
 
             case InstructionId::I32Or:
@@ -165,8 +160,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        wasm_module::Variable result = (uint32_t)(left | right);
-                        return result;
+                        return Variable::createUInt32(left | right);
                 }
 
             case InstructionId::I32Xor:
@@ -178,8 +172,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        wasm_module::Variable result = (uint32_t)(left ^ right);
-                        return result;
+                        return Variable::createUInt32(left ^ right);
                 }
 
             case InstructionId::I32ShiftLeft:
@@ -193,8 +186,7 @@ namespace wasmint {
 
                         right %= 32;
 
-                        wasm_module::Variable result = (uint32_t)(left << right);
-                        return result;
+                        return Variable::createUInt32(left << right);
                 }
 
             case InstructionId::I32ShiftRightZeroes:
@@ -208,8 +200,7 @@ namespace wasmint {
 
                         right %= 32;
 
-                        wasm_module::Variable result = (uint32_t)(left >> right);
-                        return result;
+                        return Variable::createUInt32(left >> right);
                 }
 
             case InstructionId::I32ShiftRightSigned:
@@ -238,8 +229,7 @@ namespace wasmint {
                             }
                         }
 
-                        wasm_module::Variable result = (uint32_t)(resultInt);
-                        return result;
+                        return Variable::createUInt32(resultInt);
                 }
 
             case InstructionId::I32Equal:
@@ -251,13 +241,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        if (left == right) {
-                            wasm_module::Variable result = (uint32_t)(1);
-                            return result;
-                        } else {
-                            wasm_module::Variable result = (uint32_t)(0);
-                            return result;
-                        }
+                        return Variable::createBool(left == right);
                 }
             case InstructionId::I32NotEqual:
                 switch (state.state()) {
@@ -268,13 +252,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        if (left != right) {
-                            wasm_module::Variable result = (uint32_t)(1);
-                            return result;
-                        } else {
-                            wasm_module::Variable result = (uint32_t)(0);
-                            return result;
-                        }
+                        return Variable::createBool(left != right);
                 }
 
             case InstructionId::I32LessThanSigned:
@@ -286,11 +264,7 @@ namespace wasmint {
                         int32_t left = wasm_module::Int32::getValue(state.results().at(0));
                         int32_t right = wasm_module::Int32::getValue(state.results().at(1));
 
-                        if (left < right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left < right);
                 }
 
             case InstructionId::I32LessEqualSigned:
@@ -302,11 +276,7 @@ namespace wasmint {
                         int32_t left = wasm_module::Int32::getValue(state.results().at(0));
                         int32_t right = wasm_module::Int32::getValue(state.results().at(1));
 
-                        if (left <= right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left <= right);
                 }
 
             case InstructionId::I32LessThanUnsigned:
@@ -318,11 +288,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        if (left < right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left < right);
                 }
 
             case InstructionId::I32LessEqualUnsigned:
@@ -334,11 +300,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        if (left <= right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left <= right);
                 }
 
             case InstructionId::I32GreaterThanSigned:
@@ -350,11 +312,7 @@ namespace wasmint {
                         int32_t left = wasm_module::Int32::getValue(state.results().at(0));
                         int32_t right = wasm_module::Int32::getValue(state.results().at(1));
 
-                        if (left > right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left > right);
                 }
 
             case InstructionId::I32GreaterEqualSigned:
@@ -366,11 +324,7 @@ namespace wasmint {
                         int32_t left = wasm_module::Int32::getValue(state.results().at(0));
                         int32_t right = wasm_module::Int32::getValue(state.results().at(1));
 
-                        if (left >= right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left >= right);
                 }
 
             case InstructionId::I32GreaterThanUnsigned:
@@ -382,11 +336,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        if (left > right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left > right);
                 }
 
             case InstructionId::I32GreaterEqualUnsigned:
@@ -398,11 +348,7 @@ namespace wasmint {
                         uint32_t left = wasm_module::Int32::getUnsignedValue(state.results().at(0));
                         uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
-                        if (left >= right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left >= right);
                 }
 
 
@@ -416,7 +362,7 @@ namespace wasmint {
                         uint32_t leadingZeroes = 0;
 
                         if (value == 0) {
-                            return wasm_module::Variable((uint32_t) 32);
+                            return Variable::createUInt32(32);
                         }
 
                         while (true) {
@@ -430,7 +376,7 @@ namespace wasmint {
                                 break;
                         }
 
-                        return wasm_module::Variable((uint32_t) leadingZeroes);
+                        return Variable::createUInt32(leadingZeroes);
                 }
             case InstructionId::I32CountTrailingZeroes:
                 switch (state.state()) {
@@ -442,7 +388,7 @@ namespace wasmint {
                         uint32_t trailingZeroes = 0;
 
                         if (value == 0) {
-                            return wasm_module::Variable((uint32_t) 32);
+                            return Variable::createUInt32(32);
                         }
 
                         while (true) {
@@ -456,7 +402,7 @@ namespace wasmint {
                                 break;
                         }
 
-                        return wasm_module::Variable((uint32_t) trailingZeroes);
+                        return Variable::createUInt32(trailingZeroes);
                 }
 
             case InstructionId::I32PopulationCount:
@@ -477,7 +423,7 @@ namespace wasmint {
                                 break;
                         }
 
-                        return wasm_module::Variable((uint32_t) population);
+                        return Variable::createUInt32(population);
                 }
 
 
@@ -494,9 +440,7 @@ namespace wasmint {
                         int64_t left = wasm_module::Int64::getValue(state.results().at(0));
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int64::instance());
-                        wasm_module::Int64::setValue(result, left + right);
-                        return result;
+                        return Variable::createInt64(left + right);
                 }
             case InstructionId::I64Sub:
                 switch (state.state()) {
@@ -507,9 +451,7 @@ namespace wasmint {
                         int64_t left = wasm_module::Int64::getValue(state.results().at(0));
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int64::instance());
-                        wasm_module::Int64::setValue(result, left - right);
-                        return result;
+                        return Variable::createInt64(left - right);
                 }
             case InstructionId::I64Mul:
                 switch (state.state()) {
@@ -520,8 +462,7 @@ namespace wasmint {
                         int64_t left = wasm_module::Int64::getValue(state.results().at(0));
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = (int64_t)(left * right);
-                        return result;
+                        return Variable::createInt64(left * right);
                 }
             case InstructionId::I64DivSigned:
                 switch (state.state()) {
@@ -536,8 +477,7 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        wasm_module::Variable result = (int64_t)(left / right);
-                        return result;
+                        return Variable::createInt64(left / right);
                 }
             case InstructionId::I64DivUnsigned:
                 switch (state.state()) {
@@ -552,8 +492,7 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        wasm_module::Variable result = (uint64_t)(left / right);
-                        return result;
+                        return Variable::createUInt64(left / right);
                 }
             case InstructionId::I64RemainderSigned:
                 switch (state.state()) {
@@ -570,8 +509,7 @@ namespace wasmint {
                         if (right < 0)
                             right = -right;
 
-                        wasm_module::Variable result = (int64_t)(left % right);
-                        return result;
+                        return Variable::createInt64(left % right);
                 }
             case InstructionId::I64RemainderUnsigned:
                 switch (state.state()) {
@@ -586,8 +524,7 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        wasm_module::Variable result = (uint64_t) (left % right);
-                        return result;
+                        return Variable::createUInt64(left % right);
                 }
             case InstructionId::I64And:
                 switch (state.state()) {
@@ -598,8 +535,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        wasm_module::Variable result = (uint64_t)(left & right);
-                        return result;
+                        return Variable::createUInt64(left & right);
                 }
 
             case InstructionId::I64Or:
@@ -611,8 +547,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        wasm_module::Variable result = (uint64_t)(left | right);
-                        return result;
+                        return Variable::createUInt64(left | right);
                 }
 
             case InstructionId::I64Xor:
@@ -624,8 +559,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        wasm_module::Variable result = (uint64_t)(left ^ right);
-                        return result;
+                        return Variable::createUInt64(left ^ right);
                 }
 
             case InstructionId::I64ShiftLeft:
@@ -639,8 +573,7 @@ namespace wasmint {
 
                         right %= 64;
 
-                        wasm_module::Variable result = (uint64_t)(left << right);
-                        return result;
+                        return Variable::createUInt64(left << right);
                 }
 
             case InstructionId::I64ShiftRightZeroes:
@@ -654,8 +587,7 @@ namespace wasmint {
 
                         right %= 64;
 
-                        wasm_module::Variable result = (uint64_t)(left >> right);
-                        return result;
+                        return Variable::createUInt64(left >> right);
                 }
 
             case InstructionId::I64ShiftRightSigned:
@@ -680,8 +612,7 @@ namespace wasmint {
                             resultInt |= bitMask;
                         }
 
-                        wasm_module::Variable result = (uint64_t)(resultInt);
-                        return result;
+                        return Variable::createUInt64(resultInt);
                 }
 
             case InstructionId::I64Equal:
@@ -693,13 +624,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        if (left == right) {
-                            wasm_module::Variable result = (uint32_t)(1);
-                            return result;
-                        } else {
-                            wasm_module::Variable result = (uint32_t)(0);
-                            return result;
-                        }
+                        return Variable::createBool(left == right);
                 }
 
             case InstructionId::I64NotEqual:
@@ -711,13 +636,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        if (left != right) {
-                            wasm_module::Variable result = (uint32_t)(1);
-                            return result;
-                        } else {
-                            wasm_module::Variable result = (uint32_t)(0);
-                            return result;
-                        }
+                        return Variable::createBool(left != right);
                 }
 
             case InstructionId::I64LessThanSigned:
@@ -729,11 +648,7 @@ namespace wasmint {
                         int64_t left = wasm_module::Int64::getValue(state.results().at(0));
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
-                        if (left < right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left < right);
                 }
 
             case InstructionId::I64LessEqualSigned:
@@ -745,11 +660,7 @@ namespace wasmint {
                         int64_t left = wasm_module::Int64::getValue(state.results().at(0));
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
-                        if (left <= right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left <= right);
                 }
 
             case InstructionId::I64LessThanUnsigned:
@@ -761,11 +672,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        if (left < right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left < right);
                 }
 
             case InstructionId::I64LessEqualUnsigned:
@@ -777,11 +684,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        if (left <= right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left <= right);
                 }
 
             case InstructionId::I64GreaterThanSigned:
@@ -793,11 +696,7 @@ namespace wasmint {
                         int64_t left = wasm_module::Int64::getValue(state.results().at(0));
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
-                        if (left > right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left > right);
                 }
 
             case InstructionId::I64GreaterEqualSigned:
@@ -809,11 +708,7 @@ namespace wasmint {
                         int64_t left = wasm_module::Int64::getValue(state.results().at(0));
                         int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
-                        if (left >= right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left >= right);
                 }
 
             case InstructionId::I64GreaterThanUnsigned:
@@ -825,11 +720,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        if (left > right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left > right);
                 }
 
             case InstructionId::I64GreaterEqualUnsigned:
@@ -841,11 +732,7 @@ namespace wasmint {
                         uint64_t left = wasm_module::Int64::getUnsignedValue(state.results().at(0));
                         uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
-                        if (left >= right) {
-                            return wasm_module::Variable((int32_t) 1);
-                        } else {
-                            return wasm_module::Variable((int32_t) 0);
-                        }
+                        return Variable::createBool(left >= right);
                 }
 
 
@@ -859,7 +746,7 @@ namespace wasmint {
                         uint32_t leadingZeroes = 0;
 
                         if (value == 0) {
-                            return wasm_module::Variable((uint64_t) 64);
+                            return Variable::createUInt64(64);
                         }
 
                         while (true) {
@@ -873,7 +760,7 @@ namespace wasmint {
                                 break;
                         }
 
-                        return wasm_module::Variable((uint64_t) leadingZeroes);
+                        return Variable::createUInt64(leadingZeroes);
                 }
             case InstructionId::I64CountTrailingZeroes:
                 switch (state.state()) {
@@ -885,7 +772,7 @@ namespace wasmint {
                         uint64_t trailingZeroes = 0;
 
                         if (value == 0) {
-                            return wasm_module::Variable((uint64_t) 64);
+                            return Variable::createUInt64(64);
                         }
 
                         while (true) {
@@ -899,7 +786,7 @@ namespace wasmint {
                                 break;
                         }
 
-                        return wasm_module::Variable((uint64_t) trailingZeroes);
+                        return Variable::createUInt64(trailingZeroes);
                 }
 
             case InstructionId::I64PopulationCount:
@@ -920,7 +807,7 @@ namespace wasmint {
                                 break;
                         }
 
-                        return wasm_module::Variable((uint64_t) population);
+                        return Variable::createUInt64(population);
                 }
 
             /******************************************************
@@ -1096,8 +983,7 @@ namespace wasmint {
                         // TODO risky conversion
                         thread.heap().grow((uint32_t) value);
 
-                        Variable result;
-                        return StepResult(result);
+                        return StepResult(Variable::Void());
                 }
 
             case InstructionId::Nop:
@@ -1105,10 +991,8 @@ namespace wasmint {
 
 
             case InstructionId::PageSize:
-                {
-                    Variable result = (uint64_t) 4096u;
-                    return StepResult(result);
-                }
+                return Variable::createUInt64(4096u);
+
 
             /******************************************************
              ************** Load / Store Operations ***************
@@ -1468,9 +1352,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, left + right);
-                        return result;
+                        return Variable::createFloat32(left + right);
                 }
 
             case InstructionId::F32Sub:
@@ -1482,9 +1364,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, left - right);
-                        return result;
+                        return Variable::createFloat32(left - right);
                 }
             case InstructionId::F32Mul:
                 switch (state.state()) {
@@ -1495,9 +1375,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, left * right);
-                        return result;
+                        return Variable::createFloat32(left * right);
                 }
 
             case InstructionId::F32Div:
@@ -1509,9 +1387,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, left / right);
-                        return result;
+                        return Variable::createFloat32(left / right);
                 }
 
             case InstructionId::F32Abs:
@@ -1523,9 +1399,7 @@ namespace wasmint {
                         if (value < 0)
                             value = -value;
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, value);
-                        return result;
+                        return Variable::createFloat32(value);
                 }
 
             case InstructionId::F32Neg:
@@ -1536,9 +1410,7 @@ namespace wasmint {
                         float value = wasm_module::Float32::getValue(state.results().at(0));
                         value = -value;
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, value);
-                        return result;
+                        return Variable::createFloat32(value);
                 }
 
             case InstructionId::F32CopySign:
@@ -1550,9 +1422,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, std::copysign(left, right));
-                        return result;
+                        return Variable::createFloat32(std::copysign(left, right));
                 }
             case InstructionId::F32Ceil:
                 switch (state.state()) {
@@ -1561,9 +1431,7 @@ namespace wasmint {
                     default:
                         float value = wasm_module::Float32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, std::ceil(value));
-                        return result;
+                        return Variable::createFloat32(std::ceil(value));
                 }
 
             case InstructionId::F32Floor:
@@ -1573,9 +1441,7 @@ namespace wasmint {
                     default:
                         float value = wasm_module::Float32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, std::floor(value));
-                        return result;
+                        return Variable::createFloat32(std::floor(value));
                 }
             case InstructionId::F32Trunc:
                 switch (state.state()) {
@@ -1584,9 +1450,7 @@ namespace wasmint {
                     default:
                         float value = wasm_module::Float32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, std::trunc(value));
-                        return result;
+                        return Variable::createFloat32(std::trunc(value));
                 }
 
             case InstructionId::F32Nearest:
@@ -1614,8 +1478,7 @@ namespace wasmint {
                         } else {
                             value = floorValue;
                         }
-                        wasm_module::Float32::setValue(result, value);
-                        return result;
+                        return Variable::createFloat32(value);
                 }
 
             case InstructionId::F32Equal:
@@ -1627,9 +1490,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left == right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left == right);
                 }
 
             case InstructionId::F32NotEqual:
@@ -1641,9 +1502,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left != right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left != right);
                 }
             case InstructionId::F32LesserThan:
                 switch (state.state()) {
@@ -1654,9 +1513,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left < right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left < right);
                 }
             case InstructionId::F32LesserEqual:
                 switch (state.state()) {
@@ -1667,9 +1524,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left <= right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left <= right);
                 }
             case InstructionId::F32GreaterThan:
                 switch (state.state()) {
@@ -1680,9 +1535,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left > right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left > right);
                 }
             case InstructionId::F32GreaterEqual:
                 switch (state.state()) {
@@ -1693,9 +1546,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left >= right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left >= right);
                 }
             case InstructionId::F32Sqrt:
                 switch (state.state()) {
@@ -1704,9 +1555,7 @@ namespace wasmint {
                     default:
                         float value = wasm_module::Float32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, std::sqrt(value));
-                        return result;
+                        return Variable::createFloat32(std::sqrt(value));
                 }
             case InstructionId::F32Min:
                 switch (state.state()) {
@@ -1717,9 +1566,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, left < right ? left : right);
-                        return result;
+                        return Variable::createFloat32(left < right ? left : right);
                 }
             case InstructionId::F32Max:
                 switch (state.state()) {
@@ -1730,9 +1577,7 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-                        wasm_module::Float32::setValue(result, left > right ? left : right);
-                        return result;
+                        return Variable::createFloat32(left > right ? left : right);
                 }
 
 
@@ -1749,9 +1594,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, left + right);
-                        return result;
+                        return Variable::createFloat64(left + right);
                 }
 
             case InstructionId::F64Sub:
@@ -1763,9 +1606,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, left - right);
-                        return result;
+                        return Variable::createFloat64(left - right);
                 }
             case InstructionId::F64Mul:
                 switch (state.state()) {
@@ -1777,9 +1618,7 @@ namespace wasmint {
                         double right = wasm_module::Float64::getValue(state.results().at(1));
                         double resultValue = left * right;
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, resultValue);
-                        return result;
+                        return Variable::createFloat64(resultValue);
                 }
 
             case InstructionId::F64Div:
@@ -1791,9 +1630,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, left / right);
-                        return result;
+                        return Variable::createFloat64(left / right);
                 }
 
             case InstructionId::F64Abs:
@@ -1805,9 +1642,7 @@ namespace wasmint {
                         if (value < 0)
                             value = -value;
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, value);
-                        return result;
+                        return Variable::createFloat64(value);
                 }
 
             case InstructionId::F64Neg:
@@ -1818,9 +1653,7 @@ namespace wasmint {
                         double value = wasm_module::Float64::getValue(state.results().at(0));
                         value = -value;
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, value);
-                        return result;
+                        return Variable::createFloat64(value);
                 }
 
             case InstructionId::F64CopySign:
@@ -1832,9 +1665,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, std::copysign(left, right));
-                        return result;
+                        return Variable::createFloat64(std::copysign(left, right));
                 }
             case InstructionId::F64Ceil:
                 switch (state.state()) {
@@ -1843,9 +1674,7 @@ namespace wasmint {
                     default:
                         double value = wasm_module::Float64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, std::ceil(value));
-                        return result;
+                        return Variable::createFloat64(std::ceil(value));
                 }
 
             case InstructionId::F64Floor:
@@ -1855,9 +1684,7 @@ namespace wasmint {
                     default:
                         double value = wasm_module::Float64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, std::floor(value));
-                        return result;
+                        return Variable::createFloat64(std::floor(value));
                 }
             case InstructionId::F64Trunc:
                 switch (state.state()) {
@@ -1866,9 +1693,7 @@ namespace wasmint {
                     default:
                         double value = wasm_module::Float64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, std::trunc(value));
-                        return result;
+                        return Variable::createFloat64(std::trunc(value));
                 }
 
             case InstructionId::F64Nearest:
@@ -1895,8 +1720,7 @@ namespace wasmint {
                         } else {
                             value = floorValue;
                         }
-                        wasm_module::Float64::setValue(result, value);
-                        return result;
+                        return Variable::createFloat64(value);
                 }
 
             case InstructionId::F64Equal:
@@ -1908,9 +1732,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left == right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left == right);
                 }
 
             case InstructionId::F64NotEqual:
@@ -1922,9 +1744,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left != right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left != right);
                 }
             case InstructionId::F64LesserThan:
                 switch (state.state()) {
@@ -1935,9 +1755,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left < right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left < right);
                 }
             case InstructionId::F64LesserEqual:
                 switch (state.state()) {
@@ -1948,9 +1766,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left <= right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left <= right);
                 }
             case InstructionId::F64GreaterThan:
                 switch (state.state()) {
@@ -1961,9 +1777,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left > right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left > right);
                 }
             case InstructionId::F64GreaterEqual:
                 switch (state.state()) {
@@ -1974,9 +1788,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Int32::instance());
-                        wasm_module::Int32::setValue(result, left >= right ? 1 : 0);
-                        return result;
+                        return Variable::createBool(left >= right);
                 }
             case InstructionId::F64Sqrt:
                 switch (state.state()) {
@@ -1985,9 +1797,7 @@ namespace wasmint {
                     default:
                         double value = wasm_module::Float64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, std::sqrt(value));
-                        return result;
+                        return Variable::createFloat64(std::sqrt(value));
                 }
             case InstructionId::F64Min:
                 switch (state.state()) {
@@ -1998,9 +1808,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, left < right ? left : right);
-                        return result;
+                        return Variable::createFloat64(left < right ? left : right);
                 }
             case InstructionId::F64Max:
                 switch (state.state()) {
@@ -2011,9 +1819,7 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        wasm_module::Float64::setValue(result, left > right ? left : right);
-                        return result;
+                        return Variable::createFloat64(left > right ? left : right);
                 }
 
             /******************************************************
@@ -2037,8 +1843,7 @@ namespace wasmint {
                     default:
                         int32_t value = (int32_t) wasm_module::Float32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = value;
-                        return result;
+                        return Variable::createInt32(value);
                 }
 
             case InstructionId::I32TruncSignedF64:
@@ -2048,8 +1853,7 @@ namespace wasmint {
                     default:
                         int32_t value = (int32_t) wasm_module::Float64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = value;
-                        return result;
+                        return Variable::createInt32(value);
                 }
 
             case InstructionId::I32TruncUnsignedF32:
@@ -2059,8 +1863,7 @@ namespace wasmint {
                     default:
                         uint32_t value = (uint32_t) wasm_module::Float32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = value;
-                        return result;
+                        return Variable::createUInt32(value);
                 }
 
             case InstructionId::I32TruncUnsignedF64:
@@ -2070,8 +1873,7 @@ namespace wasmint {
                     default:
                         uint32_t value = (uint32_t) wasm_module::Float64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = value;
-                        return result;
+                        return Variable::createUInt32(value);
                 }
 
 
@@ -2092,8 +1894,7 @@ namespace wasmint {
                     default:
                         int32_t value = wasm_module::Int32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (int64_t) value;
-                        return result;
+                        return Variable::createInt64(value);
                 }
 
             case InstructionId::I64ExtendUnsignedI32:
@@ -2103,8 +1904,7 @@ namespace wasmint {
                     default:
                         uint32_t value = wasm_module::Int32::getUnsignedValue(state.results().at(0));
 
-                        wasm_module::Variable result = (uint64_t) value;
-                        return result;
+                        return Variable::createUInt64(value);
                 }
 
             case InstructionId::I64TruncSignedF32:
@@ -2114,8 +1914,7 @@ namespace wasmint {
                     default:
                         float value = wasm_module::Float32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (int64_t) value;
-                        return result;
+                        return Variable::createInt64((int64_t) value);
                 }
 
             case InstructionId::I64TruncSignedF64:
@@ -2125,8 +1924,7 @@ namespace wasmint {
                     default:
                         double value = wasm_module::Float64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (int64_t) value;
-                        return result;
+                        return Variable::createInt64((int64_t) value);
                 }
 
             case InstructionId::I64TruncUnsignedF32:
@@ -2136,8 +1934,7 @@ namespace wasmint {
                     default:
                         float value = wasm_module::Float32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (uint64_t) value;
-                        return result;
+                        return Variable::createUInt64((uint64_t) value);
                 }
 
             case InstructionId::I64TruncUnsignedF64:
@@ -2147,8 +1944,7 @@ namespace wasmint {
                     default:
                         double value = wasm_module::Float64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (uint64_t) value;
-                        return result;
+                        return Variable::createUInt64((uint64_t) value);
                 }
 
             case InstructionId::I64ReinterpretF64:
@@ -2168,8 +1964,7 @@ namespace wasmint {
                     default:
                         double value = wasm_module::Float64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (float) value;
-                        return result;
+                        return Variable::createFloat32((float) value);
                 }
 
             case InstructionId::F32ConvertSignedI32:
@@ -2179,8 +1974,7 @@ namespace wasmint {
                     default:
                         int32_t value = wasm_module::Int32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (float) value;
-                        return result;
+                        return Variable::createFloat32((float) value);
                 }
 
             case InstructionId::F32ConvertSignedI64:
@@ -2190,8 +1984,7 @@ namespace wasmint {
                     default:
                         int64_t value = wasm_module::Int64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (float) value;
-                        return result;
+                        return Variable::createFloat32((float) value);
                 }
 
             case InstructionId::F32ConvertUnsignedI32:
@@ -2201,8 +1994,7 @@ namespace wasmint {
                     default:
                         uint32_t value = wasm_module::Int32::getUnsignedValue(state.results().at(0));
 
-                        wasm_module::Variable result = (float) value;
-                        return result;
+                        return Variable::createFloat32((float) value);
                 }
 
             case InstructionId::F32ConvertUnsignedI64:
@@ -2212,8 +2004,7 @@ namespace wasmint {
                     default:
                         uint64_t value = wasm_module::Int64::getUnsignedValue(state.results().at(0));
 
-                        wasm_module::Variable result = (float) value;
-                        return result;
+                        return Variable::createFloat32((float) value);
                 }
 
             case InstructionId::F32ReinterpretI32:
@@ -2233,8 +2024,7 @@ namespace wasmint {
                     default:
                         float value = wasm_module::Float32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (double) value;
-                        return result;
+                        return Variable::createFloat64((double) value);
                 }
 
 
@@ -2245,8 +2035,7 @@ namespace wasmint {
                     default:
                         int32_t value = wasm_module::Int32::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (double) value;
-                        return result;
+                        return Variable::createFloat64((double) value);
                 }
 
             case InstructionId::F64ConvertSignedI64:
@@ -2256,8 +2045,7 @@ namespace wasmint {
                     default:
                         int64_t value = wasm_module::Int64::getValue(state.results().at(0));
 
-                        wasm_module::Variable result = (double) value;
-                        return result;
+                        return Variable::createFloat64((double) value);
                 }
 
             case InstructionId::F64ConvertUnsignedI32:
@@ -2267,8 +2055,7 @@ namespace wasmint {
                     default:
                         uint32_t value = wasm_module::Int32::getUnsignedValue(state.results().at(0));
 
-                        wasm_module::Variable result = (double) value;
-                        return result;
+                        return Variable::createFloat64((double) value);
                 }
 
             case InstructionId::F64ConvertUnsignedI64:
@@ -2278,8 +2065,7 @@ namespace wasmint {
                     default:
                         uint64_t value = wasm_module::Int64::getUnsignedValue(state.results().at(0));
 
-                        wasm_module::Variable result = (double) value;
-                        return result;
+                        return Variable::createFloat64((double) value);
                 }
 
             case InstructionId::F64ReinterpretI64:

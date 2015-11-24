@@ -34,7 +34,7 @@ wasmint::SDLModule::SDLModule() {
                 std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
                 SDL_Quit();
 
-                return (int32_t) 1;
+                return Variable::createInt32(1);
             }
 
             ren = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
@@ -43,14 +43,14 @@ wasmint::SDLModule::SDLModule() {
                 std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
                 SDL_Quit();
 
-                return (int32_t) 1;
+                return Variable::createInt32(1);
             }
         } else {
             std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
-            return (int32_t) 1;
+            return Variable::createBool(true);
         }
 
-        return (int32_t) 0;
+        return Variable::createBool(false);
     });
 
     addFunction("load_bmp", Int32::instance(), {Int32::instance()}, [this](std::vector<Variable> parameters) {
@@ -61,7 +61,7 @@ wasmint::SDLModule::SDLModule() {
             SDL_DestroyWindow(window_);
             SDL_Quit();
 
-            return (int32_t) 0;
+            return Variable::createBool(false);
         }
         SDL_Texture *tex = SDL_CreateTextureFromSurface(ren, bmp);
         SDL_FreeSurface(bmp);
@@ -72,13 +72,13 @@ wasmint::SDLModule::SDLModule() {
             SDL_DestroyWindow(window_);
             SDL_Quit();
 
-            return (int32_t) 0;
+            return Variable::createBool(false);
         }
 
         int32_t index = textureIndex;
         textures_[index] = tex;
 
-        return (int32_t) index;
+        return Variable::createInt32(index);
     });
 
     addFunction("render", Void::instance(), {Int32::instance(), Int32::instance(), Int32::instance(), Int32::instance(), Int32::instance()}, [this](std::vector<Variable> parameters) {
@@ -123,24 +123,24 @@ wasmint::SDLModule::SDLModule() {
                 code = SDL_SCANCODE_ESCAPE;
                 break;
             default:
-                return (int32_t) 0;
+                return Variable::createInt32(0);
         }
 
         if (state[code]) {
-            return (int32_t) 1;
+            return Variable::createInt32(1);
         } else {
-            return (int32_t) 0;
+            return Variable::createInt32(0);
         }
     });
 
 
 
     addFunction("get_window_width", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
-        return (int32_t) windowWidth_;
+        return Variable::createInt32( windowWidth_);
     });
 
     addFunction("get_window_height", Int32::instance(), {}, [this](std::vector<Variable> parameters) {
-        return (int32_t) windowHeight_;
+        return Variable::createInt32( windowHeight_);
     });
 
     addFunction("quit", Void::instance(), {}, [this](std::vector<Variable> parameters) {
