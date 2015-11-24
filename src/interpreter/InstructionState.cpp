@@ -31,13 +31,22 @@ namespace wasmint {
                 delete childInstruction;
                 childInstruction = nullptr;
             }
-            if (stepResult.signal() != Signal::None) {
+
+            if (stepResult.signal() == Signal::Branch) {
                 if (InstructionExecutor::handleSignal(*instruction(), *this, stepResult)) {
                     delete childInstruction;
                     childInstruction = nullptr;
                     return Signal::None;
                 }
             }
+            if (stepResult.signal() == Signal::Return) {
+                if (!instruction()->hasParent()) {
+                    result_ = stepResult.result();
+                    finished_ = true;
+                    return Signal::None;
+                }
+            }
+
             return stepResult;
         } else {
             StepResult result = InstructionExecutor::execute(*instruction(), thread);

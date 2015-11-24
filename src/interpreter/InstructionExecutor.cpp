@@ -223,15 +223,7 @@ namespace wasmint {
 
                         int32_t leftSigned = wasm_module::Int32::getValue(state.results().at(0));
 
-
-                        if (right >= 32u) {
-                            // that would be unspecified in C, so we do it manually
-                            if (leftSigned < 0) {
-                                return wasm_module::Variable((uint32_t) std::numeric_limits<uint32_t>::max());
-                            } else {
-                                return wasm_module::Variable((uint32_t) 0);
-                            }
-                        }
+                        right %= 32;
 
                         uint32_t resultInt = left >> right;
 
