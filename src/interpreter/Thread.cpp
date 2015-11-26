@@ -18,10 +18,28 @@
 #include <Function.h>
 #include <assert.h>
 #include <iostream>
+#include <fenv.h>
 #include "InstructionState.h"
 #include "MachineState.h"
 
 namespace wasmint {
+
+    class FloatingPointGuard {
+        int oldMode;
+    public:
+        FloatingPointGuard() {
+            oldMode = fegetround();
+
+            if (fesetround(FE_TONEAREST)) {
+                throw FailedToSetFloatingPointMode("Failed to set floating point rounding mode to FE_TONEAREST");
+            }
+        }
+        ~FloatingPointGuard() {
+            if (fesetround(oldMode)) {
+                throw FailedToSetFloatingPointMode("Failed to reset floating point rounding mode to its original value.");
+            }
+        }
+    };
 
     thread_local Thread* currentThread_ = nullptr;
 
@@ -62,23 +80,15 @@ namespace wasmint {
     }
 
     void Thread::step() {
-        currentThread_ = this;
-        if (currentInstructionState) {
-            StepResult stepResult = currentInstructionState->step(*this);
-            Signal s = stepResult.signal();
-
-            if (s == Signal::AssertTrap) {
-                throw AssertTrap("TODO"); //TODO
-            } else if (s != Signal::None) {
-                throw UnhandledSignal("TODO"); //TODO
-            }
-        }
+        FloatingPointGuard floatingPointGuard;
+        stepInternal();
     }
 
     void Thread::stepUntilFinished() {
+        FloatingPointGuard floatingPointGuard;
         if (currentInstructionState) {
             while (!currentInstructionState->finished()) {
-                step();
+                stepInternal();
             }
         }
     }
@@ -100,12 +110,13 @@ namespace wasmint {
     }
 
     void Thread::stepRoundRobin() {
+        FloatingPointGuard floatingPointGuard;
         if (currentInstructionState) {
             for (uint32_t i = 0; i < weight_; i++) {
                 if (currentInstructionState->finished()) {
                     return;
                 }
-                step();
+                stepInternal();
             }
         }
     }
@@ -121,5 +132,20 @@ namespace wasmint {
 
     Heap &Thread::heap() {
         getHeap(stack.top().module());
+    }
+
+    void Thread::stepInternal() {
+
+        currentThread_ = this;
+        if (currentInstructionState) {
+            StepResult stepResult = currentInstructionState->step(*this);
+            Signal s = stepResult.signal();
+
+            if (s == Signal::AssertTrap) {
+                throw AssertTrap("TODO"); //TODO
+            } else if (s != Signal::None) {
+                throw UnhandledSignal("TODO"); //TODO
+            }
+        }
     }
 }

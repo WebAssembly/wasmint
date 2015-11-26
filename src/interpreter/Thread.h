@@ -35,6 +35,7 @@ namespace wasmint {
     ExceptionMessage(ThreadNotRunning)
     ExceptionMessage(AssertTrap)
     ExceptionMessage(UnhandledSignal)
+    ExceptionMessage(FailedToSetFloatingPointMode)
 
     class MachineState;
     class InstructionState;
@@ -59,6 +60,8 @@ namespace wasmint {
         uint32_t weight_ = 1;
 
         std::map<std::string, Heap> heapsByModuleName_;
+
+        void stepInternal();
 
     public:
         Thread(MachineState & env);

@@ -100,7 +100,7 @@ namespace wasmint {
                         if (right == 0)
                             throw DivisionThroughZero(std::to_string(left) + "/" + std::to_string(right));
 
-                        return Variable::createUInt32(left - right);
+                        return Variable::createUInt32(left / right);
 
                 }
             case InstructionId::I32RemainderSigned:
@@ -1396,7 +1396,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         float value = wasm_module::Float32::getValue(state.results().at(0));
-                        if (value < 0)
+                        if (std::signbit(value))
                             value = -value;
 
                         return Variable::createFloat32(value);
@@ -1460,24 +1460,8 @@ namespace wasmint {
                     default:
                         float value = wasm_module::Float32::getValue(state.results().at(0));
 
-                        float ceilValue = std::ceil(value);
-                        float floorValue = std::floor(value);
+                        value = nearbyintf(value);
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float32::instance());
-
-                        float ceilDiff = fabsf(ceilValue - value);
-                        float floorDiff = fabsf(floorValue - value);
-
-                        if (ceilDiff == floorDiff) {
-                            if (value < 0)
-                                value = ceilValue;
-                            else
-                                value = floorValue;
-                        } else if (ceilDiff < floorDiff) {
-                            value = ceilValue;
-                        } else {
-                            value = floorValue;
-                        }
                         return Variable::createFloat32(value);
                 }
 
@@ -1566,6 +1550,15 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
+                        if (left == right) {
+                            auto leftSign = std::signbit(left);
+                            auto rightSign = std::signbit(right);
+                            if (leftSign && !rightSign) {
+                                return Variable::createFloat32(left);
+                            } else if (!leftSign && rightSign) {
+                                return Variable::createFloat32(right);
+                            }
+                        }
                         return Variable::createFloat32(left < right ? left : right);
                 }
             case InstructionId::F32Max:
@@ -1577,6 +1570,15 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
+                        if (left == right) {
+                            auto leftSign = std::signbit(left);
+                            auto rightSign = std::signbit(right);
+                            if (leftSign && !rightSign) {
+                                return Variable::createFloat32(right);
+                            } else if (!leftSign && rightSign) {
+                                return Variable::createFloat32(left);
+                            }
+                        }
                         return Variable::createFloat32(left > right ? left : right);
                 }
 
@@ -1639,7 +1641,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         double value = wasm_module::Float64::getValue(state.results().at(0));
-                        if (value < 0)
+                        if (std::signbit(value))
                             value = -value;
 
                         return Variable::createFloat64(value);
@@ -1703,23 +1705,8 @@ namespace wasmint {
                     default:
                         double value = wasm_module::Float64::getValue(state.results().at(0));
 
-                        double ceilValue = std::ceil(value);
-                        double floorValue = std::floor(value);
+                        value = nearbyint(value);
 
-                        wasm_module::Variable result = wasm_module::Variable(wasm_module::Float64::instance());
-                        double ceilDiff = fabs(ceilValue - value);
-                        double floorDiff = fabs(floorValue - value);
-
-                        if (ceilDiff == floorDiff) {
-                            if (value < 0)
-                                value = ceilValue;
-                            else
-                                value = floorValue;
-                        } else if (ceilDiff < floorDiff) {
-                            value = ceilValue;
-                        } else {
-                            value = floorValue;
-                        }
                         return Variable::createFloat64(value);
                 }
 
@@ -1808,6 +1795,16 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
+                        if (left == right) {
+                            auto leftSign = std::signbit(left);
+                            auto rightSign = std::signbit(right);
+                            if (leftSign && !rightSign) {
+                                return Variable::createFloat64(left);
+                            } else if (!leftSign && rightSign) {
+                                return Variable::createFloat64(right);
+                            }
+                        }
+
                         return Variable::createFloat64(left < right ? left : right);
                 }
             case InstructionId::F64Max:
@@ -1819,6 +1816,15 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
+                        if (left == right) {
+                            auto leftSign = std::signbit(left);
+                            auto rightSign = std::signbit(right);
+                            if (leftSign && !rightSign) {
+                                return Variable::createFloat64(right);
+                            } else if (!leftSign && rightSign) {
+                                return Variable::createFloat64(left);
+                            }
+                        }
                         return Variable::createFloat64(left > right ? left : right);
                 }
 
