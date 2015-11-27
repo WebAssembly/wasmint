@@ -973,12 +973,15 @@ namespace wasmint {
                         return result;
                 }
 
+            case InstructionId::Nop:
+                return StepResult();
+
             case InstructionId::GrowMemory:
                 switch (state.state()) {
                     case 0:
                         return StepResult(instruction.children().at(0));
                     default:
-                        uint64_t value = wasm_module::Int64::getUnsignedValue(state.results().at(0));
+                        uint32_t value = wasm_module::Int32::getUnsignedValue(state.results().at(0));
 
                         // TODO risky conversion
                         thread.heap().grow((uint32_t) value);
@@ -986,13 +989,11 @@ namespace wasmint {
                         return StepResult(Variable::Void());
                 }
 
-            case InstructionId::Nop:
-                return StepResult();
-
-
             case InstructionId::PageSize:
-                return Variable::createUInt64(4096u);
+                return Variable::createUInt32(4096u);
 
+            case InstructionId::MemorySize:
+                return Variable::createUInt32((uint32_t) thread.heap().size());
 
             /******************************************************
              ************** Load / Store Operations ***************

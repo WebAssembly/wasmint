@@ -116,6 +116,9 @@ namespace wasmint {
             return result;
         }
 
+        std::size_t size() const {
+            return data_.size();
+        }
     };
 
 }
