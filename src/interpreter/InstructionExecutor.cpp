@@ -21,6 +21,7 @@
 #include <cmath>
 
 #include "MachineState.h"
+#include "../../wasm-module/src/instructions/InstructionId.h"
 
 namespace wasmint {
 
@@ -1340,6 +1341,26 @@ namespace wasmint {
                         return StepResult(value);
                 }
 
+            /******************************************************
+             ***************** Select Operations ******************
+             ******************************************************/
+
+            case InstructionId::I32Select:
+            case InstructionId::I64Select:
+            case InstructionId::F32Select:
+            case InstructionId::F64Select:
+                switch (state.state()) {
+                    case 0:
+                    case 1:
+                    case 2:
+                        return StepResult(instruction.children().at(state.state()));
+                    default:
+                        if (state.results().at(0).int32()) {
+                            return state.results().at(1);
+                        } else {
+                            return state.results().at(2);
+                        }
+                }
             /******************************************************
              **************** Float 32 Operations *****************
              ******************************************************/
