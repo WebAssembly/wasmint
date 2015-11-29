@@ -929,7 +929,7 @@ namespace wasmint {
                         parameters.push_back(state.results().at(i));
                     }
                     wasm_module::CallImport & functionCall = dynamic_cast<wasm_module::CallImport &>(instruction);
-                    return StepResult(thread.callFunction(functionCall.functionSignature.name(), functionCall.functionSignature.name(), parameters));
+                    return StepResult(thread.callFunction(functionCall.functionSignature.module(), functionCall.functionSignature.name(), parameters));
                 } else {
                     thread.leaveFunction();
 

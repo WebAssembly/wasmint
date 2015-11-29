@@ -23,6 +23,9 @@
 #include <iostream>
 #include <interpreter/Thread.h>
 #include <unistd.h>
+#include <types/Int64.h>
+#include <types/Float32.h>
+#include <types/Float64.h>
 
 namespace wasmint {
     class StdioModule {
@@ -33,9 +36,27 @@ namespace wasmint {
             Module* module = new Module();
             module->context().name("stdio");
 
-            module->addFunction("print", Void::instance(), {Int32::instance()},
+            module->addVariadicFunction("print", Void::instance(),
                                         [](std::vector<Variable> parameters) {
-                                            std::cout << "print_i32 " << Int32::getValue(parameters.at(0)) << std::endl;
+
+                                            for (const Variable& parameter : parameters) {
+                                                std::cout << "print ";
+
+                                                if (&parameter.type() == Int32::instance()) {
+                                                    std::cout << parameter.int32();
+                                                } else if (&parameter.type() == Int64::instance()) {
+                                                    std::cout << parameter.int64();
+                                                } else if (&parameter.type() == Float32::instance()) {
+                                                    std::cout << parameter.float32();
+                                                } else if (&parameter.type() == Float64::instance()) {
+                                                    std::cout << parameter.float64();
+                                                } else {
+                                                    std::cout << "Unknown type to print" << parameter.type().name();
+                                                }
+                                                std::cout << std::endl;
+
+                                            }
+
                                             return Void::instance();
                                         });
 

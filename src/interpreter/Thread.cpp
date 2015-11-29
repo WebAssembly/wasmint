@@ -46,31 +46,30 @@ namespace wasmint {
     Thread::Thread(MachineState &env) : env_(env) {
     }
 
-    void Thread::enterFunction(wasm_module::Function& function) {
-        if (stack.size() >= stackLimit)
-            throw StackLimitReached(std::to_string(stack.size()));
-
-        // We push the new locals to the stack before entering.
-
-        stack.push(FunctionState(function));
-    }
 
     wasm_module::Instruction* Thread::callFunction(
             const std::string& moduleName, const std::string& functionName,
             std::vector<wasm_module::Variable> parameters) {
 
+        if (stack.size() >= stackLimit)
+            throw StackLimitReached(std::to_string(stack.size()));
+
         wasm_module::Function* func = nullptr;
 
         wasm_module::Module& module = env_.getModule(moduleName);
 
-        if (module.importedFunctionTable().hasFunctionSignature(functionName)) {
-            const wasm_module::FunctionSignature& signature = module.importedFunctionTable().getFunctionSignature(functionName);
-            func = &env_.getFunction(signature.module(), signature.name());
-        } else {
-            func = &env_.getFunction(moduleName, functionName);
-        }
+        func = &env_.getFunction(moduleName, functionName);
 
-        enterFunction(*func);
+        if (func->variadic()) {
+            std::vector<const wasm_module::Type*> types;
+            for (auto& parameter : parameters) {
+                types.push_back(&parameter.type());
+            }
+            stack.push(FunctionState(*func, types));
+        } else {
+            // We push the new locals to the stack before entering.
+            stack.push(FunctionState(*func));
+        }
 
         for (uint32_t i = 0; i < parameters.size(); i++) {
             variable(i) = parameters.at(i);

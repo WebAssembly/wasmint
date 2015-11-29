@@ -50,9 +50,6 @@ namespace wasmint {
          */
         std::stack<FunctionState> stack;
 
-
-        void enterFunction(wasm_module::Function& function);
-
         MachineState & env_;
 
         InstructionState* currentInstructionState = nullptr;

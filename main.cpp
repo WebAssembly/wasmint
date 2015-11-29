@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
                 sexpr::SExpr expr = sexpr::SExprParser(stream).parse(true);
                 m = sexpr::ModuleParser::parse(expr[0]);
             } catch (const std::exception& e) {
-                std::cout << "Got exception while parsing sexpr module "
+                std::cerr << "Got exception while parsing sexpr module "
                 << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
                 << std::endl;
                 return 1;
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
             std::cerr << "Exiting because we can't find function with name: " << e.what() << std::endl;
         }
     } catch(const std::exception& ex) {
-        std::cout << "Got exception while executing: " << ex.what() << " (typeid name " << typeid(ex).name() << ")"
+        std::cerr << "Got exception while executing: " << ex.what() << " (typeid name " << typeid(ex).name() << ")"
         << std::endl;
         return 1;
     }

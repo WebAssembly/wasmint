@@ -40,6 +40,8 @@ namespace wasmint {
 
         FunctionState(wasm_module::Function &function);
 
+        FunctionState(wasm_module::Function &function, std::vector<const wasm_module::Type*>& variadicParameters);
+
         wasm_module::Variable &variable(uint32_t index) {
             return variables_.at(index);
         }

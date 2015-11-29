@@ -26,4 +26,9 @@ namespace wasmint {
         }
     }
 
+    FunctionState::FunctionState(wasm_module::Function &function, std::vector<const wasm_module::Type*>& variadicParameters) : module_(&function.module()) {
+        for (const wasm_module::Type* type : variadicParameters) {
+            variables_.push_back(wasm_module::Variable(type));
+        }
+    }
 }
