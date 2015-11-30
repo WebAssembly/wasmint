@@ -15,7 +15,7 @@ echo "#####################################"
 
 for i in ./positive/*.wasm; do
     #valgrind --error-exitcode=1 -q ./wasmint $i
-    { ./wasmint $i ;}
+    { stdout=$(./wasmint $i) ;}
     if [ $? -ne 0 ]; then
         failedTests=$((failedTests+1))
         printf "[FAIL %50s] " "`basename $i`"
