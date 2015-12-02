@@ -23,6 +23,8 @@ inline bool ends_with(std::string const & value, std::string const & ending)
 }
 
 int main(int argc, char** argv) {
+    bool runMain = true;
+
     if (argc == 1) {
         std::cerr << "No modules given. Call programm like this: \n$ wasmint module1.wasm" << std::endl;
         return 1;
@@ -40,7 +42,19 @@ int main(int argc, char** argv) {
     environment.useModule(*StdioModule::create(), true);
 
     for(int i = 1; i < argc; i++) {
-        std::string modulePath = argv[i];
+        std::string arg = argv[i];
+
+        if (arg.find("--") == 0) {
+            if (arg == "--no-run") {
+                runMain = false;
+            } else {
+                std::cerr << "Unknown argument " << arg << std::endl;
+                return 2;
+            }
+        }
+
+
+        const std::string& modulePath = argv[i];
 
         Module* m;
 
@@ -93,22 +107,30 @@ int main(int argc, char** argv) {
 
         try {
             environment.useModule(*m, true);
-            try {
-                m->getFunction("main");
 
-                if (mainModule != nullptr) {
-                    std::cerr << "Multiple modules with a main function! Aborting..." << std::endl;
-                    std::cerr << "Module 1 was " << m->name() << ", Module 2 was " << mainModule->name() << std::endl;
-                    return 1;
+            if (runMain) {
+                try {
+                    m->getFunction("main");
+
+                    if (mainModule != nullptr) {
+                        std::cerr << "Multiple modules with a main function! Aborting..." << std::endl;
+                        std::cerr << "Module 1 was " << m->name() << ", Module 2 was " << mainModule->name() << std::endl;
+                        return 1;
+                    }
+                    mainModule = m;
+                } catch (const std::exception& ex) {
+                    // has no main function
                 }
-                mainModule = m;
-            } catch (const std::exception& ex) {
-                // has no main function
             }
+
 
         } catch (const std::exception& e) {
             std::cerr << "Got exception while parsing module " << modulePath << ": " << e.what() << std::endl;
         }
+    }
+
+    if (!runMain) {
+        return 0;
     }
 
     if (mainModule == nullptr) {

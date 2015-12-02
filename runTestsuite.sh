@@ -16,7 +16,7 @@ echo "######################################"
 for i in ./positive/*.wasm; do
     #valgrind --error-exitcode=1 -q ./wasmint $i
     tmpfile="$(mktemp)"
-    { stdout=$(./wasmint $i 2> $tmpfile ) ;}
+    { stdout=$(valgrind --error-exitcode=1 -q ./wasmint $i 2> $tmpfile ) ;}
 
 
 
@@ -25,6 +25,8 @@ for i in ./positive/*.wasm; do
         printf "[FAIL %50s] " "`basename $i`"
         echo "Full path: `readlink -f $i`"
         echo ""
+        echo "$stdout"
+        cat $tmpfile
     else
         printf "[OK       %50s]\n" "`basename $i`"
     fi
@@ -42,13 +44,15 @@ echo "######################################"
 for i in ./negative/trap/*.wasm; do
     #valgrind --error-exitcode=1 -q ./wasmint $i
     tmpfile="$(mktemp)"
-    { stdout=$(./wasmint $i 2> $tmpfile ) ;}
+    { stdout=$(valgrind --error-exitcode=1 -q ./wasmint $i 2> $tmpfile ) ;}
 
     if [ $? -eq 0 ]; then
         failedTests=$((failedTests+1))
         printf "[FAIL %50s] " "`basename $i`"
         echo "Full path: `readlink -f $i`"
         echo ""
+        echo "$stdout"
+        cat $tmpfile
     else
         stderrout=`cat $tmpfile`
         if [[ $stderrout == *"trap"* ]]
@@ -56,6 +60,8 @@ for i in ./negative/trap/*.wasm; do
             printf "[OK       %50s]\n" "`basename $i`"
         else
             printf "[NO TRAP  %50s]\n" "`basename $i`"
+            echo "$stdout"
+            cat $tmpfile
         fi
     fi
 
@@ -70,15 +76,17 @@ echo "######################################"
 
 
 for i in ./negative/invalid/*.wasm; do
-    #valgrind --error-exitcode=1 -q ./wasmint $i
+    #
     tmpfile="$(mktemp)"
-    { stdout=$(./wasmint $i 2> $tmpfile ) ;}
+    { stdout=$(valgrind --error-exitcode=1 -q ./wasmint --no-run $i 2> $tmpfile ) ;}
 
     if [ $? -eq 0 ]; then
         failedTests=$((failedTests+1))
         printf "[FAIL %50s] " "`basename $i`"
         echo "Full path: `readlink -f $i`"
         echo ""
+        echo "$stdout"
+        cat $tmpfile
     else
         printf "[OK       %50s]\n" "`basename $i`"
     fi
