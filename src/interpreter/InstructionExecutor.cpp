@@ -1389,6 +1389,10 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
+                        if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && std::signbit(right)) {
+                            return Variable::createFloat32(std::numeric_limits<float>::quiet_NaN());
+                        }
+
                         return Variable::createFloat32(left + right);
                 }
 
@@ -1401,6 +1405,10 @@ namespace wasmint {
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
 
+                        if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && !std::signbit(right)) {
+                            return Variable::createFloat32(std::numeric_limits<float>::quiet_NaN());
+                        }
+
                         return Variable::createFloat32(left - right);
                 }
             case InstructionId::F32Mul:
@@ -1411,6 +1419,10 @@ namespace wasmint {
                     default:
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
+
+                        if (std::isinf(left) && right == 0 && !std::signbit(left) && !std::signbit(right)) {
+                            return Variable::createFloat32(std::numeric_limits<float>::quiet_NaN());
+                        }
 
                         return Variable::createFloat32(left * right);
                 }
@@ -1423,6 +1435,10 @@ namespace wasmint {
                     default:
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
+
+                        if (left == 0 && right == 0 && !std::signbit(left) && !std::signbit(right)) {
+                            return Variable::createFloat32(std::numeric_limits<float>::quiet_NaN());
+                        }
 
                         return Variable::createFloat32(left / right);
                 }
@@ -1576,6 +1592,15 @@ namespace wasmint {
                     default:
                         float value = wasm_module::Float32::getValue(state.results().at(0));
 
+                        if (std::isnan(value)) {
+                            uint32_t asInt = Utils::reinterpretFloatAsInt(value);
+                            asInt |= 0x400000;
+                            return Variable::createFloat32(Utils::reinterpretIntAsFloat(asInt));
+                        }
+
+                        if (std::signbit(value))
+                            return Variable::createFloat32(std::numeric_limits<float>::quiet_NaN());
+
                         return Variable::createFloat32(std::sqrt(value));
                 }
             case InstructionId::F32Min:
@@ -1586,6 +1611,17 @@ namespace wasmint {
                     default:
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
+
+                        if (std::isnan(left)) {
+                            uint32_t asInt = Utils::reinterpretFloatAsInt(left);
+                            asInt |= 0x400000;
+                            return Variable::createFloat32(Utils::reinterpretIntAsFloat(asInt));
+                        }
+                        if (std::isnan(right)) {
+                            uint32_t asInt = Utils::reinterpretFloatAsInt(right);
+                            asInt |= 0x400000;
+                            return Variable::createFloat32(Utils::reinterpretIntAsFloat(asInt));
+                        }
 
                         if (left == right) {
                             auto leftSign = std::signbit(left);
@@ -1606,6 +1642,17 @@ namespace wasmint {
                     default:
                         float left = wasm_module::Float32::getValue(state.results().at(0));
                         float right = wasm_module::Float32::getValue(state.results().at(1));
+
+                        if (std::isnan(left)) {
+                            uint32_t asInt = Utils::reinterpretFloatAsInt(left);
+                            asInt |= 0x400000;
+                            return Variable::createFloat32(Utils::reinterpretIntAsFloat(asInt));
+                        }
+                        if (std::isnan(right)) {
+                            uint32_t asInt = Utils::reinterpretFloatAsInt(right);
+                            asInt |= 0x400000;
+                            return Variable::createFloat32(Utils::reinterpretIntAsFloat(asInt));
+                        }
 
                         if (left == right) {
                             auto leftSign = std::signbit(left);
@@ -1633,6 +1680,10 @@ namespace wasmint {
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
 
+                        if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && std::signbit(right)) {
+                            return Variable::createFloat64(std::numeric_limits<double>::quiet_NaN());
+                        }
+
                         return Variable::createFloat64(left + right);
                 }
 
@@ -1644,6 +1695,10 @@ namespace wasmint {
                     default:
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
+
+                        if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && !std::signbit(right)) {
+                            return Variable::createFloat64(std::numeric_limits<double>::quiet_NaN());
+                        }
 
                         return Variable::createFloat64(left - right);
                 }
@@ -1657,6 +1712,10 @@ namespace wasmint {
                         double right = wasm_module::Float64::getValue(state.results().at(1));
                         double resultValue = left * right;
 
+                        if (std::isinf(left) && right == 0 && !std::signbit(left) && !std::signbit(right)) {
+                            return Variable::createFloat64(std::numeric_limits<double>::quiet_NaN());
+                        }
+
                         return Variable::createFloat64(resultValue);
                 }
 
@@ -1668,6 +1727,10 @@ namespace wasmint {
                     default:
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
+
+                        if (left == 0 && right == 0 && !std::signbit(left) && !std::signbit(right)) {
+                            return Variable::createFloat64(std::numeric_limits<double>::quiet_NaN());
+                        }
 
                         return Variable::createFloat64(left / right);
                 }
@@ -1821,6 +1884,15 @@ namespace wasmint {
                     default:
                         double value = wasm_module::Float64::getValue(state.results().at(0));
 
+                        if (std::isnan(value)) {
+                            uint64_t asInt = Utils::reinterpretDoubleAsInt(value);
+                            asInt |= 0x8000000000000;
+                            return Variable::createFloat64(Utils::reinterpretIntAsDouble(asInt));
+                        }
+
+                        if (std::signbit(value))
+                            return Variable::createFloat64(std::numeric_limits<double>::quiet_NaN());
+
                         return Variable::createFloat64(std::sqrt(value));
                 }
             case InstructionId::F64Min:
@@ -1831,6 +1903,17 @@ namespace wasmint {
                     default:
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
+
+                        if (std::isnan(left)) {
+                            uint64_t asInt = Utils::reinterpretDoubleAsInt(left);
+                            asInt |= 0x8000000000000;
+                            return Variable::createFloat64(Utils::reinterpretIntAsDouble(asInt));
+                        }
+                        if (std::isnan(right)) {
+                            uint64_t asInt = Utils::reinterpretDoubleAsInt(right);
+                            asInt |= 0x8000000000000;
+                            return Variable::createFloat64(Utils::reinterpretIntAsDouble(asInt));
+                        }
 
                         if (left == right) {
                             auto leftSign = std::signbit(left);
@@ -1852,6 +1935,17 @@ namespace wasmint {
                     default:
                         double left = wasm_module::Float64::getValue(state.results().at(0));
                         double right = wasm_module::Float64::getValue(state.results().at(1));
+
+                        if (std::isnan(left)) {
+                            uint64_t asInt = Utils::reinterpretDoubleAsInt(left);
+                            asInt |= 0x8000000000000;
+                            return Variable::createFloat64(Utils::reinterpretIntAsDouble(asInt));
+                        }
+                        if (std::isnan(right)) {
+                            uint64_t asInt = Utils::reinterpretDoubleAsInt(right);
+                            asInt |= 0x8000000000000;
+                            return Variable::createFloat64(Utils::reinterpretIntAsDouble(asInt));
+                        }
 
                         if (left == right) {
                             auto leftSign = std::signbit(left);
