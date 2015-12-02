@@ -935,6 +935,21 @@ namespace wasmint {
 
                     return state.results().back();
                 }
+            case InstructionId::CallIndirect:
+                if (state.state() < instruction.children().size()) {
+                    return StepResult(instruction.children().at(state.state()));
+                } else if (state.state() == instruction.children().size()) {
+                    std::vector<wasm_module::Variable> parameters;
+                    for (uint32_t i = 0; i < state.results().size(); i++) {
+                        parameters.push_back(state.results().at(i));
+                    }
+                    wasm_module::CallImport & functionCall = dynamic_cast<wasm_module::CallImport &>(instruction);
+                    return StepResult(thread.callFunction(functionCall.functionSignature.module(), functionCall.functionSignature.name(), parameters));
+                } else {
+                    thread.leaveFunction();
+
+                    return state.results().back();
+                }
             case InstructionId::NativeInstruction:
                 return StepResult(dynamic_cast<wasm_module::NativeInstruction &>(instruction).call(thread.locals()));
             case InstructionId::GetLocal:

@@ -9,42 +9,83 @@ echo "#####################################"
 totalTests=0
 failedTests=0
 
-echo "#####################################"
-echo "###    Running positive tests     ###"
-echo "#####################################"
+echo "######################################"
+echo "###    Running positive tests      ###"
+echo "######################################"
 
 for i in ./positive/*.wasm; do
     #valgrind --error-exitcode=1 -q ./wasmint $i
-    { stdout=$(./wasmint $i) ;}
+    tmpfile="$(mktemp)"
+    { stdout=$(./wasmint $i 2> $tmpfile ) ;}
+
+
+
     if [ $? -ne 0 ]; then
         failedTests=$((failedTests+1))
         printf "[FAIL %50s] " "`basename $i`"
         echo "Full path: `readlink -f $i`"
         echo ""
     else
-        printf "[ OK  %50s]\n" "`basename $i`"
+        printf "[OK       %50s]\n" "`basename $i`"
     fi
 
     totalTests=$((totalTests+1))
+
+    rm $tmpfile
 done
 
-echo "#####################################"
-echo "###    Running negative tests     ###"
-echo "#####################################"
+echo "######################################"
+echo "###  Running negative trap tests   ###"
+echo "######################################"
+
 
 for i in ./negative/trap/*.wasm; do
     #valgrind --error-exitcode=1 -q ./wasmint $i
-    { ./wasmint $i ;} &> /dev/null
+    tmpfile="$(mktemp)"
+    { stdout=$(./wasmint $i 2> $tmpfile ) ;}
+
     if [ $? -eq 0 ]; then
         failedTests=$((failedTests+1))
-        printf "[FAIL %50s] " "$i"
+        printf "[FAIL %50s] " "`basename $i`"
         echo "Full path: `readlink -f $i`"
         echo ""
     else
-        printf "[ OK  %50s]\n" "$i"
+        stderrout=`cat $tmpfile`
+        if [[ $stderrout == *"trap"* ]]
+        then
+            printf "[OK       %50s]\n" "`basename $i`"
+        else
+            printf "[NO TRAP  %50s]\n" "`basename $i`"
+        fi
     fi
 
     totalTests=$((totalTests+1))
+
+    rm $tmpfile
+done
+
+echo "######################################"
+echo "### Running negative invalid tests ###"
+echo "######################################"
+
+
+for i in ./negative/invalid/*.wasm; do
+    #valgrind --error-exitcode=1 -q ./wasmint $i
+    tmpfile="$(mktemp)"
+    { stdout=$(./wasmint $i 2> $tmpfile ) ;}
+
+    if [ $? -eq 0 ]; then
+        failedTests=$((failedTests+1))
+        printf "[FAIL %50s] " "`basename $i`"
+        echo "Full path: `readlink -f $i`"
+        echo ""
+    else
+        printf "[OK       %50s]\n" "`basename $i`"
+    fi
+
+    totalTests=$((totalTests+1))
+
+    rm $tmpfile
 done
 
 echo "$failedTests out of $totalTests failed:"
