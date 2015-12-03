@@ -940,11 +940,14 @@ namespace wasmint {
                     return StepResult(instruction.children().at(state.state()));
                 } else if (state.state() == instruction.children().size()) {
                     std::vector<wasm_module::Variable> parameters;
-                    for (uint32_t i = 0; i < state.results().size(); i++) {
+                    for (uint32_t i = 1; i < state.results().size(); i++) {
                         parameters.push_back(state.results().at(i));
                     }
-                    wasm_module::CallImport & functionCall = dynamic_cast<wasm_module::CallImport &>(instruction);
-                    return StepResult(thread.callFunction(functionCall.functionSignature.module(), functionCall.functionSignature.name(), parameters));
+                    wasm_module::CallIndirect & functionCall = dynamic_cast<wasm_module::CallIndirect &>(instruction);
+
+                    const FunctionSignature& signature = functionCall.context_->indirectCallTable().getFunctionSignature(state.results().front().uint32());
+
+                    return StepResult(thread.callFunction(signature.module(), signature.name(), parameters));
                 } else {
                     thread.leaveFunction();
 
