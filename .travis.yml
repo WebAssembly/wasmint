@@ -14,12 +14,11 @@ addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    - boost-latest
     packages:
     - gcc-4.9
     - g++-4.9
     - valgrind
-    - boost1.55
+    - libboost1.55-all-dev
 script:
   - cmake .
   - make -j4
