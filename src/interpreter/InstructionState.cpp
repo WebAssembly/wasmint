@@ -20,6 +20,7 @@
 #include "Thread.h"
 #include "InstructionExecutor.h"
 #include <types/Type.h>
+#include <iostream>
 
 namespace wasmint {
 
@@ -52,7 +53,9 @@ namespace wasmint {
             StepResult result = InstructionExecutor::execute(*instruction(), thread);
             if (result.newChildInstruction()) {
                 childInstruction = new InstructionState(result.newChildInstruction(), this);
+                // TODO std::cout << "Entering " << result.newChildInstruction()->toSExprString() << std::endl;
             } else if (result.signal() != Signal::None) {
+                // TODO std::cout << "Got Signal from " << instruction()->dataString() << std::endl;
                 return result;
             } else {
                 result_ = result.result();
@@ -61,6 +64,7 @@ namespace wasmint {
                                                       + instruction()->returnType()->name() + " but returned "
                                                       + result_.type().name());
                 }
+                // TODO std::cout << instruction()->toSExprString() << " : " << result_.toString() << std::endl;
                 finished_ = true;
             }
             state_++;

@@ -32,7 +32,9 @@ namespace wasmint {
 
         using namespace wasm_module;
 
-        switch (instruction.id()) {
+        InstructionId::Value id = instruction.id();
+
+        switch (id) {
 
             /******************************************************
              ***************** Int 32 Operations ******************
@@ -904,6 +906,49 @@ namespace wasmint {
                         return StepResult::createSignal(Signal::Return, state.results().front());
                 }
 
+            case InstructionId::Case:
+                if (state.state() < instruction.children().size()) {
+                    return StepResult(instruction.children().at(state.state()));
+                } else {
+                    if (state.results().empty())
+                        return StepResult();
+                    return StepResult(state.results().back());
+                }
+
+            case InstructionId::TableSwitch:
+
+                if (state.hasBranchValue())
+                    return state.branchValue();
+
+                if (state.state() == 0) {
+                    return StepResult(instruction.children().front());
+                }
+                else if (state.state() == 1) {
+                    std::size_t index = state.results().back().uint32();
+                    state.clearResults();
+
+                    TableSwitch& tableSwitch = dynamic_cast<TableSwitch&>(instruction);
+
+                    auto target = index < tableSwitch.targets().size() ? tableSwitch.targets().at(index) : tableSwitch.defaultTarget();
+                    if (target.isCase()) {
+                        state.state((uint32_t) target.index() + 2);
+                        return StepResult(instruction.children().at(target.index()));
+                    } else if (target.isBranch()) {
+                        if (target.index() == 0) {
+                            return StepResult();
+                        } else {
+                            return StepResult::createBranch(Variable::Void(), (uint32_t) target.index() - 1);
+                        }
+                    } else {
+                        throw std::domain_error("Only branch and case targets are supported as of now");
+                    }
+                } else if ((state.state() - 2) < instruction.children().size()) {
+                    return StepResult(instruction.children().at(state.state() - 2));
+                } else {
+                    if (state.results().empty())
+                        return StepResult();
+                    return StepResult(state.results().back());
+                }
 
             case InstructionId::Call:
                 if (state.state() < instruction.children().size()) {
@@ -2234,6 +2279,8 @@ namespace wasmint {
                 if (instruction.id() == InstructionId::Block) {
                     currentState.branchValue(stepResult.result());
                 } else if (instruction.id() == InstructionId::Label) {
+                    currentState.branchValue(stepResult.result());
+                }  else if (instruction.id() == InstructionId::TableSwitch) {
                     currentState.branchValue(stepResult.result());
                 } else if (instruction.id() == InstructionId::Loop) {
                     switch(stepResult.branchLabel()) {
