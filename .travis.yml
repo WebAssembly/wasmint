@@ -19,8 +19,7 @@ addons:
     - gcc-4.9
     - g++-4.9
     - valgrind
-    - libboost-system-dev
-    - libboost-filesystem-dev
+    - boost1.55
 script:
   - cmake .
   - make -j4
