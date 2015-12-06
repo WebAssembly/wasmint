@@ -7,8 +7,10 @@
 #include <iostream>
 #include <map>
 #include <list>
+#include <typeinfo>
 #include <boost/filesystem.hpp>
 #include <iomanip>
+#include <assert.h>
 
 using namespace wasm_module;
 using namespace wasm_module::sexpr;
