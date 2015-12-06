@@ -1646,6 +1646,10 @@ namespace wasmint {
                             return Variable::createFloat32(Utils::reinterpretIntAsFloat(asInt));
                         }
 
+                        if (value == -0.0f && std::signbit(value)) {
+                            return Variable::createFloat32(-0.0f);
+                        }
+
                         if (std::signbit(value))
                             return Variable::createFloat32(std::numeric_limits<float>::quiet_NaN());
 
@@ -1936,6 +1940,10 @@ namespace wasmint {
                             uint64_t asInt = Utils::reinterpretDoubleAsInt(value);
                             asInt |= 0x8000000000000;
                             return Variable::createFloat64(Utils::reinterpretIntAsDouble(asInt));
+                        }
+
+                        if (value == -0.0 && std::signbit(value)) {
+                            return Variable::createFloat64(-0.0);
                         }
 
                         if (std::signbit(value))
