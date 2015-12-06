@@ -2,6 +2,12 @@ sudo: false
 language: cpp
 compiler:
   - gcc
+
+git:
+  submodules: false
+before_install:
+  - git submodule update --init --recursive
+
 install:
 - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
 addons:
@@ -12,7 +18,6 @@ addons:
     - gcc-4.9
     - g++-4.9
     - valgrind
-
 script:
   - cmake .
   - make -j4
