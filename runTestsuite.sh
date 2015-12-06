@@ -18,8 +18,6 @@ for i in ./positive/*.wasm; do
     tmpfile="$(mktemp)"
     { stdout=$(valgrind --error-exitcode=1 -q ./wasmint $i 2> $tmpfile ) ;}
 
-
-
     if [ $? -ne 0 ]; then
         failedTests=$((failedTests+1))
         printf "[FAIL %50s] " "`basename $i`"
@@ -97,3 +95,7 @@ for i in ./negative/invalid/*.wasm; do
 done
 
 echo "$failedTests out of $totalTests failed:"
+
+if [ $failedTests -ne 0 ]; then
+    exit 1
+fi
