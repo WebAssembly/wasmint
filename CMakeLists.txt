@@ -109,3 +109,16 @@ add_test(NAME mutation_fuzzing COMMAND ./mutation_fuzzer)
 
 configure_file(runTestsuite.sh runTestsuite.sh)
 configure_file(testValgrind.sh testValgrind.sh COPYONLY)
+
+
+####################
+# testsuite conv   #
+####################
+
+find_package(Boost COMPONENTS system filesystem)
+
+if(${Boost_FOUND})
+    INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+    add_executable(testsuite_converter testsuite-converter/main.cpp)
+    target_link_libraries(testsuite_converter wasm-module ${Boost_LIBRARIES})
+endif()
