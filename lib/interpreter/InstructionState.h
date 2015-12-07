@@ -37,7 +37,7 @@ namespace wasmint {
     class InstructionState {
 
         uint32_t state_ = 0;
-        InstructionState *childInstruction = nullptr;
+        InstructionState* childInstruction = nullptr;
         wasm_module::Variable result_;
         bool finished_ = false;
         std::vector<wasm_module::Variable> results_;

@@ -24,9 +24,6 @@ namespace wasmint {
     void MachineState::useModule(wasm_module::Module &module, bool takeMemoryOwnership) {
         modules_[module.name()] = &module;
 
-        for (wasm_module::Global &global : module.globals()) {
-            globals_[global.name()] = wasm_module::Variable(global.type());
-        }
         if (takeMemoryOwnership) {
             modulesToDelete_.push_back(&module);
         }

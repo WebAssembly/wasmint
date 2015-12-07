@@ -48,12 +48,6 @@ namespace wasmint {
     class MachineState {
 
         /**
-         * All globals that are accessible with the currently loaded modules.
-         * The keys are the variable names.
-         */
-        std::map<std::string, wasm_module::Variable> globals_;
-
-        /**
          * The stdout of this program. We currently just append to this string and then read it via stdou().
          */
         std::string stdout_;
@@ -75,15 +69,6 @@ namespace wasmint {
 
         void useModule(wasm_module::Module &module, bool takeMemoryOwnership = false);
 
-        wasm_module::Variable &global(std::string name) {
-            auto globalIterator = globals_.find(name);
-            if (globalIterator != globals_.end()) {
-                return globalIterator->second;
-            } else {
-                throw NoGlobalWithName(name);
-            }
-        }
-
         void print(std::string s) {
             stdout_ += s;
         }
@@ -103,14 +88,6 @@ namespace wasmint {
 
         wasm_module::Function& getFunction(const std::string& moduleName, const std::string& functionName) {
             return getModule(moduleName).getFunction(functionName);
-        }
-
-        /**
-         * All globals that are accessible with the currently loaded modules.
-         * The keys are the variable names.
-         */
-        std::map<std::string, wasm_module::Variable> &globals() {
-            return globals_;
         }
     };
 
