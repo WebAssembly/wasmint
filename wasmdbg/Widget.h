@@ -25,10 +25,15 @@ class Widget {
     WINDOW* win;
     int x_, y_, w_, h_;
     int border_;
+    std::string name_;
 
 public:
     Widget(int x, int y, int w, int h) : x_(x), y_(y), w_(w), h_(h) {
         win = newwin(h, w, y, x);
+    }
+
+    void setName(const std::string& name) {
+        name_ = name;
     }
 
     int getX() const {
@@ -83,22 +88,35 @@ public:
         char tmp[2];
         tmp[1] = 0;
         tmp[0] = c;
-        mvprintw(y, x, tmp);
+        mvwprintw(win, y + border_, x + border_, tmp);
     }
 
     void print(int x, int y, char c, int formatting) {
         char tmp[2];
         tmp[1] = 0;
         tmp[0] = c;
-        attron(formatting);
-        mvprintw(y, x, tmp);
-        attroff(formatting);
+        wattron(win, formatting);
+        mvwprintw(win, y + border_, x + border_, tmp);
+        wattroff(win, formatting);
     }
 
     void print(int x, int y, const std::string& str) {
-        mvprintw(y, x, str.c_str());
+        mvwprintw(win, y + border_, x + border_, str.c_str());
     }
 
+    void print(int x, int y, const std::string& str, int formatting) {
+        wattron(win, formatting);
+        mvwprintw(win, y + border_, x + border_, str.c_str());
+        wattroff(win, formatting);
+    }
+
+    void display() {
+        if (border_ != 0) {
+            box(win, 0, 0);
+            mvwprintw(win, 0, getWidth() / 2 - name_.size() / 2, name_.c_str());
+        }
+        wrefresh(win);
+    }
 };
 
 

@@ -135,5 +135,5 @@ if(${Boost_FOUND})
 
     add_executable(wasmdbg wasmdbg/main.cpp)
 
-    target_link_libraries(wasmdbg core ${CURSES_LIBRARIES})
+    target_link_libraries(wasmdbg core wasm-module ${CURSES_LIBRARIES})
 endif()

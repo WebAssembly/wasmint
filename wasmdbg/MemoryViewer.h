@@ -66,13 +66,6 @@ class MemoryViewer : public Widget {
         }
     }
 
-    std::string intToHexDigitStr(uint8_t value) {
-        std::string result;
-        result.resize(1);
-        result[0] = intToHexDigit(value);
-        return result;
-    }
-
     std::string intToHex(uint8_t value) {
         std::string result;
         result.resize(2);
@@ -97,8 +90,9 @@ class MemoryViewer : public Widget {
     }
 
 public:
-    MemoryViewer() : Widget(0, 0, 60, 60) {
+    MemoryViewer() : Widget(5, 4, 60, 20) {
         setBorder(1);
+        setName("Memory");
     }
 
     void setHeap(wasmint::Heap* heap) {
@@ -107,8 +101,8 @@ public:
 
     virtual void render() override {
         std::size_t posIter = position_;
-        int x = getX();
-        int y = getY();
+        int x = 0;
+        int y = 0;
 
         bytesPerLine = 0;
         while (true) {
@@ -133,17 +127,17 @@ public:
             posIter++;
             x += 3;
 
-            if (y == getY())
+            if (y == 0)
                 bytesPerLine++;
 
             if (posIter >= heap_->size())
                 break;
 
-            if (x >= getX() + getWidth()) {
-                x = getX();
+            if (x >= getWidth() - 1) {
+                x = 0;
                 y++;
             }
-            if (y >= getY() + getHeight()) {
+            if (y >= getHeight()) {
                 break;
             }
         }
@@ -173,6 +167,7 @@ public:
                 cursorPosition++;
                 halfPos_ = 0;
             }
+            return true;
         }
 
         if (c == KEY_LEFT) {
@@ -182,18 +177,26 @@ public:
                 cursorPosition--;
                 halfPos_ = 1;
             }
-        } else if (c == KEY_RIGHT) {
+            return true;
+        }
+        if (c == KEY_RIGHT) {
             if (halfPos_ == 0) {
                 halfPos_ = 1;
             } else {
                 cursorPosition++;
                 halfPos_ = 0;
             }
-        } else if (c == KEY_UP) {
-            cursorPosition -= bytesPerLine;
-        } else if (c == KEY_DOWN) {
-            cursorPosition += bytesPerLine;
+            return true;
         }
+        if (c == KEY_UP) {
+            cursorPosition -= bytesPerLine;
+            return true;
+        }
+        if (c == KEY_DOWN) {
+            cursorPosition += bytesPerLine;
+            return true;
+        }
+        return false;
     }
 
 };

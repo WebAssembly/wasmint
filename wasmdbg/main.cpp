@@ -18,7 +18,10 @@
 #include <stdlib.h>
 #include <curses.h>
 #include <interpreter/Heap.h>
+#include <Module.h>
+#include <sexpr_parsing/ModuleParser.h>
 #include "MemoryViewer.h"
+#include "InstructionViewer.h"
 
 int main(void) {
 
@@ -44,13 +47,28 @@ int main(void) {
     MemoryViewer memoryViewer;
     memoryViewer.setHeap(&heap);
 
+    wasm_module::Module* positiveModule = wasm_module::sexpr::ModuleParser::parse(
+            "module (func main "
+                        "(if_else (i32.const 0) (unreachable) ())"
+                        "(if_else (i32.const 1) (unreachable) ())"
+                        "(if_else (i32.const 2) (unreachable) ())"
+                    ")");
+
+    InstructionViewer instructionViewer;
+    instructionViewer.setInstruction(positiveModule->functions().front()->mainInstruction());
 
     do {
         clear();
 
-        if (ch != 0)
-            memoryViewer.handleCharacter(ch);
+        memoryViewer.handleCharacter(ch);
+
         memoryViewer.render();
+        memoryViewer.display();
+
+        instructionViewer.handleCharacter(ch);
+        instructionViewer.render();
+        instructionViewer.display();
+
         refresh();
     } while ( (ch = getch()) != 'q' );
 
