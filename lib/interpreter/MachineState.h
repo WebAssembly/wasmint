@@ -34,23 +34,9 @@ namespace wasmint {
 
     ExceptionMessage(NoFunctionWithName)
 
-    ExceptionMessage(NoGlobalWithName)
-
-    class CalledBreak;
-
-    class CalledContinue;
-
     class Thread;
 
-/**
- * Contains all variable values during the interpretation of a program.
- */
     class MachineState {
-
-        /**
-         * The stdout of this program. We currently just append to this string and then read it via stdou().
-         */
-        std::string stdout_;
 
         // FIXME Use smart pointers if possible...
         std::vector<Thread *> threads_;
@@ -68,14 +54,6 @@ namespace wasmint {
         Thread &createThread();
 
         void useModule(wasm_module::Module &module, bool takeMemoryOwnership = false);
-
-        void print(std::string s) {
-            stdout_ += s;
-        }
-
-        std::string stdout() {
-            return stdout_;
-        }
 
         wasm_module::Module& getModule(const std::string& moduleName) {
             auto iter = modules_.find(moduleName);
