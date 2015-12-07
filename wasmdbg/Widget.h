@@ -86,6 +86,15 @@ public:
         mvprintw(y, x, tmp);
     }
 
+    void print(int x, int y, char c, int formatting) {
+        char tmp[2];
+        tmp[1] = 0;
+        tmp[0] = c;
+        attron(formatting);
+        mvprintw(y, x, tmp);
+        attroff(formatting);
+    }
+
     void print(int x, int y, const std::string& str) {
         mvprintw(y, x, str.c_str());
     }

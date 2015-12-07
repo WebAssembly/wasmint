@@ -116,16 +116,12 @@ public:
 
             if (cursorPosition == posIter) {
                 if (halfPos_ == 0) {
-                    attron(A_REVERSE);
-                    print(x, y, intToHexDigit(byte >> 4));
-                    attroff(A_REVERSE);
+                    print(x, y, intToHexDigit(byte >> 4), A_REVERSE);
                 } else {
                     print(x, y, intToHexDigit(byte >> 4));
                 }
                 if (halfPos_ == 1) {
-                    attron(A_REVERSE);
-                    print(x + 1, y, intToHexDigit(byte & 0xF));
-                    attroff(A_REVERSE);
+                    print(x + 1, y, intToHexDigit(byte & 0xF), A_REVERSE);
                 } else {
                     print(x + 1, y, intToHexDigit(byte & 0xF));
                 }
