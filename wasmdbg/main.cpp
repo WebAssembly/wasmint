@@ -16,7 +16,6 @@
 
 
 #include <stdlib.h>
-#include <ctype.h>
 #include <curses.h>
 #include <interpreter/Heap.h>
 #include "MemoryViewer.h"
@@ -46,23 +45,13 @@ int main(void) {
     memoryViewer.setHeap(&heap);
 
 
-    /*  Loop until user presses 'q'  */
-
     do {
-        /*  Delete the old response line, and print a new one  */
-
-        deleteln();
         clear();
-        /*mvprintw(3, 10, "You pressed");
-        mvprintw(4, 10, "You pressed: 0x%x (%s)", ch, intprtkey(ch));
-        box(mainwin, 0 , 0);		/* 0, 0 gives default characters
-					 * for the vertical and horizontal
-					 * lines			*/
 
         if (ch != 0)
             memoryViewer.handleCharacter(ch);
         memoryViewer.render();
-        //refresh();
+        refresh();
     } while ( (ch = getch()) != 'q' );
 
 

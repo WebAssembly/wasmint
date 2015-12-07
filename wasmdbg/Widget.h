@@ -28,7 +28,7 @@ class Widget {
 
 public:
     Widget(int x, int y, int w, int h) : x_(x), y_(y), w_(w), h_(h) {
-        //win = newwin(h, w, y, x);
+        win = newwin(h, w, y, x);
     }
 
     int getX() const {
@@ -77,6 +77,17 @@ public:
 
     WINDOW* window() {
         return win;
+    }
+
+    void print(int x, int y, char c) {
+        char tmp[2];
+        tmp[1] = 0;
+        tmp[0] = c;
+        mvprintw(y, x, tmp);
+    }
+
+    void print(int x, int y, const std::string& str) {
+        mvprintw(y, x, str.c_str());
     }
 
 };

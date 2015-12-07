@@ -117,21 +117,21 @@ public:
             if (cursorPosition == posIter) {
                 if (halfPos_ == 0) {
                     attron(A_REVERSE);
-                    mvprintw(y, x, intToHexDigitStr(byte >> 4).c_str());
+                    print(x, y, intToHexDigitStr(byte >> 4));
                     attroff(A_REVERSE);
                 } else {
-                    mvprintw(y, x, intToHexDigitStr(byte >> 4).c_str());
+                    print(x, y, intToHexDigitStr(byte >> 4));
                 }
                 if (halfPos_ == 1) {
                     attron(A_REVERSE);
-                    mvprintw(y, x + 1, intToHexDigitStr(byte & 0xF).c_str());
+                    print(x + 1, y, intToHexDigitStr(byte & 0xF));
                     attroff(A_REVERSE);
                 } else {
-                    mvprintw(y, x + 1, intToHexDigitStr(byte & 0xF).c_str());
+                    print(x + 1, y, intToHexDigitStr(byte & 0xF));
                 }
             } else {
-                mvprintw(y, x, intToHexDigitStr(byte >> 4).c_str());
-                mvprintw(y, x + 1, intToHexDigitStr(byte & 0xF).c_str());
+                print(x, y, intToHexDigitStr(byte >> 4));
+                print(x + 1, y, intToHexDigitStr(byte & 0xF));
             }
 
             posIter++;
@@ -151,7 +151,7 @@ public:
                 break;
             }
         }
-        //wrefresh(window());
+        refresh();
     }
 
     virtual bool handleCharacter(int c) override {
