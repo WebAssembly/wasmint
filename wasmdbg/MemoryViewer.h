@@ -117,21 +117,21 @@ public:
             if (cursorPosition == posIter) {
                 if (halfPos_ == 0) {
                     attron(A_REVERSE);
-                    print(x, y, intToHexDigitStr(byte >> 4));
+                    print(x, y, intToHexDigit(byte >> 4));
                     attroff(A_REVERSE);
                 } else {
-                    print(x, y, intToHexDigitStr(byte >> 4));
+                    print(x, y, intToHexDigit(byte >> 4));
                 }
                 if (halfPos_ == 1) {
                     attron(A_REVERSE);
-                    print(x + 1, y, intToHexDigitStr(byte & 0xF));
+                    print(x + 1, y, intToHexDigit(byte & 0xF));
                     attroff(A_REVERSE);
                 } else {
-                    print(x + 1, y, intToHexDigitStr(byte & 0xF));
+                    print(x + 1, y, intToHexDigit(byte & 0xF));
                 }
             } else {
-                print(x, y, intToHexDigitStr(byte >> 4));
-                print(x + 1, y, intToHexDigitStr(byte & 0xF));
+                print(x, y, intToHexDigit(byte >> 4));
+                print(x + 1, y, intToHexDigit(byte & 0xF));
             }
 
             posIter++;
