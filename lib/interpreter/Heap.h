@@ -57,6 +57,13 @@ namespace wasmint {
 
         }
 
+        uint8_t getByte(std::size_t pos) {
+            return data_.at(pos);
+        }
+
+        uint8_t setByte(std::size_t pos, uint8_t value) {
+            return data_.at(pos) = value;
+        }
         void grow(uint32_t size) {
             std::size_t oldSize = data_.size();
             data_.resize(data_.size() + size);

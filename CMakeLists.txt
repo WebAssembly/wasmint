@@ -23,24 +23,25 @@ if (SDL2_FOUND AND SDL2_IMAGE_FOUND)
     add_definitions(-DWASMINT_HAS_SDL)
 endif()
 
+
 ###########################
 #      Common code        #
 ###########################
 
 include_directories(wasm-module/src)
-include_directories (src)
+include_directories (lib)
 
 add_library(core
-    src/interpreter/Thread.cpp
-    src/interpreter/FunctionState.cpp
-    src/interpreter/InstructionState.cpp
-    src/interpreter/MachineState.cpp
-    src/interpreter/InstructionExecutor.cpp
-    src/interpreter/Heap.cpp
-    src/interpreter/StepResult.cpp
-    src/builtins/StdioModule.cpp
-    src/builtins/SDLModule.cpp
-    src/builtins/AssertModule.cpp
+        lib/interpreter/Thread.cpp
+        lib/interpreter/FunctionState.cpp
+        lib/interpreter/InstructionState.cpp
+        lib/interpreter/MachineState.cpp
+        lib/interpreter/InstructionExecutor.cpp
+        lib/interpreter/Heap.cpp
+        lib/interpreter/StepResult.cpp
+        lib/builtins/StdioModule.cpp
+        lib/builtins/SDLModule.cpp
+        lib/builtins/AssertModule.cpp
 )
 
 
@@ -121,4 +122,18 @@ if(${Boost_FOUND})
     INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
     add_executable(testsuite_converter testsuite-converter/main.cpp)
     target_link_libraries(testsuite_converter wasm-module ${Boost_LIBRARIES})
+endif()
+
+###########################
+#    Ncurses debugger     #
+###########################
+
+find_package(Curses)
+
+if(${Boost_FOUND})
+    include_directories(${CURSES_INCLUDE_DIR})
+
+    add_executable(wasmdbg wasmdbg/main.cpp)
+
+    target_link_libraries(wasmdbg core ${CURSES_LIBRARIES})
 endif()
