@@ -32,26 +32,30 @@ using namespace wasmint;
 int main() {
     std::vector<uint8_t> memory;
 
-    MachineState environment;
+    std::unique_ptr<MachineState> environment;
+    environment.reset(new MachineState());
 
     Module* module = ModuleParser::parse("module (func main (if_else (i32.sub (i32.const 1) (i32.const 1)) (unreachable) (i32.add (i32.const 1) (i32.const 3))))");
 
-    environment.useModule(*module, false);
+    environment->useModule(*module, false);
 
-    Thread& thread = environment.createThread().startAtFunction(module->name(), "main");
+    environment->createThread().startAtFunction(module->name(), "main");
 
-    while (!thread.finished()) {
-        thread.step();
+    Thread* thread = &environment->getThread();
+
+    while (!thread->finished()) {
+        thread->step();
 
         ByteOutputStream outputStream(memory);
         memory.clear();
-        environment.serialize(outputStream);
+        environment->serialize(outputStream);
 
-        environment = MachineState();
-        environment.useModule(*module, false);
+        environment.reset(new MachineState());
+        environment->useModule(*module, false);
 
         ByteInputStream inputStream(memory);
-        environment.setState(inputStream);
+        environment->setState(inputStream);
+        thread = &environment->getThread();
     }
 
     delete module;

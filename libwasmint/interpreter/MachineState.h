@@ -52,10 +52,17 @@ namespace wasmint {
     public:
         MachineState()  {
         }
+        virtual ~MachineState();
+
+        void operator=(const MachineState& other); // don't implement
+        MachineState(const MachineState& other); // don't implement
 
         void setState(ByteInputStream& stream);
 
-        virtual ~MachineState();
+        // TODO function doesn't work for multiple threads
+        Thread& getThread() {
+            return *threads_.front();
+        }
 
         Thread &createThread();
 
