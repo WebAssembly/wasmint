@@ -135,7 +135,7 @@ find_package(Curses)
 if(${Boost_FOUND})
     include_directories(${CURSES_INCLUDE_DIR})
 
-    add_executable(wasmdbg_src wasmdbg_src/main.cpp)
+    add_executable(wasmdbg wasmdbg_src/main.cpp)
 
-    target_link_libraries(wasmdbg_src libwasmint wasm-module ${CURSES_LIBRARIES})
+    target_link_libraries(wasmdbg libwasmint wasm-module ${CURSES_LIBRARIES})
 endif()
