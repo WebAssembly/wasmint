@@ -4,7 +4,7 @@ echo "#####################################"
 echo "###    Transforming wast files    ###"
 echo "#####################################"
 
-./testsuite_converter /home/teemperor/workspace/wasm/merge_wasm_module/wasmint/testsuite/*.wast
+./testsuite_converter ${CMAKE_SOURCE_DIR}/testsuite/*.wast
 
 totalTests=0
 failedTests=0
