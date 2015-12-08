@@ -32,16 +32,18 @@ include_directories(wasm-module/src)
 include_directories (lib)
 
 add_library(core
-        lib/interpreter/Thread.cpp
-        lib/interpreter/FunctionState.cpp
-        lib/interpreter/InstructionState.cpp
-        lib/interpreter/MachineState.cpp
-        lib/interpreter/InstructionExecutor.cpp
-        lib/interpreter/Heap.cpp
-        lib/interpreter/StepResult.cpp
-        lib/builtins/StdioModule.cpp
-        lib/builtins/SDLModule.cpp
-        lib/builtins/AssertModule.cpp
+    lib/interpreter/Thread.cpp
+    lib/interpreter/FunctionState.cpp
+    lib/interpreter/InstructionState.cpp
+    lib/interpreter/MachineState.cpp
+    lib/interpreter/InstructionExecutor.cpp
+    lib/interpreter/Heap.cpp
+    lib/interpreter/StepResult.cpp
+    lib/builtins/StdioModule.cpp
+    lib/builtins/SDLModule.cpp
+    lib/builtins/AssertModule.cpp
+    lib/serialization/ByteOutputStream.cpp
+    lib/serialization/ByteInputStream.cpp
 )
 
 
@@ -49,7 +51,7 @@ add_library(core
 #      Interpreter        #
 ###########################
 
-add_executable(wasmint main.cpp)
+add_executable(wasmint main.cpp lib/serialization/ByteOutputStream.cpp lib/serialization/ByteInputStream.cpp lib/serialization/ByteInputStream.h)
 target_link_libraries(wasmint core wasm-module)
 
 if (SDL2_FOUND AND SDL2_IMAGE_FOUND)

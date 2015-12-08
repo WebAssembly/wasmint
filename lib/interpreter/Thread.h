@@ -50,7 +50,7 @@ namespace wasmint {
          */
         std::stack<FunctionState> stack;
 
-        MachineState & env_;
+        MachineState& env_;
 
         InstructionState* currentInstructionState = nullptr;
 
