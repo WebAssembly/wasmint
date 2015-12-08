@@ -44,4 +44,24 @@ namespace wasmint {
         }
     }
 
+    void MachineState::serialize(ByteOutputStream& stream) const {
+        stream.writeUInt64(threads_.size());
+        for (Thread* thread : threads_) {
+            thread->serialize(stream);
+        }
+    }
+
+    void MachineState::setState(ByteInputStream& stream) {
+        uint64_t numberOfThreads = stream.getUInt64();
+        for (uint64_t i = 0; i < numberOfThreads; i++) {
+            Thread& thread = createThread();
+            thread.setState(stream);
+        }
+    }
+
+    const wasm_module::Instruction *MachineState::getInstruction(const wasm_module::InstructionAddress& address) {
+        wasm_module::Module& module = getModule(address.moduleName());
+        wasm_module::Function& function = module.getFunction(address.functionName());
+        return function.instruction(address);
+    }
 }

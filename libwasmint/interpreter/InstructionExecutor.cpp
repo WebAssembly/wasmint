@@ -25,7 +25,7 @@
 
 namespace wasmint {
 
-    StepResult InstructionExecutor::execute(wasm_module::Instruction &instruction, Thread &thread) {
+    StepResult InstructionExecutor::execute(const wasm_module::Instruction &instruction, Thread &thread) {
         using namespace wasm_module;
 
         InstructionState &state = thread.getInstructionState();
@@ -834,7 +834,7 @@ namespace wasmint {
                     case 0:
                         return instruction.children().at(0);
                     default:
-                        return StepResult::createBranch(state.results().back(), dynamic_cast<Branch&>(instruction).branchLabel());
+                        return StepResult::createBranch(state.results().back(), dynamic_cast<const Branch&>(instruction).branchLabel());
                 }
 
             case InstructionId::BranchIf:
@@ -844,7 +844,7 @@ namespace wasmint {
                     case 1:
                         return instruction.children().at(1);
                     default:
-                        return StepResult::createBranch(state.results().back(), dynamic_cast<BranchIf&>(instruction).branchLabel());
+                        return StepResult::createBranch(state.results().back(), dynamic_cast<const BranchIf&>(instruction).branchLabel());
                 }
 
             case InstructionId::Loop:
@@ -927,7 +927,7 @@ namespace wasmint {
                     std::size_t index = state.results().back().uint32();
                     state.clearResults();
 
-                    TableSwitch& tableSwitch = dynamic_cast<TableSwitch&>(instruction);
+                    const TableSwitch& tableSwitch = dynamic_cast<const TableSwitch&>(instruction);
 
                     auto target = index < tableSwitch.targets().size() ? tableSwitch.targets().at(index) : tableSwitch.defaultTarget();
                     if (target.isCase()) {
@@ -958,7 +958,7 @@ namespace wasmint {
                     for (uint32_t i = 0; i < state.results().size(); i++) {
                         parameters.push_back(state.results().at(i));
                     }
-                    wasm_module::Call & functionCall = dynamic_cast<wasm_module::Call &>(instruction);
+                    const wasm_module::Call& functionCall = dynamic_cast<const wasm_module::Call &>(instruction);
                     return StepResult(thread.callFunction(functionCall.moduleName, functionCall.functionSignature.name(), parameters));
                 } else {
                     thread.leaveFunction();
@@ -973,8 +973,8 @@ namespace wasmint {
                     for (uint32_t i = 0; i < state.results().size(); i++) {
                         parameters.push_back(state.results().at(i));
                     }
-                    wasm_module::CallImport & functionCall = dynamic_cast<wasm_module::CallImport &>(instruction);
-                    return StepResult(thread.callFunction(functionCall.functionSignature.module(), functionCall.functionSignature.name(), parameters));
+                    const wasm_module::CallImport& functionCall = dynamic_cast<const wasm_module::CallImport &>(instruction);
+                    return StepResult(thread.callFunction(functionCall.functionSignature.moduleName(), functionCall.functionSignature.name(), parameters));
                 } else {
                     thread.leaveFunction();
 
@@ -988,29 +988,29 @@ namespace wasmint {
                     for (uint32_t i = 1; i < state.results().size(); i++) {
                         parameters.push_back(state.results().at(i));
                     }
-                    wasm_module::CallIndirect & functionCall = dynamic_cast<wasm_module::CallIndirect &>(instruction);
+                    const wasm_module::CallIndirect& functionCall = dynamic_cast<const wasm_module::CallIndirect &>(instruction);
 
                     const FunctionSignature& signature = functionCall.context_->indirectCallTable().getFunctionSignature(state.results().front().uint32());
 
-                    return StepResult(thread.callFunction(signature.module(), signature.name(), parameters));
+                    return StepResult(thread.callFunction(signature.moduleName(), signature.name(), parameters));
                 } else {
                     thread.leaveFunction();
 
                     return state.results().back();
                 }
             case InstructionId::NativeInstruction:
-                return StepResult(dynamic_cast<wasm_module::NativeInstruction &>(instruction).call(thread.locals()));
+                return StepResult(dynamic_cast<const wasm_module::NativeInstruction &>(instruction).call(thread.locals()));
             case InstructionId::GetLocal:
-                return thread.variable(dynamic_cast<wasm_module::GetLocal &>(instruction).localIndex);
+                return thread.variable(dynamic_cast<const wasm_module::GetLocal &>(instruction).localIndex);
             case InstructionId::I32Const:
             case InstructionId::I64Const:
             case InstructionId::F32Const:
             case InstructionId::F64Const:
-                return StepResult(dynamic_cast<wasm_module::Literal &>(instruction).literalValue());
+                return StepResult(dynamic_cast<const wasm_module::Literal &>(instruction).literalValue());
             case InstructionId::HasFeature:
                 {
                     Variable result(Int32::instance());
-                    if (dynamic_cast<wasm_module::HasFeature &>(instruction).featureName() == "wasm") {
+                    if (dynamic_cast<const wasm_module::HasFeature &>(instruction).featureName() == "wasm") {
                         result.uint32(1);
                     } else {
                         result.uint32(0);
@@ -1033,7 +1033,7 @@ namespace wasmint {
                         return instruction.children().at(0);
                     default:
                         wasm_module::Variable result = thread.variable(
-                                dynamic_cast<wasm_module::SetLocal &>(instruction).localIndex) = state.results().at(0);
+                                dynamic_cast<const wasm_module::SetLocal &>(instruction).localIndex) = state.results().at(0);
                         return result;
                 }
 
@@ -1068,7 +1068,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
 
@@ -1090,7 +1090,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
                         std::vector<uint8_t> bytes = {loadedBytes.at(0), 0x0, 0x0, 0x0};
@@ -1106,7 +1106,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
 
@@ -1128,7 +1128,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
                         std::vector<uint8_t> bytes = {loadedBytes.at(0), loadedBytes.at(1), 0x0, 0x0};
@@ -1143,7 +1143,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> bytes = thread.heap().getBytes(offset, static_cast<uint32_t>(wasm_module::Int32::instance()->size()));
 
@@ -1159,7 +1159,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
 
@@ -1181,7 +1181,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
                         std::vector<uint8_t> bytes = {loadedBytes.at(0), 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
@@ -1197,7 +1197,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
 
@@ -1219,7 +1219,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
                         std::vector<uint8_t> bytes = {loadedBytes.at(0), loadedBytes.at(1), 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
@@ -1235,7 +1235,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 4u);
 
@@ -1258,7 +1258,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 4u);
                         std::vector<uint8_t> bytes =
@@ -1275,7 +1275,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> bytes = thread.heap().getBytes
                                 (offset, static_cast<uint32_t>(wasm_module::Int64::instance()->size()));
@@ -1291,7 +1291,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> bytes = thread.heap().getBytes
                                 (offset, static_cast<uint32_t>(wasm_module::Float32::instance()->size()));
@@ -1307,7 +1307,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(0));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().back())
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         std::vector<uint8_t> bytes = thread.heap().getBytes
                                 (offset, static_cast<uint32_t>(wasm_module::Float64::instance()->size()));
@@ -1324,7 +1324,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(state.state()));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, {value.data().at(0)});
@@ -1338,7 +1338,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(state.state()));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, {value.data().at(0), value.data().at(1)});
@@ -1352,7 +1352,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(state.state()));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, {value.data().at(0)});
@@ -1366,7 +1366,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(state.state()));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, {value.data().at(0), value.data().at(1)});
@@ -1380,7 +1380,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(state.state()));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, {value.data().at(0), value.data().at(1), value.data().at(2), value.data().at(3)});
@@ -1397,7 +1397,7 @@ namespace wasmint {
                         return StepResult(instruction.children().at(state.state()));
                     default:
                         uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().at(0))
-                                          + static_cast<LoadStoreInstruction&>(instruction).offset();
+                                          + static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                         wasm_module::Variable value = state.results().at(1);
                         thread.heap().setBytes(offset, value.data());
@@ -2277,7 +2277,7 @@ namespace wasmint {
         }
     }
 
-    bool InstructionExecutor::handleSignal(wasm_module::Instruction &instruction, InstructionState &currentState, StepResult& stepResult) {
+    bool InstructionExecutor::handleSignal(const wasm_module::Instruction &instruction, InstructionState &currentState, StepResult& stepResult) {
 
         Signal signal = stepResult.signal();
         if (signal == Signal::Branch) {

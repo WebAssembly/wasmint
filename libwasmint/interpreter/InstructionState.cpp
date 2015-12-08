@@ -21,6 +21,7 @@
 #include "InstructionExecutor.h"
 #include <types/Type.h>
 #include <iostream>
+#include <interpreter/MachineState.h>
 
 namespace wasmint {
 
@@ -79,5 +80,50 @@ namespace wasmint {
 
     InstructionState::InstructionState(wasm_module::Instruction *instruction, InstructionState* parent)
             : instruction_(instruction), parent_(parent) {
+    }
+
+    void InstructionState::serialize(ByteOutputStream& stream) const {
+        stream.writeUInt32(state_);
+        stream.writeVariable(result_);
+        stream.writeBool(finished_);
+
+        stream.writeUInt64(results_.size());
+        for (const wasm_module::Variable& var : results_) {
+            stream.writeVariable(var);
+        }
+
+        stream.writeInstructionAddress(instruction_->getAddress());
+        stream.writeVariable(branchValue_);
+        stream.writeBool(hasBranchValue_);
+
+        if (childInstruction) {
+            stream.writeBool(true);
+            childInstruction->serialize(stream);
+        } else {
+            stream.writeBool(false);
+        }
+    }
+
+    void InstructionState::setState(ByteInputStream& stream, MachineState& state) {
+        state_ = stream.getUInt32();
+        result_ = stream.getVariable();
+        finished_ = stream.getBool();
+
+        results_.clear();
+        uint64_t resultsSize = stream.getUInt64();
+        for (uint64_t i = 0; i < resultsSize; i++) {
+            results_.push_back(stream.getVariable());
+        }
+
+        wasm_module::InstructionAddress address = stream.getInstructionAddress();
+        instruction_ = state.getInstruction(address);
+
+        branchValue_ = stream.getVariable();
+        hasBranchValue_ = stream.getBool();
+
+        if (stream.getBool()) {
+            childInstruction = new InstructionState();
+            childInstruction->setState(stream, state);
+        }
     }
 }

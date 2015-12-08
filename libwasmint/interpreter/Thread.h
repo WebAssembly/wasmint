@@ -23,6 +23,9 @@
 #include <map>
 #include <Module.h>
 #include <Function.h>
+#include <serialization/ByteOutputStream.h>
+#include <serialization/Serializeable.h>
+#include <serialization/ByteInputStream.h>
 #include "Heap.h"
 #include "FunctionState.h"
 #include "InstructionState.h"
@@ -40,7 +43,7 @@ namespace wasmint {
     class MachineState;
     class InstructionState;
 
-    class Thread {
+    class Thread : public Serializeable {
 
         uint32_t stackLimit = 50;
 
@@ -48,13 +51,11 @@ namespace wasmint {
          * The stack containing the states of all called functions. The most recently called
          * function state is always on top of the stack.
          */
-        std::stack<FunctionState> stack;
+        std::vector<FunctionState> stack;
 
         MachineState& env_;
 
         InstructionState* currentInstructionState = nullptr;
-
-        uint32_t weight_ = 1;
 
         std::map<std::string, Heap> heapsByModuleName_;
 
@@ -72,18 +73,22 @@ namespace wasmint {
             return stack.size();
         }
 
+        void setState(ByteInputStream& stream);
+
+        bool finished() const;
+
         /**
          * Leave the last entered function
          */
         void leaveFunction() {
-            stack.pop();
+            if (stack.empty())
+                throw std::domain_error("Can't leave function. Stack is empty!");
+            stack.resize(stack.size() - 1);
         }
 
         void step();
 
         void stepUntilFinished();
-
-        void stepRoundRobin();
 
         Heap&heap();
 
@@ -92,24 +97,18 @@ namespace wasmint {
         InstructionState & getInstructionState();
 
         wasm_module::Variable& variable(uint32_t index) {
-            return stack.top().variable(index);
+            return stack.back().variable(index);
         }
 
         const std::vector<wasm_module::Variable>& locals() {
-            return stack.top().variables();
+            return stack.back().variables();
         }
 
         MachineState & runtimeEnvironment() {
             return env_;
         }
 
-        uint32_t weight() const {
-            return weight_;
-        }
-
-        void weight(uint32_t weight) {
-            this->weight_ = weight;
-        }
+        virtual void serialize(ByteOutputStream& stream) const override;
     };
 
     extern thread_local Thread* currentThread_;

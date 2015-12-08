@@ -65,10 +65,10 @@ namespace wasmint {
             for (auto& parameter : parameters) {
                 types.push_back(&parameter.type());
             }
-            stack.push(FunctionState(*func, types));
+            stack.push_back(FunctionState(*func, types));
         } else {
             // We push the new locals to the stack before entering.
-            stack.push(FunctionState(*func));
+            stack.push_back(FunctionState(*func));
         }
 
         for (uint32_t i = 0; i < parameters.size(); i++) {
@@ -108,18 +108,6 @@ namespace wasmint {
             delete currentInstructionState;
     }
 
-    void Thread::stepRoundRobin() {
-        FloatingPointGuard floatingPointGuard;
-        if (currentInstructionState) {
-            for (uint32_t i = 0; i < weight_; i++) {
-                if (currentInstructionState->finished()) {
-                    return;
-                }
-                stepInternal();
-            }
-        }
-    }
-
     Heap &Thread::getHeap(const wasm_module::Module& module) {
         auto iter = heapsByModuleName_.find(module.name());
         if (iter != heapsByModuleName_.end()) {
@@ -130,7 +118,7 @@ namespace wasmint {
     }
 
     Heap &Thread::heap() {
-        getHeap(stack.top().module());
+        getHeap(stack.back().module());
     }
 
     void Thread::stepInternal() {
@@ -148,4 +136,55 @@ namespace wasmint {
         }
     }
 
+    void Thread::serialize(ByteOutputStream& stream) const {
+        stream.writeUInt32(stackLimit);
+
+        stream.writeUInt64(stack.size());
+        for (const FunctionState& functionState : stack) {
+            functionState.serialize(stream);
+        }
+
+        if (currentInstructionState) {
+            stream.writeBool(true);
+            currentInstructionState->serialize(stream);
+        } else {
+            stream.writeBool(false);
+        }
+
+        stream.writeUInt64(heapsByModuleName_.size());
+        for (auto& pair : heapsByModuleName_) {
+            stream.writeStr(pair.first);
+            pair.second.serialize(stream);
+        }
+    }
+
+    void Thread::setState(ByteInputStream& stream) {
+        stackLimit = stream.getUInt32();
+
+        uint64_t stackSize = stream.getUInt64();
+
+        for (std::uint64_t i = 0; i < stackSize; i++) {
+            FunctionState functionState;
+            functionState.setState(stream);
+        }
+
+        if (stream.getBool()) {
+            currentInstructionState = new InstructionState();
+            currentInstructionState->setState(stream, env_);
+        }
+
+        uint64_t numberOfHeaps = stream.getUInt64();
+        for (uint64_t i = 0; i < numberOfHeaps; i++) {
+            std::string moduleName = stream.getString();
+            Heap& heap = heapsByModuleName_[moduleName] = Heap();
+            heap.setState(stream);
+        }
+    }
+
+    bool Thread::finished() const {
+        if (currentInstructionState) {
+            return currentInstructionState->finished();
+        }
+        return false;
+    }
 }

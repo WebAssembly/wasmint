@@ -38,10 +38,23 @@ namespace wasm_module {
             return functionName_;
         }
 
-        const std::vector<std::size_t> childrenIndized() const {
+        const std::vector<std::size_t>& childrenIndized() const {
             return childrenIndizes_;
         }
 
+        bool operator==(const InstructionAddress& other) const {
+            if (other.moduleName() != moduleName_)
+                return false;
+            if (other.functionName() != functionName_)
+                return false;
+            if (other.childrenIndized().size() != childrenIndizes_.size())
+                return false;
+            for (std::size_t i = 0; i < childrenIndizes_.size(); i++) {
+                if (other.childrenIndized()[i] != childrenIndizes_[i])
+                    return false;
+            }
+            return true;
+        }
     };
 }
 

@@ -33,6 +33,7 @@ namespace wasm_module {
 
     class ModuleContext;
     class FunctionContext;
+    class Function;
 
     ExceptionMessage(IncompatibleChildReturnType)
     ExceptionMessage(IncompatibleNumberOfChildren)
@@ -45,6 +46,7 @@ namespace wasm_module {
 
         std::vector<Instruction *> children_;
         const Instruction* parent_ = nullptr;
+        const Function* function_ = nullptr;
 
     protected:
 
@@ -167,10 +169,18 @@ namespace wasm_module {
             return parent_ != nullptr;
         }
 
-        InstructionAddress getAddress(const std::string& moduleName, const std::string& functionName) const;
+        InstructionAddress getAddress() const;
 
         const BranchInformation* branchInformation() const {
             return nullptr;
+        }
+
+        const Function* function() const {
+            return function_;
+        }
+
+        void function(const Function* function) {
+            function_ = function;
         }
     };
 }

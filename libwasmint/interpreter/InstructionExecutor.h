@@ -29,9 +29,9 @@ namespace wasmint {
     class InstructionExecutor {
 
     public:
-        static StepResult execute(wasm_module::Instruction &instruction, Thread &thread);
+        static StepResult execute(const wasm_module::Instruction &instruction, Thread &thread);
 
-        static bool handleSignal(wasm_module::Instruction &instruction, InstructionState &currentState, StepResult& stepResult);
+        static bool handleSignal(const wasm_module::Instruction &instruction, InstructionState &currentState, StepResult& stepResult);
     };
 
 }

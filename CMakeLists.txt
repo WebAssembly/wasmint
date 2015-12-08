@@ -44,7 +44,7 @@ add_library(libwasmint
         libwasmint/builtins/AssertModule.cpp
         libwasmint/serialization/ByteOutputStream.cpp
         libwasmint/serialization/ByteInputStream.cpp
-)
+        libwasmint/serialization/Serializeable.cpp)
 
 
 ###########################

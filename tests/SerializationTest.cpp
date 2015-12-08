@@ -38,6 +38,16 @@ int main() {
     Variable varVoid = Variable::Void();
     Variable varBool = Variable::createBool(true);
 
+    std::string str1 = "long test string";
+    std::string str2 = "";
+    std::string str3 = "FUUUUU";
+    str3.push_back(0);
+    str3.push_back('a');
+
+    InstructionAddress instructionAddress("module", "function", {0, 4, 44});
+
+    std::vector<uint8_t> testBytes = {2, 45, 34};
+
     std::vector<uint8_t> memory;
 
     ByteOutputStream outputStream(memory);
@@ -51,12 +61,25 @@ int main() {
     outputStream.writeUInt64(uint64_testvalue / 2);
     outputStream.writeUInt64(uint64_testvalue);
     outputStream.writeInt64(int64_testvalue);
+
     outputStream.writeVariable(varUint32);
     outputStream.writeVariable(varUint64);
     outputStream.writeVariable(varFloat32);
     outputStream.writeVariable(varFloat64);
     outputStream.writeVariable(varVoid);
     outputStream.writeVariable(varBool);
+
+    outputStream.writeStr(str1);
+    outputStream.writeStr(str2);
+    outputStream.writeStr(str3);
+
+    outputStream.writeBool(true);
+    outputStream.writeBool(false);
+
+    outputStream.writeInstructionAddress(instructionAddress);
+
+    outputStream.writeBytes(testBytes);
+
 
     assert(inputStream.getByte() == 1);
     assert(inputStream.getByte() == 3);
@@ -66,6 +89,7 @@ int main() {
     assert(inputStream.getUInt64() == uint64_testvalue / 2);
     assert(inputStream.getUInt64() == uint64_testvalue);
     assert(inputStream.getInt64() == int64_testvalue);
+
     assert(inputStream.getVariable() == varUint32);
     assert(inputStream.getVariable() == varUint64);
     assert(inputStream.getVariable() == varFloat32);
@@ -73,4 +97,19 @@ int main() {
     assert(inputStream.getVariable() == varVoid);
     assert(inputStream.getVariable() == varBool);
 
+    assert(inputStream.getString() == str1);
+    assert(inputStream.getString() == str2);
+    assert(inputStream.getString() == str3);
+
+    assert(inputStream.getBool() == true);
+    assert(inputStream.getBool() == false);
+
+    assert(inputStream.getInstructionAddress() == instructionAddress);
+
+    std::vector<uint8_t> loadedBytes = inputStream.getBytes();
+
+    assert(loadedBytes.size() == testBytes.size());
+    for (std::size_t i = 0; i < loadedBytes.size(); i++) {
+        assert(loadedBytes[i] == testBytes[i]);
+    }
 }

@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <vector>
 #include <Variable.h>
+#include <instructions/InstructionAddress.h>
 
 namespace wasmint {
 
@@ -72,6 +73,42 @@ namespace wasmint {
         }
 
         wasm_module::Variable getVariable();
+
+        std::string getString() {
+            std::string result;
+            uint64_t size = getUInt64();
+            result.reserve(size);
+            for (std::size_t i = 0; i < size; i++) {
+                result.push_back((char) getByte());
+            }
+            return result;
+        }
+
+        std::vector<uint8_t> getBytes() {
+            std::vector<uint8_t> result;
+            uint64_t size = getUInt64();
+            result.reserve(size);
+            for (std::size_t i = 0; i < size; i++) {
+                result.push_back(getByte());
+            }
+            return result;
+        }
+
+        bool getBool() {
+            return getByte() != 0;
+        }
+
+        wasm_module::InstructionAddress getInstructionAddress() {
+            std::string module = getString();
+            std::string functionName = getString();
+
+            std::vector<std::size_t> indizes;
+            uint64_t indizesSize = getUInt64();
+            for (uint64_t i = 0; i < indizesSize; i++) {
+                indizes.push_back(getUInt64());
+            }
+            return wasm_module::InstructionAddress(module, functionName, indizes);
+        }
     };
 
 }

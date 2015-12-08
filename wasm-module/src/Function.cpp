@@ -24,6 +24,10 @@ namespace wasm_module {
 
     Function::Function(FunctionContext &context, Instruction *mainInstruction)
             : FunctionContext(context), mainInstruction_(mainInstruction) {
+        mainInstruction->function(this);
+        mainInstruction->foreachChild([&](Instruction* child) {
+            child->function(this);
+        });
     }
 
     Function::~Function() {

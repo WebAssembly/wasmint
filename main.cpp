@@ -79,6 +79,7 @@ int main(int argc, char** argv) {
 
             try {
                 m = binary::ModuleParser::parse(stream);
+                m->name(modulePath);
             } catch (const std::exception& e) {
                 std::cerr << "Got exception while parsing binary module "
                 << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"

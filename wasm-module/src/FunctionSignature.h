@@ -53,7 +53,7 @@ namespace wasm_module {
             return name_;
         }
 
-        const std::string& module() const {
+        const std::string& moduleName() const {
             return moduleName_;
         }
 

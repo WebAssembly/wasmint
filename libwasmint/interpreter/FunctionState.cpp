@@ -31,4 +31,18 @@ namespace wasmint {
             variables_.push_back(wasm_module::Variable(type));
         }
     }
+
+    void FunctionState::setState(ByteInputStream& stream) {
+        uint64_t numberOfVariables = stream.getUInt64();
+        for (uint64_t i = 0; i < numberOfVariables; i++) {
+            variables_.push_back(stream.getVariable());
+        }
+    }
+
+    void FunctionState::serialize(ByteOutputStream& stream) const {
+        stream.writeUInt64(variables_.size());
+        for (std::size_t i = 0; i < variables_.size(); i++) {
+            stream.writeVariable(variables_[i]);
+        }
+    }
 }

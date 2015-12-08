@@ -24,6 +24,8 @@
 #include <ExceptionWithMessage.h>
 #include <HeapData.h>
 #include <string.h>
+#include <serialization/Serializeable.h>
+#include <serialization/ByteInputStream.h>
 
 namespace wasmint {
 
@@ -31,7 +33,7 @@ namespace wasmint {
 
     ExceptionMessage(OutOfBounds)
 
-    class Heap {
+    class Heap : public Serializeable {
 
         std::vector<uint8_t> data_;
 
@@ -56,6 +58,8 @@ namespace wasmint {
             }
 
         }
+
+        void setState(ByteInputStream& stream);
 
         uint8_t getByte(std::size_t pos) {
             return data_.at(pos);
@@ -126,6 +130,9 @@ namespace wasmint {
         std::size_t size() const {
             return data_.size();
         }
+
+
+        virtual void serialize(ByteOutputStream& stream) const override;
     };
 
 }

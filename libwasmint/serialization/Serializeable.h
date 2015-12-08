@@ -15,16 +15,20 @@
  */
 
 
+#ifndef WASMINT_SERIALIZEABLE_H
+#define WASMINT_SERIALIZEABLE_H
 
-#include "Heap.h"
+#include "ByteOutputStream.h"
 
 namespace wasmint {
+    class Serializeable {
 
-    void Heap::serialize(ByteOutputStream& stream) const {
-        stream.writeBytes(data_);
-    }
+        virtual void serialize(ByteOutputStream& stream) const = 0;
 
-    void Heap::setState(ByteInputStream& stream) {
-        data_ = stream.getBytes();
-    }
+    };
 }
+
+
+
+
+#endif //WASMINT_SERIALIZEABLE_H

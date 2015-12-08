@@ -14,43 +14,46 @@
  * limitations under the License.
  */
 
+
 #include <cstdint>
-#include <binary_parsing/ByteStream.h>
 #include <Module.h>
-#include <binary_parsing/ModuleParser.h>
-#include <cassert>
 #include <types/Int32.h>
+#include <interpreter/MachineState.h>
 #include <sexpr_parsing/CharacterStream.h>
 #include <sexpr_parsing/SExprParser.h>
 #include <sexpr_parsing/ModuleParser.h>
-#include <instructions/InstructionAddress.h>
+#include <interpreter/Thread.h>
+#include <assert.h>
 
 using namespace wasm_module;
 using namespace wasm_module::sexpr;
+using namespace wasmint;
 
 int main() {
-    std::string str =
-        "(module \n"
-        "    (func $main (param)\n"
-        "        (i32.add (i32.const 1) (i32.sub (i32.const 2) (i32.const 3)))\n"
-        "    )\n"
-        ")";
+    std::vector<uint8_t> memory;
 
-    CharacterStream stream(str);
+    MachineState environment;
 
-    SExprParser parser(stream);
+    Module* module = ModuleParser::parse("module (func main (if_else (i32.sub (i32.const 1) (i32.const 1)) (unreachable) (i32.add (i32.const 1) (i32.const 3))))");
 
-    SExpr expr = parser.parse();
+    environment.useModule(*module, false);
 
-    Module& module = *ModuleParser::parse(expr[0]);
+    Thread& thread = environment.createThread().startAtFunction(module->name(), "main");
 
-    module.functions().front()->mainInstruction()->foreachChild([&](Instruction* instruction){
-        InstructionAddress address = instruction->getAddress();
+    while (!thread.finished()) {
+        thread.step();
 
-        const Instruction* instructionToTest = module.functions().front()->instruction(address);
-        assert(instructionToTest == instruction);
-    });
+        ByteOutputStream outputStream(memory);
+        memory.clear();
+        environment.serialize(outputStream);
 
+        environment = MachineState();
+        environment.useModule(*module, false);
 
-    delete &module;
+        ByteInputStream inputStream(memory);
+        environment.setState(inputStream);
+    }
+
+    delete module;
+
 }

@@ -56,6 +56,7 @@ namespace wasm_module {
                 throw FunctionWithoutModule();
             return *module_;
         }
+        
 
         void module(Module* module) {
             this->module_ = module;

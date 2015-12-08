@@ -15,16 +15,4 @@
  */
 
 
-
-#include "Heap.h"
-
-namespace wasmint {
-
-    void Heap::serialize(ByteOutputStream& stream) const {
-        stream.writeBytes(data_);
-    }
-
-    void Heap::setState(ByteInputStream& stream) {
-        data_ = stream.getBytes();
-    }
-}
+#include "Serializeable.h"

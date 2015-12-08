@@ -26,7 +26,11 @@
 #include <stack>
 #include <map>
 #include <Module.h>
+#include <serialization/ByteInputStream.h>
+#include <serialization/ByteOutputStream.h>
+#include <serialization/Serializeable.h>
 #include "Heap.h"
+#include "Thread.h"
 
 namespace wasmint {
 
@@ -36,7 +40,7 @@ namespace wasmint {
 
     class Thread;
 
-    class MachineState {
+    class MachineState : public Serializeable {
 
         // FIXME Use smart pointers if possible...
         std::vector<Thread *> threads_;
@@ -48,6 +52,8 @@ namespace wasmint {
     public:
         MachineState()  {
         }
+
+        void setState(ByteInputStream& stream);
 
         virtual ~MachineState();
 
@@ -67,6 +73,10 @@ namespace wasmint {
         wasm_module::Function& getFunction(const std::string& moduleName, const std::string& functionName) {
             return getModule(moduleName).getFunction(functionName);
         }
+
+        virtual void serialize(ByteOutputStream& stream) const override;
+
+        const wasm_module::Instruction* getInstruction(const wasm_module::InstructionAddress& address);
     };
 
 }

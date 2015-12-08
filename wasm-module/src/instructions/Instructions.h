@@ -720,7 +720,7 @@ namespace wasm_module {
             return InstructionId::NativeInstruction;
         }
 
-        Variable call(std::vector<Variable> parameters) {
+        Variable call(std::vector<Variable> parameters) const {
             return internalFunction_(parameters);
         }
     };
@@ -730,7 +730,7 @@ namespace wasm_module {
         std::string literalValueStr_;
         Variable literalValue_;
     public:
-        Variable literalValue() {
+        Variable literalValue() const {
             return literalValue_;
         }
 
@@ -972,7 +972,7 @@ namespace wasm_module {
         std::string featureName_;
 
     public:
-        std::string featureName() {
+        std::string featureName() const {
             return featureName_;
         }
 

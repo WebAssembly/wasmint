@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <vector>
 #include <Variable.h>
+#include <instructions/InstructionAddress.h>
 
 namespace wasmint {
 
@@ -50,6 +51,35 @@ namespace wasmint {
 
         void writeVariable(const wasm_module::Variable& variable);
 
+        void writeBool(bool b) {
+            if (b)
+                writeByte(1);
+            else
+                writeByte(0);
+        }
+
+        void writeStr(const std::string& str) {
+            writeUInt64(str.size());
+            for (char c : str) {
+                writeByte((uint8_t) c);
+            }
+        }
+
+        void writeBytes(const std::vector<uint8_t> bytes) {
+            writeUInt64(bytes.size());
+            for (uint8_t c : bytes) {
+                writeByte(c);
+            }
+        }
+
+        void writeInstructionAddress(const wasm_module::InstructionAddress& address) {
+            writeStr(address.moduleName());
+            writeStr(address.functionName());
+            writeUInt64(address.childrenIndized().size());
+            for (std::size_t index : address.childrenIndized()) {
+                writeUInt64(index);
+            }
+        }
     };
 }
 

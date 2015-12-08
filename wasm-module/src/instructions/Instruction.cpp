@@ -19,6 +19,8 @@
 #include "Instruction.h"
 #include "UnreachableValidator.h"
 #include "InstructionAddress.h"
+#include <Function.h>
+#include <Module.h>
 
 namespace wasm_module {
 
@@ -44,7 +46,7 @@ namespace wasm_module {
         secondStepEvaluate(context, functionContext);
     }
 
-    InstructionAddress Instruction::getAddress(const std::string& moduleName, const std::string& functionName) const {
+    InstructionAddress Instruction::getAddress() const {
         std::vector<size_t> childrenIndizes;
 
         const Instruction* childInstruction = this;
@@ -54,7 +56,7 @@ namespace wasm_module {
             return true;
         });
 
-        return InstructionAddress(moduleName, functionName, childrenIndizes);
+        return InstructionAddress(function()->moduleName(), function_->name(), childrenIndizes);
     }
 
     std::size_t Instruction::getChildIndex(const Instruction* instruction) const {

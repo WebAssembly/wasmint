@@ -117,6 +117,10 @@ namespace wasm_module {
             return context_.name();
         }
 
+        void name(const std::string& name) {
+            context_.name(name);
+        }
+
         OpcodeTable& opcodeTable() {
             return context_.opcodeTable();
         }
