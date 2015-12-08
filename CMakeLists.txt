@@ -29,21 +29,21 @@ endif()
 ###########################
 
 include_directories(wasm-module/src)
-include_directories (lib)
+include_directories (libwasmint)
 
-add_library(core
-    lib/interpreter/Thread.cpp
-    lib/interpreter/FunctionState.cpp
-    lib/interpreter/InstructionState.cpp
-    lib/interpreter/MachineState.cpp
-    lib/interpreter/InstructionExecutor.cpp
-    lib/interpreter/Heap.cpp
-    lib/interpreter/StepResult.cpp
-    lib/builtins/StdioModule.cpp
-    lib/builtins/SDLModule.cpp
-    lib/builtins/AssertModule.cpp
-    lib/serialization/ByteOutputStream.cpp
-    lib/serialization/ByteInputStream.cpp
+add_library(libwasmint
+        libwasmint/interpreter/Thread.cpp
+        libwasmint/interpreter/FunctionState.cpp
+        libwasmint/interpreter/InstructionState.cpp
+        libwasmint/interpreter/MachineState.cpp
+        libwasmint/interpreter/InstructionExecutor.cpp
+        libwasmint/interpreter/Heap.cpp
+        libwasmint/interpreter/StepResult.cpp
+        libwasmint/builtins/StdioModule.cpp
+        libwasmint/builtins/SDLModule.cpp
+        libwasmint/builtins/AssertModule.cpp
+        libwasmint/serialization/ByteOutputStream.cpp
+        libwasmint/serialization/ByteInputStream.cpp
 )
 
 
@@ -51,8 +51,8 @@ add_library(core
 #      Interpreter        #
 ###########################
 
-add_executable(wasmint main.cpp lib/serialization/ByteOutputStream.cpp lib/serialization/ByteInputStream.cpp lib/serialization/ByteInputStream.h)
-target_link_libraries(wasmint core wasm-module)
+add_executable(wasmint main.cpp)
+target_link_libraries(wasmint libwasmint wasm-module)
 
 if (SDL2_FOUND AND SDL2_IMAGE_FOUND)
     target_link_libraries(wasmint ${SDL2_LIBRARY}
@@ -73,7 +73,7 @@ file(GLOB TEST_FILES "tests/*Test.cpp")
 foreach(TEST_FILE ${TEST_FILES})
   get_filename_component(BASENAME ${TEST_FILE} NAME_WE)
   add_executable(${BASENAME} ${TEST_FILE})
-  target_link_libraries(${BASENAME} core wasm-module)
+  target_link_libraries(${BASENAME} libwasmint wasm-module)
   add_test(${BASENAME} ${BASENAME})
 endforeach()
 
@@ -103,7 +103,7 @@ add_library(fuzzing_common
 ####################
 
 add_executable(mutation_fuzzer tests/fuzzing/mutation_based/mutation_fuzzer.cpp)
-target_link_libraries(mutation_fuzzer core wasm-module fuzzing_common)
+target_link_libraries(mutation_fuzzer libwasmint wasm-module fuzzing_common)
 add_test(NAME mutation_fuzzing COMMAND ./mutation_fuzzer)
 
 ####################
@@ -135,7 +135,7 @@ find_package(Curses)
 if(${Boost_FOUND})
     include_directories(${CURSES_INCLUDE_DIR})
 
-    add_executable(wasmdbg wasmdbg/main.cpp)
+    add_executable(wasmdbg_src wasmdbg_src/main.cpp)
 
-    target_link_libraries(wasmdbg core wasm-module ${CURSES_LIBRARIES})
+    target_link_libraries(wasmdbg_src libwasmint wasm-module ${CURSES_LIBRARIES})
 endif()
