@@ -126,7 +126,7 @@ find_package(Boost COMPONENTS system filesystem)
 
 if(${Boost_FOUND})
     INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-    add_executable(testsuite_converter testsuite-converter/main.cpp)
+    add_executable(testsuite_converter wast-converter/main.cpp)
     target_link_libraries(testsuite_converter wasm-module ${Boost_LIBRARIES})
 endif()
 
