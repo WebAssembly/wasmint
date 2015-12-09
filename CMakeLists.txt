@@ -32,19 +32,23 @@ include_directories(wasm-module/src)
 include_directories (libwasmint)
 
 add_library(libwasmint
-        libwasmint/interpreter/Thread.cpp
-        libwasmint/interpreter/FunctionState.cpp
-        libwasmint/interpreter/InstructionState.cpp
-        libwasmint/interpreter/MachineState.cpp
-        libwasmint/interpreter/InstructionExecutor.cpp
-        libwasmint/interpreter/Heap.cpp
-        libwasmint/interpreter/StepResult.cpp
-        libwasmint/builtins/StdioModule.cpp
-        libwasmint/builtins/SDLModule.cpp
-        libwasmint/builtins/AssertModule.cpp
-        libwasmint/serialization/ByteOutputStream.cpp
-        libwasmint/serialization/ByteInputStream.cpp
-        libwasmint/serialization/Serializeable.cpp)
+    libwasmint/builtins/StdioModule.cpp
+    libwasmint/builtins/SDLModule.cpp
+    libwasmint/builtins/AssertModule.cpp
+
+    libwasmint/interpreter/Thread.cpp
+    libwasmint/interpreter/FunctionState.cpp
+    libwasmint/interpreter/InstructionState.cpp
+    libwasmint/interpreter/MachineState.cpp
+    libwasmint/interpreter/InstructionExecutor.cpp
+    libwasmint/interpreter/Heap.cpp
+    libwasmint/interpreter/StepResult.cpp
+    libwasmint/interpreter/HeapPatch.cpp
+
+    libwasmint/serialization/ByteOutputStream.cpp
+    libwasmint/serialization/ByteInputStream.cpp
+    libwasmint/serialization/Serializeable.cpp
+)
 
 
 ###########################
@@ -69,7 +73,7 @@ enable_testing()
 #    Unit tests    #
 ####################
 
-file(GLOB TEST_FILES "tests/*Test.cpp")
+file(GLOB TEST_FILES "libwasmint/tests/*Test.cpp")
 foreach(TEST_FILE ${TEST_FILES})
   get_filename_component(BASENAME ${TEST_FILE} NAME_WE)
   add_executable(${BASENAME} ${TEST_FILE})
@@ -81,7 +85,7 @@ endforeach()
 #  Test programs   #
 ####################
 
-file(GLOB TEST_WAST_FILES "tests/wast_tests/*.wast")
+file(GLOB TEST_WAST_FILES "libwasmint/tests/wast_tests/*.wast")
 foreach(TEST_WAST_FILE ${TEST_WAST_FILES})
     get_filename_component(BASENAME ${TEST_WAST_FILE} NAME)
     add_test(NAME ${BASENAME} COMMAND ./wasmint ${TEST_WAST_FILE})
@@ -92,9 +96,9 @@ endforeach()
 ####################
 
 add_library(fuzzing_common
-    tests/fuzzing/common/SExprExecutor.cpp
-    tests/fuzzing/common/DataRescuer.cpp
-    tests/fuzzing/generation_based/SmartSExprGenerator.cpp
+        libwasmint/tests/fuzzing/common/SExprExecutor.cpp
+        libwasmint/tests/fuzzing/common/DataRescuer.cpp
+        libwasmint/tests/fuzzing/generation_based/SmartSExprGenerator.cpp
 )
 
 
@@ -102,7 +106,7 @@ add_library(fuzzing_common
 # Mutation fuzzer  #
 ####################
 
-add_executable(mutation_fuzzer tests/fuzzing/mutation_based/mutation_fuzzer.cpp)
+add_executable(mutation_fuzzer libwasmint/tests/fuzzing/mutation_based/mutation_fuzzer.cpp)
 target_link_libraries(mutation_fuzzer libwasmint wasm-module fuzzing_common)
 add_test(NAME mutation_fuzzing COMMAND ./mutation_fuzzer)
 
@@ -121,7 +125,7 @@ configure_file(testValgrind.sh testValgrind.sh COPYONLY)
 find_package(Boost COMPONENTS system filesystem)
 
 if(${Boost_FOUND})
-    INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR} )
+    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
     add_executable(testsuite_converter testsuite-converter/main.cpp)
     target_link_libraries(testsuite_converter wasm-module ${Boost_LIBRARIES})
 endif()

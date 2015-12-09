@@ -17,6 +17,7 @@
 
 
 #include "Heap.h"
+#include "HeapPatch.h"
 
 namespace wasmint {
 
@@ -26,5 +27,24 @@ namespace wasmint {
 
     void Heap::setState(ByteInputStream& stream) {
         data_ = stream.getBytes();
+    }
+
+    void Heap::applyPatch(const HeapPatch& patch) {
+        if (patch.onlyChangesMemory()) {
+            setBytes(patch.position(), patch.data());
+        } else {
+            if (patch.memorySizeGrows()) {
+                grow(patch.memorySizeDiff());
+                setBytes(patch.position(), patch.data());
+            } else {
+                shrink(patch.memorySizeDiff());
+            }
+        }
+    }
+
+    bool Heap::operator==(const Heap& other) const {
+        if (other.size() != size())
+            return false;
+        return memcmp(other.data_.data(), data_.data(), size()) == 0;
     }
 }
