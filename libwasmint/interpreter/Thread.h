@@ -45,7 +45,7 @@ namespace wasmint {
 
     class Thread : public Serializeable {
 
-        uint32_t stackLimit = 50;
+        uint32_t stackLimit = 5000;
 
         /**
          * The stack containing the states of all called functions. The most recently called
@@ -94,7 +94,7 @@ namespace wasmint {
 
         Heap& getHeap(const wasm_module::Module& module);
 
-        InstructionState & getInstructionState();
+        InstructionState& getInstructionState();
 
         wasm_module::Variable& variable(uint32_t index) {
             return stack.back().variable(index);

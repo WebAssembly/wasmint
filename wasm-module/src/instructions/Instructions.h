@@ -246,9 +246,7 @@ namespace wasm_module {
         }
 
         virtual const Type* returnType() const override {
-            if (children().size() != 2)
-                throw std::domain_error("'if' without child instructions has no return type");
-            return children()[1]->returnType();
+            return Void::instance();
         }
 
         virtual bool typeCheckChildren() const override {

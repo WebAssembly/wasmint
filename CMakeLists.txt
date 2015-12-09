@@ -143,3 +143,20 @@ if(${Boost_FOUND})
 
     target_link_libraries(wasmdbg libwasmint wasm-module ${CURSES_LIBRARIES})
 endif()
+
+###########################
+#    Performance tests    #
+###########################
+
+add_executable(printQuicksortSource libwasmint/tests/performance/printProgram.cpp)
+
+add_executable(wasmint_perf main.cpp)
+target_link_libraries(wasmint_perf libwasmint wasm-module)
+
+if (SDL2_FOUND AND SDL2_IMAGE_FOUND)
+    target_link_libraries(wasmint_perf ${SDL2_LIBRARY}
+            ${SDL2_IMAGE_LIBRARIES})
+endif()
+
+set_target_properties(wasmint_perf PROPERTIES COMPILE_FLAGS "-pg")
+

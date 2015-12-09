@@ -99,7 +99,7 @@ namespace wasmint {
     }
 
     Thread &Thread::startAtFunction(std::string moduleName, std::string functionName, std::vector<wasm_module::Variable> parameters) {
-        currentInstructionState = new InstructionState(callFunction(moduleName, functionName, parameters));
+        currentInstructionState = new InstructionState(*this, callFunction(moduleName, functionName, parameters));
         return *this;
     }
 
@@ -169,7 +169,7 @@ namespace wasmint {
         }
 
         if (stream.getBool()) {
-            currentInstructionState = new InstructionState();
+            currentInstructionState = new InstructionState(*this);
             currentInstructionState->setState(stream, env_);
         }
 

@@ -50,9 +50,10 @@ namespace wasmint {
         wasm_module::Variable branchValue_;
         bool hasBranchValue_ = false;
         InstructionState* childInstruction = nullptr;
+        Thread* thread_ = nullptr;
 
     public:
-        InstructionState(wasm_module::Instruction *instruction = nullptr, InstructionState* parent = nullptr);
+        InstructionState(Thread& thread_, wasm_module::Instruction *instruction = nullptr, InstructionState* parent = nullptr);
 
         virtual ~InstructionState();
 

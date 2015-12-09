@@ -53,7 +53,7 @@ namespace wasmint {
         } else {
             StepResult result = InstructionExecutor::execute(*instruction(), thread);
             if (result.newChildInstruction()) {
-                childInstruction = new InstructionState(result.newChildInstruction(), this);
+                childInstruction = new InstructionState(*thread_, result.newChildInstruction(), this);
                 //TODO std::cout << "Entering " << result.newChildInstruction()->toSExprString() << std::endl;
             } else if (result.signal() != Signal::None) {
                 //TODO std::cout << "Got Signal from " << instruction()->dataString() << std::endl;
@@ -78,8 +78,8 @@ namespace wasmint {
             delete childInstruction;
     }
 
-    InstructionState::InstructionState(wasm_module::Instruction *instruction, InstructionState* parent)
-            : instruction_(instruction), parent_(parent) {
+    InstructionState::InstructionState(Thread& thread, wasm_module::Instruction *instruction, InstructionState* parent)
+            : instruction_(instruction), parent_(parent), thread_(&thread) {
     }
 
     void InstructionState::serialize(ByteOutputStream& stream) const {
@@ -122,7 +122,7 @@ namespace wasmint {
         hasBranchValue_ = stream.getBool();
 
         if (stream.getBool()) {
-            childInstruction = new InstructionState();
+            childInstruction = new InstructionState(*this);
             childInstruction->setState(stream, state);
         }
     }
