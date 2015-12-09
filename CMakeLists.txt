@@ -148,6 +148,12 @@ endif()
 #    Performance tests    #
 ###########################
 
+# TODO only enable for the wasmint_perf executable
+
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pg")
+set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -pg")
+set(CMAKE_EXE_FLAGS  "${CMAKE_EXE_FLAGS} -pg")
+
 add_executable(printQuicksortSource libwasmint/tests/performance/printProgram.cpp)
 
 add_executable(wasmint_perf main.cpp)
@@ -158,5 +164,4 @@ if (SDL2_FOUND AND SDL2_IMAGE_FOUND)
             ${SDL2_IMAGE_LIBRARIES})
 endif()
 
-set_target_properties(wasmint_perf PROPERTIES COMPILE_FLAGS "-pg")
 
