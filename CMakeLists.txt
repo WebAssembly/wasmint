@@ -139,7 +139,7 @@ find_package(Curses)
 if(${Boost_FOUND})
     include_directories(${CURSES_INCLUDE_DIR})
 
-    add_executable(wasmdbg wasmdbg_src/main.cpp)
+    add_executable(wasmdbg debugger/main.cpp)
 
     target_link_libraries(wasmdbg libwasmint wasm-module ${CURSES_LIBRARIES})
 endif()
