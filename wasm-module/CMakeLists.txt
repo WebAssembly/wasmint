@@ -24,7 +24,7 @@ add_library(wasm-module
         src/ModuleContext.cpp
         src/HeapData.cpp
         src/HeapSegment.cpp
-        src/Utils.cpp
+        src/SafeAddition.cpp
         src/FunctionTypeTable.cpp
         src/FunctionType.cpp
 

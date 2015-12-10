@@ -27,6 +27,7 @@
 #include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
 #include "HeapPatch.h"
+#include "SafeAddition.h"
 
 namespace wasmint {
 
@@ -81,7 +82,7 @@ namespace wasmint {
             std::size_t oldSize = data_.size();
             std::size_t newSize;
 
-            if (__builtin_add_overflow(oldSize, size, &newSize)) {
+            if (safeSizeTAddition(oldSize, size, &newSize)) {
                 throw CantChangeHeapSize("Can't grow heap with size " + std::to_string(oldSize) + " by " + std::to_string(size) + " as this would cause a integer overflow");
             }
 
@@ -117,7 +118,7 @@ namespace wasmint {
             std::size_t end;
 
 
-            if (__builtin_add_overflow(offset, bytes.size(), &end)) {
+            if (safeSizeTAddition(offset, bytes.size(), &end)) {
                 throw OverFlowInHeapAccess(std::string("Offset ") + std::to_string(offset)
                                            + " + size " + std::to_string(bytes.size()));
             }
@@ -146,7 +147,7 @@ namespace wasmint {
 
             std::size_t end;
 
-            if (__builtin_add_overflow(offset, size, &end)) {
+            if (safeSizeTAddition(offset, size, &end)) {
                 throw OverFlowInHeapAccess(std::string("Offset ") + std::to_string(offset)
                                            + " + size " + std::to_string(size));
             }

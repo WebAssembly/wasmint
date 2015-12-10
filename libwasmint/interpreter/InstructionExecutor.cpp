@@ -23,6 +23,7 @@
 #include "MachineState.h"
 #include "../../wasm-module/src/instructions/InstructionId.h"
 #include "Thread.h"
+#include "SafeAddition.h"
 
 namespace wasmint {
 
@@ -1086,7 +1087,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
@@ -1111,7 +1112,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1131,7 +1132,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1157,7 +1158,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1176,7 +1177,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1196,7 +1197,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1222,7 +1223,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1242,7 +1243,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1268,7 +1269,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1288,7 +1289,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1315,7 +1316,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1336,7 +1337,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1356,7 +1357,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1376,7 +1377,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1397,7 +1398,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1415,7 +1416,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1433,7 +1434,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1451,7 +1452,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1469,7 +1470,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
@@ -1490,7 +1491,7 @@ namespace wasmint {
                             uint32_t offset = wasm_module::Int32::getUnsignedValue(state.results().front());
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
-                            if (__builtin_add_overflow(offset, staticOffset, &offset))
+                            if (safeUInt32Addition(offset, staticOffset, &offset))
                                 return Signal::AssertTrap;
 
 
