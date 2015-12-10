@@ -23,6 +23,8 @@ addons:
       - gcc-5
       - g++-5
       - clang-3.6
+      - valgrind
+      - libboost1.55-all-dev
 
 script:
   - cmake .
