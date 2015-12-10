@@ -232,12 +232,12 @@ namespace wasm_module {
     class If : public Instruction {
 
     public:
-        virtual const std::string& name() const {
+        virtual const std::string& name() const override {
             static std::string name_ = "if";
             return name_;
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::If;
         }
 
@@ -315,7 +315,7 @@ namespace wasm_module {
             return expectedType.front();
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::SetLocal;
         }
 
@@ -372,7 +372,7 @@ namespace wasm_module {
             return returnType_;
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::GetLocal;
         }
     };
@@ -388,7 +388,7 @@ namespace wasm_module {
 
     protected:
 
-        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext);
+        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) override;
 
     public:
         Block(binary::ByteStream &stream) {
@@ -415,12 +415,12 @@ namespace wasm_module {
             }
         }
 
-        virtual const std::string& name() const {
+        virtual const std::string& name() const override {
             static std::string name_ = "block";
             return name_;
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::Block;
         }
 
@@ -440,7 +440,7 @@ namespace wasm_module {
             return 1;
         }
 
-        virtual bool hasLabelName(const std::string& str) const {
+        virtual bool hasLabelName(const std::string& str) const override {
             return str == labelName_;
         }
     };
@@ -455,7 +455,7 @@ namespace wasm_module {
 
     protected:
 
-        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext);
+        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) override;
 
     public:
 
@@ -491,7 +491,7 @@ namespace wasm_module {
             return returnType_;
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::Loop;
         }
 
@@ -499,11 +499,11 @@ namespace wasm_module {
             return 2; // TODO this is just for ml-proto compat, increase to two somewhen
         }
 
-        virtual bool hasLabelName(const std::string& str) const {
+        virtual bool hasLabelName(const std::string& str) const override {
             return str == startLabelName_ || str == endLabelName_;
         }
 
-        virtual uint32_t labelIndex(const std::string& str) const {
+        virtual uint32_t labelIndex(const std::string& str) const override {
             if (str == startLabelName_)
                 return 1;
             if (str == endLabelName_)
@@ -520,7 +520,7 @@ namespace wasm_module {
 
     protected:
 
-        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext);
+        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) override;
 
     public:
 
@@ -544,7 +544,7 @@ namespace wasm_module {
             return returnType_;
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::Label;
         }
 
@@ -552,7 +552,7 @@ namespace wasm_module {
             return 1;
         }
 
-        virtual bool hasLabelName(const std::string& str) const {
+        virtual bool hasLabelName(const std::string& str) const override {
             return str == labelName_;
         }
     };
@@ -566,7 +566,7 @@ namespace wasm_module {
 
     protected:
 
-        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext);
+        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) override;
 
     public:
 
@@ -634,7 +634,7 @@ namespace wasm_module {
 
     protected:
 
-        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext);
+        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) override;
 
     public:
 
@@ -714,7 +714,7 @@ namespace wasm_module {
             return returnType_;
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::NativeInstruction;
         }
 
@@ -783,7 +783,7 @@ namespace wasm_module {
             return &literalValue_.type();
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             if (&literalValue_.type() == Int32::instance()) {
                 return InstructionId::I32Const;
             }
@@ -871,7 +871,7 @@ namespace wasm_module {
             return returnType_;
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::Case;
         }
 
@@ -919,7 +919,7 @@ namespace wasm_module {
 
     protected:
 
-        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext);
+        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) override;
 
     public:
 
@@ -943,7 +943,7 @@ namespace wasm_module {
             return returnType_;
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::TableSwitch;
         }
 
@@ -997,7 +997,7 @@ namespace wasm_module {
             return Int32::instance();
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::HasFeature;
         }
     };
@@ -1028,7 +1028,7 @@ namespace wasm_module {
             functionName = expr[1].value();
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::Call;
         }
 
@@ -1049,7 +1049,7 @@ namespace wasm_module {
             return false;
         }
 
-        virtual std::string dataString() const {
+        virtual std::string dataString() const override {
             return name() + " " + functionName;
         }
     };
@@ -1075,7 +1075,7 @@ namespace wasm_module {
             }
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::CallIndirect;
         }
 
@@ -1096,7 +1096,7 @@ namespace wasm_module {
             return false;
         }
 
-        virtual std::string dataString() const {
+        virtual std::string dataString() const override {
             return name();
         }
 
@@ -1138,7 +1138,7 @@ namespace wasm_module {
 
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::CallImport;
         }
 

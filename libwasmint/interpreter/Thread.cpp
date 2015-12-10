@@ -118,7 +118,7 @@ namespace wasmint {
     }
 
     Heap &Thread::heap() {
-        getHeap(stack.back().module());
+        return getHeap(stack.back().module());
     }
 
     void Thread::stepInternal() {
