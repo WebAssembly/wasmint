@@ -25,52 +25,61 @@
 
 namespace wasmint {
 
-    StepResult InstructionState::step(Thread &thread) {
-        if (childInstruction != nullptr) {
-            StepResult stepResult = childInstruction->step(thread);
-            if (childInstruction->finished()) {
-                results_.push_back(childInstruction->result());
-                delete childInstruction;
-                childInstruction = nullptr;
-            }
+    void InstructionState::step() {
+        if (unhandledSignal_)
+            throw std::domain_error("Cant step in a InstructionState with a unhandled signal");
+        if (finished_)
+            throw std::domain_error("Cant step in a finished InstructionState");
 
-            if (stepResult.signal() == Signal::Branch) {
-                if (InstructionExecutor::handleSignal(*instruction(), *this, stepResult)) {
-                    delete childInstruction;
-                    childInstruction = nullptr;
-                    return Signal::None;
-                }
-            }
-            if (stepResult.signal() == Signal::Return) {
-                if (!instruction()->hasParent()) {
-                    result_ = stepResult.result();
-                    finished_ = true;
-                    return Signal::None;
-                }
-            }
+        StepResult result = InstructionExecutor::execute(*instruction(), *thread_);
+        state_++;
 
-            return stepResult;
-        } else {
-            StepResult result = InstructionExecutor::execute(*instruction(), thread);
-            if (result.newChildInstruction()) {
-                childInstruction = new InstructionState(*thread_, result.newChildInstruction(), this);
-                //TODO std::cout << "Entering " << result.newChildInstruction()->toSExprString() << std::endl;
-            } else if (result.signal() != Signal::None) {
-                //TODO std::cout << "Got Signal from " << instruction()->dataString() << std::endl;
-                return result;
+        if (result.newChildInstruction()) {
+            childInstruction = new InstructionState(*thread_, result.newChildInstruction(), this);
+        } else if (result.signal() == Signal::Return || result.signal() == Signal::Branch) {
+            if (parent_) {
+                parent_->finishSignal(result);
             } else {
-                result_ = result.result();
-                if (!wasm_module::Type::typeCompatible(instruction()->returnType(), &result_.type())) {
-                    throw IncompatibleChildReturnType(instruction()->name() + " is supposed to return "
-                                                      + instruction()->returnType()->name() + " but returned "
-                                                      + result_.type().name());
-                }
-                //TODO std::cout << instruction()->toSExprString() << " : " << result_.toString() << std::endl;
-                finished_ = true;
+                unhandledSignal_ = true;
             }
-            state_++;
+        } else if (result.signal() == Signal::AssertTrap) {
+            unhandledSignal_ = true;
+        } else {
+            if (!wasm_module::Type::typeCompatible(instruction()->returnType(), &result.result().type())) {
+                throw IncompatibleChildReturnType(instruction()->name() + " is supposed to return "
+                                                  + instruction()->returnType()->name() + " but returned "
+                                                  + result.result().type().name());
+            }
+            finished_ = true;
+            if (parent_)
+                parent_->finishSignal(result);
         }
-        return Signal::None;
+    }
+
+    void InstructionState::finishSignal(StepResult result) {
+        results_.push_back(result.result());
+        delete childInstruction;
+        childInstruction = nullptr;
+        thread_->setCurrentInstructionState(this);
+
+        if (result.signal() == Signal::Branch) {
+            if (!InstructionExecutor::handleSignal(*instruction(), *this, result)) {
+                if (parent_)
+                    parent_->finishSignal(result);
+                else
+                    unhandledSignal_ = true;
+            }
+        } else if (result.signal() == Signal::Return) {
+            if (instruction()->hasParent()) {
+                if (parent_)
+                    parent_->finishSignal(result);
+                else
+                    throw std::domain_error("InstructionState has no parent but related Instruction has a parent.");
+            } else {
+                if (parent_)
+                    parent_->finishSignal(result.result());
+            }
+        }
     }
 
     InstructionState::~InstructionState() {
@@ -80,12 +89,13 @@ namespace wasmint {
 
     InstructionState::InstructionState(Thread& thread, wasm_module::Instruction *instruction, InstructionState* parent)
             : instruction_(instruction), parent_(parent), thread_(&thread) {
+        thread_->setCurrentInstructionState(this);
     }
 
     void InstructionState::serialize(ByteOutputStream& stream) const {
         stream.writeUInt32(state_);
-        stream.writeVariable(result_);
         stream.writeBool(finished_);
+        stream.writeBool(unhandledSignal_);
 
         stream.writeUInt64(results_.size());
         for (const wasm_module::Variable& var : results_) {
@@ -106,8 +116,8 @@ namespace wasmint {
 
     void InstructionState::setState(ByteInputStream& stream, MachineState& state) {
         state_ = stream.getUInt32();
-        result_ = stream.getVariable();
         finished_ = stream.getBool();
+        unhandledSignal_ = stream.getBool();
 
         results_.clear();
         uint64_t resultsSize = stream.getUInt64();
@@ -126,4 +136,5 @@ namespace wasmint {
             childInstruction->setState(stream, state);
         }
     }
+
 }

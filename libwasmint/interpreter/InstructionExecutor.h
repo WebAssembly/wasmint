@@ -19,12 +19,14 @@
 
 
 #include <interpreter/StepResult.h>
-#include "Thread.h"
+#include <ExceptionWithMessage.h>
 
 namespace wasmint {
 
+    class Thread;
+    class InstructionState;
+
     ExceptionMessage(UnknownInstruction)
-    ExceptionMessage(DivisionThroughZero) //TODO should be a trap
 
     class InstructionExecutor {
 

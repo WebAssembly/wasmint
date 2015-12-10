@@ -142,6 +142,10 @@ int main(int argc, char** argv) {
     try {
         Thread& thread = environment.createThread().startAtFunction(mainModule->name(), "main");
         thread.stepUntilFinished();
+        if (thread.gotTrap()) {
+            std::cerr << "Got trap while executing program" << std::endl;
+            return 2;
+        }
     } catch(const wasm_module::NoFunctionWithName& e) {
         if (e.what() == "main") {
             std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;

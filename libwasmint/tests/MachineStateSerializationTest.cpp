@@ -22,8 +22,6 @@
 #include <sexpr_parsing/CharacterStream.h>
 #include <sexpr_parsing/SExprParser.h>
 #include <sexpr_parsing/ModuleParser.h>
-#include <interpreter/Thread.h>
-#include <assert.h>
 
 using namespace wasm_module;
 using namespace wasm_module::sexpr;
@@ -43,7 +41,7 @@ int main() {
 
     Thread* thread = &environment->getThread();
 
-    while (!thread->finished()) {
+    while (thread->canStep()) {
         thread->step();
 
         ByteOutputStream outputStream(memory);

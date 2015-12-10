@@ -24,6 +24,7 @@
 #include <ExceptionWithMessage.h>
 #include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
+#include "InstructionExecutor.h"
 
 namespace wasm_module {
     class Instruction;
@@ -40,8 +41,9 @@ namespace wasmint {
     class InstructionState : public Serializeable {
 
         uint32_t state_ = 0;
-        wasm_module::Variable result_;
         bool finished_ = false;
+        bool unhandledSignal_ = false;
+
         std::vector<wasm_module::Variable> results_;
         const wasm_module::Instruction* instruction_ = nullptr;
 
@@ -52,16 +54,14 @@ namespace wasmint {
         InstructionState* childInstruction = nullptr;
         Thread* thread_ = nullptr;
 
+        void finishSignal(StepResult result);
+
     public:
         InstructionState(Thread& thread_, wasm_module::Instruction *instruction = nullptr, InstructionState* parent = nullptr);
 
         virtual ~InstructionState();
 
-        wasm_module::Variable result() {
-            return result_;
-        }
-
-        StepResult step(Thread &thread);
+        void step();
 
         bool finished() {
             return finished_;
@@ -69,6 +69,10 @@ namespace wasmint {
 
         const wasm_module::Instruction* instruction() {
             return instruction_;
+        }
+
+        bool unhandledSignal() const {
+            return unhandledSignal_;
         }
 
         uint32_t state() const {

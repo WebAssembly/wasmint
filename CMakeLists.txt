@@ -148,12 +148,6 @@ endif()
 #    Performance tests    #
 ###########################
 
-# TODO only enable for the wasmint_perf executable
-
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -pg")
-set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} -pg")
-set(CMAKE_EXE_FLAGS  "${CMAKE_EXE_FLAGS} -pg")
-
 add_executable(printQuicksortSource libwasmint/tests/performance/printProgram.cpp)
 
 add_executable(wasmint_perf main.cpp)

@@ -1,5 +1,25 @@
 #!/bin/bash
 
+memCheckCmd="valgrind --error-exitcode=1 -q"
+
+if [ "$#" -gt 1 ]; then
+    echo "Illegal number of parameters"
+    exit 1
+fi
+
+if [ "$#" -eq 1 ]; then
+
+    if [ "$1" = "--no-memcheck" ]; then
+        echo "WARNING: Running without memcheck!"
+        memCheckCmd=""
+    else
+        echo "Unknown parameter: $1"
+        exit 1
+    fi
+
+fi
+
+
 echo "#####################################"
 echo "###    Transforming wast files    ###"
 echo "#####################################"
@@ -14,9 +34,8 @@ echo "###    Running positive tests      ###"
 echo "######################################"
 
 for i in ./positive/*.wasm; do
-    #valgrind --error-exitcode=1 -q ./wasmint $i
     tmpfile="$(mktemp)"
-    { stdout=$(valgrind --error-exitcode=1 -q ./wasmint $i 2> $tmpfile ) ;}
+    { stdout=$($memCheckCmd ./wasmint $i 2> $tmpfile ) ;}
 
     if [ $? -ne 0 ]; then
         failedTests=$((failedTests+1))
@@ -42,7 +61,7 @@ echo "######################################"
 for i in ./negative/trap/*.wasm; do
     #valgrind --error-exitcode=1 -q ./wasmint $i
     tmpfile="$(mktemp)"
-    { stdout=$(valgrind --error-exitcode=1 -q ./wasmint $i 2> $tmpfile ) ;}
+    { stdout=$($memCheckCmd ./wasmint $i 2> $tmpfile ) ;}
 
     if [ $? -eq 0 ]; then
         failedTests=$((failedTests+1))
@@ -76,7 +95,7 @@ echo "######################################"
 for i in ./negative/invalid/*.wasm; do
     #
     tmpfile="$(mktemp)"
-    { stdout=$(valgrind --error-exitcode=1 -q ./wasmint --no-run $i 2> $tmpfile ) ;}
+    { stdout=$($memCheckCmd  ./wasmint --no-run $i 2> $tmpfile ) ;}
 
     if [ $? -eq 0 ]; then
         failedTests=$((failedTests+1))

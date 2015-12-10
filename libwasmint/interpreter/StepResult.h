@@ -35,7 +35,7 @@ namespace wasmint {
     };
 
     class StepResult {
-        wasm_module::Instruction *newChildInstruction_ = nullptr;
+        wasm_module::Instruction* newChildInstruction_ = nullptr;
         wasm_module::Variable result_;
         Signal signal_ = Signal::None;
         uint32_t branchLabel_ = 0;
@@ -48,7 +48,7 @@ namespace wasmint {
         StepResult(wasm_module::Instruction* newChildInstruction) : newChildInstruction_(newChildInstruction) {
         }
 
-        StepResult(const wasm_module::Variable &result) : result_(result) {
+        StepResult(const wasm_module::Variable& result) : result_(result) {
         }
 
         StepResult(Signal signal, wasm_module::Variable result = wasm_module::Variable())

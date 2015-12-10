@@ -65,12 +65,8 @@ int main() {
         environment.useModule(*positiveModule, true);
 
         Thread& thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
-        try {
-            thread.stepUntilFinished();
-            assert(false);
-        } catch (const AssertTrap& ex) {
-            // expected exception
-        }
+        thread.stepUntilFinished();
+        assert(thread.gotTrap());
     }
     {
         MachineState environment;
@@ -79,11 +75,8 @@ int main() {
 
         environment.useModule(*positiveModule, true);
 
-        Thread& thread = environment.createThread().startAtFunction(positiveModule->name(), "main");try {
-            thread.stepUntilFinished();
-            assert(false);
-        } catch (const AssertTrap& ex) {
-            // expected exception
-        }
+        Thread& thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
+        thread.stepUntilFinished();
+        assert(thread.gotTrap());
     }
 }

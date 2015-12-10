@@ -6,7 +6,7 @@ wasm_module::Module *wasmint::AssertModule::create() {
     module->context().name("assert");
 
     module->addFunction("assert_eq_i32", Void::instance(), {Int32::instance(), Int32::instance()}, [](std::vector<Variable> parameters) {
-        const wasm_module::Instruction* instruction = currentThread_->getInstructionState().parent()->instruction();
+        const wasm_module::Instruction* instruction = currentThread_->getRootInstructionState().parent()->instruction();
 
         int32_t left = parameters.at(0).int32();
         int32_t right = parameters.at(1).int32();

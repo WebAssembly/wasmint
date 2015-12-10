@@ -263,7 +263,7 @@ public:
                 numberOfTrapTests++;
 
                 ModuleWrapper& wrapper = invokeToCall(expr[1]);
-                wrapper.addNegativeTrapCheck(expr);
+                wrapper.addNegativeTrapCheck(expr[1]);
 
             } else if (expr[0].value() == "assert_invalid") {
                 numberOfInvalidTests++;

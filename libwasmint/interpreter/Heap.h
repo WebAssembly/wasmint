@@ -41,14 +41,7 @@ namespace wasmint {
         const static std::size_t maxSize_ = 1073741824;
         std::vector<uint8_t> data_;
 
-        bool highestBitSet(std::size_t a) {
-            std::size_t i = 1;
-            return (a & (i << ((sizeof a) * 8 - 1))) != 0;
-        }
-
-        bool isAdditionSafe(std::size_t a, std::size_t b) {
-            return !highestBitSet(a) && !highestBitSet(b);
-        }
+        const static std::size_t pageSize_ = 1024;
 
     public:
         Heap() {
@@ -62,6 +55,10 @@ namespace wasmint {
                 std::copy(segment.data().begin(), segment.data().end(), data_.begin() + segment.offset());
             }
 
+        }
+
+        std::size_t pageSize() const {
+            return pageSize_;
         }
 
         std::size_t maxSize() const {
@@ -81,13 +78,12 @@ namespace wasmint {
         }
 
         void grow(std::size_t size) {
-
             std::size_t oldSize = data_.size();
+            std::size_t newSize;
 
-            if (!isAdditionSafe(oldSize, size)) {
-                throw CantChangeHeapSize("Can't grow heap with size " + std::to_string(oldSize) + " by " + std::to_string(size) + " because ");
+            if (__builtin_add_overflow(oldSize, size, &newSize)) {
+                throw CantChangeHeapSize("Can't grow heap with size " + std::to_string(oldSize) + " by " + std::to_string(size) + " as this would cause a integer overflow");
             }
-            std::size_t newSize = oldSize + size;
 
             if (newSize > maxSize_)
                 throw CantChangeHeapSize("New heap size of " + std::to_string(newSize) + " is bigger than the allowed max size of " + std::to_string(maxSize_));
@@ -118,11 +114,15 @@ namespace wasmint {
         }
 
         void setBytes(std::size_t offset, const std::vector<uint8_t>& bytes) {
-            if (!isAdditionSafe(offset, bytes.size()))
+            std::size_t end;
+
+
+            if (__builtin_add_overflow(offset, bytes.size(), &end)) {
                 throw OverFlowInHeapAccess(std::string("Offset ") + std::to_string(offset)
                                            + " + size " + std::to_string(bytes.size()));
+            }
 
-            if (offset + bytes.size() > data_.size()) {
+            if (end > data_.size()) {
                 throw OutOfBounds(std::string("Offset ") + std::to_string(offset)
                                   + " + size " + std::to_string(bytes.size()));
             }
@@ -143,11 +143,15 @@ namespace wasmint {
         }
 
         std::vector<uint8_t> getBytes(std::size_t offset, uint32_t size) {
-            if (!isAdditionSafe(offset, size))
-                throw OverFlowInHeapAccess(std::string("Offset ") + std::to_string(offset)
-                                                                    + " + size " + std::to_string(size));
 
-            if (offset + size > data_.size()) {
+            std::size_t end;
+
+            if (__builtin_add_overflow(offset, size, &end)) {
+                throw OverFlowInHeapAccess(std::string("Offset ") + std::to_string(offset)
+                                           + " + size " + std::to_string(size));
+            }
+
+            if (end > data_.size()) {
                 throw OutOfBounds(std::string("Offset ") + std::to_string(offset)
                                                            + " + size " + std::to_string(size));
             }

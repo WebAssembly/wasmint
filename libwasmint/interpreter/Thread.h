@@ -55,7 +55,8 @@ namespace wasmint {
 
         MachineState& env_;
 
-        InstructionState* currentInstructionState = nullptr;
+        InstructionState* rootInstructionState_ = nullptr;
+        InstructionState* currentInstructionState_ = nullptr;
 
         std::map<std::string, Heap> heapsByModuleName_;
 
@@ -65,7 +66,7 @@ namespace wasmint {
         Thread(MachineState & env);
         virtual ~Thread();
 
-        Thread& startAtFunction(std::string moduleName, std::string functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
+        Thread& startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
 
         wasm_module::Instruction* callFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
 
@@ -75,7 +76,9 @@ namespace wasmint {
 
         void setState(ByteInputStream& stream);
 
-        bool finished() const;
+        bool gotTrap() const;
+
+        bool canStep() const;
 
         /**
          * Leave the last entered function
@@ -94,7 +97,10 @@ namespace wasmint {
 
         Heap& getHeap(const wasm_module::Module& module);
 
-        InstructionState& getInstructionState();
+        InstructionState& getRootInstructionState();
+
+        InstructionState & getCurrentInstructionState();
+        void setCurrentInstructionState(InstructionState* newState);
 
         wasm_module::Variable& variable(uint32_t index) {
             return stack.back().variable(index);
@@ -107,6 +113,8 @@ namespace wasmint {
         MachineState & runtimeEnvironment() {
             return env_;
         }
+
+        bool canIncreaseStack() const;
 
         virtual void serialize(ByteOutputStream& stream) const override;
     };

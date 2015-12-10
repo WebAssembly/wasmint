@@ -80,32 +80,32 @@ namespace wasmint {
 
     void Thread::step() {
         FloatingPointGuard floatingPointGuard;
+        if (canStep())
+            throw std::domain_error("Can't step");
         stepInternal();
     }
 
     void Thread::stepUntilFinished() {
         FloatingPointGuard floatingPointGuard;
-        if (currentInstructionState) {
-            while (!currentInstructionState->finished()) {
-                stepInternal();
-            }
+        while (canStep()) {
+            stepInternal();
         }
     }
 
-    InstructionState &Thread::getInstructionState() {
-        if (currentInstructionState)
-            return currentInstructionState->getChildOrThis();
-        throw ThreadNotRunning("Thread not started");
+    InstructionState &Thread::getRootInstructionState() {
+        if (rootInstructionState_)
+            return *rootInstructionState_;
+        throw ThreadNotRunning("Thread has not started");
     }
 
-    Thread &Thread::startAtFunction(std::string moduleName, std::string functionName, std::vector<wasm_module::Variable> parameters) {
-        currentInstructionState = new InstructionState(*this, callFunction(moduleName, functionName, parameters));
+    Thread& Thread::startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters) {
+        currentInstructionState_ = rootInstructionState_ = new InstructionState(*this, callFunction(moduleName, functionName, parameters));
         return *this;
     }
 
     Thread::~Thread() {
-        if (currentInstructionState)
-            delete currentInstructionState;
+        if (rootInstructionState_)
+            delete rootInstructionState_;
     }
 
     Heap &Thread::getHeap(const wasm_module::Module& module) {
@@ -122,18 +122,8 @@ namespace wasmint {
     }
 
     void Thread::stepInternal() {
-
         currentThread_ = this;
-        if (currentInstructionState) {
-            StepResult stepResult = currentInstructionState->step(*this);
-            Signal s = stepResult.signal();
-
-            if (s == Signal::AssertTrap) {
-                throw AssertTrap("TODO"); //TODO
-            } else if (s != Signal::None) {
-                throw UnhandledSignal("TODO"); //TODO
-            }
-        }
+        currentInstructionState_->step();
     }
 
     void Thread::serialize(ByteOutputStream& stream) const {
@@ -144,9 +134,9 @@ namespace wasmint {
             functionState.serialize(stream);
         }
 
-        if (currentInstructionState) {
+        if (rootInstructionState_) {
             stream.writeBool(true);
-            currentInstructionState->serialize(stream);
+            rootInstructionState_->serialize(stream);
         } else {
             stream.writeBool(false);
         }
@@ -169,8 +159,9 @@ namespace wasmint {
         }
 
         if (stream.getBool()) {
-            currentInstructionState = new InstructionState(*this);
-            currentInstructionState->setState(stream, env_);
+            rootInstructionState_ = new InstructionState(*this);
+            rootInstructionState_->setState(stream, env_);
+            currentInstructionState_ = &rootInstructionState_->getChildOrThis();
         }
 
         uint64_t numberOfHeaps = stream.getUInt64();
@@ -181,10 +172,31 @@ namespace wasmint {
         }
     }
 
-    bool Thread::finished() const {
-        if (currentInstructionState) {
-            return currentInstructionState->finished();
-        }
-        return false;
+    void Thread::setCurrentInstructionState(InstructionState* newState) {
+        currentInstructionState_ = newState;
+    }
+
+    bool Thread::gotTrap() const {
+        if (!currentInstructionState_)
+            return false;
+        return currentInstructionState_->unhandledSignal();
+    }
+
+    bool Thread::canStep() const {
+        if (currentInstructionState_ == nullptr)
+            return false;
+        if (currentInstructionState_->unhandledSignal())
+            return false;
+        if (currentInstructionState_->finished())
+            return false;
+        return true;
+    }
+
+    InstructionState &Thread::getCurrentInstructionState() {
+        return *currentInstructionState_;
+    }
+
+    bool Thread::canIncreaseStack() const {
+        return stack.size() < stackLimit;
     }
 }
