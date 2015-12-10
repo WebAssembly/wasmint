@@ -80,7 +80,7 @@ namespace wasmint {
 
     void Thread::step() {
         FloatingPointGuard floatingPointGuard;
-        if (canStep())
+        if (!canStep())
             throw std::domain_error("Can't step");
         stepInternal();
     }
