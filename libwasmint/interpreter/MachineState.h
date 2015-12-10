@@ -29,7 +29,7 @@
 #include <serialization/ByteInputStream.h>
 #include <serialization/ByteOutputStream.h>
 #include <serialization/Serializeable.h>
-#include "Heap.h"
+#include "heap/Heap.h"
 #include "Thread.h"
 
 namespace wasmint {

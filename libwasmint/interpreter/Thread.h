@@ -26,7 +26,7 @@
 #include <serialization/ByteOutputStream.h>
 #include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
-#include "Heap.h"
+#include "heap/Heap.h"
 #include "FunctionState.h"
 #include "InstructionState.h"
 

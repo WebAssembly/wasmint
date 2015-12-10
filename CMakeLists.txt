@@ -41,9 +41,10 @@ add_library(libwasmint
     libwasmint/interpreter/InstructionState.cpp
     libwasmint/interpreter/MachineState.cpp
     libwasmint/interpreter/InstructionExecutor.cpp
-    libwasmint/interpreter/Heap.cpp
     libwasmint/interpreter/StepResult.cpp
-    libwasmint/interpreter/HeapPatch.cpp
+
+    libwasmint/interpreter/heap/Heap.cpp
+    libwasmint/interpreter/heap/HeapPatch.cpp
 
     libwasmint/serialization/ByteOutputStream.cpp
     libwasmint/serialization/ByteInputStream.cpp

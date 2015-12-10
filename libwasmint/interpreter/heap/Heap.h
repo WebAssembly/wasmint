@@ -27,7 +27,7 @@
 #include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
 #include "HeapPatch.h"
-#include "SafeAddition.h"
+#include "../SafeAddition.h"
 
 namespace wasmint {
 
