@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
             return 2;
         }
     } catch(const wasm_module::NoFunctionWithName& e) {
-        if (e.what() == "main") {
+        if (std::string(e.what()) == "main") {
             std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;
         } else {
             std::cerr << "Exiting because we can't find function with name: " << e.what() << std::endl;

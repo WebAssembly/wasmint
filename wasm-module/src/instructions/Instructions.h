@@ -257,12 +257,12 @@ namespace wasm_module {
     class IfElse : public Instruction {
 
     public:
-        virtual const std::string& name() const {
+        virtual const std::string& name() const override {
             static std::string name_ = "if_else";
             return name_;
         }
 
-        virtual InstructionId::Value id() const {
+        virtual InstructionId::Value id() const override {
             return InstructionId::IfElse;
         }
 

@@ -73,7 +73,7 @@ public:
     }
 
     virtual bool handleCharacter(int c) {
-
+        return false;
     }
 
     void setBorder(int border) {

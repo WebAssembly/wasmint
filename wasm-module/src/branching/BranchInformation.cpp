@@ -72,7 +72,7 @@ BranchInformation wasm_module::BranchInformation::getBranchInformation(const Ins
         }
     });
     if (!foundTarget) {
-        throw CantFindBranchTarget("Can't find branch target: " + label);
+        throw CantFindBranchTarget("Can't find branch target: " + std::to_string(label));
     }
     return BranchInformation(labelIndex, target, label, valueType);
 }
