@@ -25,10 +25,12 @@ namespace wasm_module {
 
         void addFunctionType(const FunctionType& type) {
             types_.push_back(type);
+            types_.back().index(types_.size() - 1);
         }
 
         void addFunctionType(const FunctionType& type, std::string alias) {
             types_.push_back(type);
+            types_.back().index(types_.size() - 1);
             addAlias(alias, types_.size() - 1);
         }
 

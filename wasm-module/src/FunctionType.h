@@ -26,6 +26,8 @@ namespace wasm_module {
         const Type* returnType_;
         std::vector<const Type*> parameters_;
         bool variadic_ = true;
+        std::size_t index_ = 0;
+        bool hasIndex_ = false;
 
     public:
         FunctionType();
@@ -61,7 +63,29 @@ namespace wasm_module {
                     return false;
                 }
             }
+
+            if (hasIndex() && other.hasIndex()) {
+                if (this->index() != other.index()) {
+                    return false;
+                }
+            }
+
             return true;
+        }
+
+        bool hasIndex() const {
+            return hasIndex_;
+        }
+
+        std::size_t index() const {
+            if (!hasIndex_)
+                throw std::domain_error("Can't call index() on FunctionType instance that has no index");
+            return index_;
+        }
+
+        void index(std::size_t newIndex) {
+            index_ = newIndex;
+            hasIndex_ = true;
         }
 
         std::string toString() const;

@@ -998,6 +998,10 @@ namespace wasmint {
 
                         const FunctionSignature& signature = functionCall.context_->indirectCallTable().getFunctionSignature(state.results().front().uint32());
 
+                        if (!signature.compatibleWith(functionCall.functionType())) {
+                            return Signal::AssertTrap;
+                        }
+
                         if (!thread.canIncreaseStack())
                             return Signal::AssertTrap;
                         return StepResult(thread.callFunction(signature.moduleName(), signature.name(), parameters));

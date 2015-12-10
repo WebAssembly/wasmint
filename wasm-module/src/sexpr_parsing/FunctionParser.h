@@ -208,6 +208,8 @@ namespace wasm_module { namespace sexpr {
             functionContext_.setVariableNameToIndexMap(namesToIndex_);
 
             if (hasFunctionTypeDefined) {
+                functionContext_.index(functionType_.index());
+
                 if (!functionType_.compatibleWith(functionContext_)) {
                     throw FunctionSignatureDoesntMatchType("Expected " + functionType_.toString() + " signature in this function: " + funcExpr.toString());
                 }

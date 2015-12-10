@@ -1096,9 +1096,12 @@ namespace wasm_module {
             return false;
         }
 
-
         virtual std::string dataString() const {
             return name();
+        }
+
+        const FunctionType& functionType() const {
+            return functionType_;
         }
     };
 
