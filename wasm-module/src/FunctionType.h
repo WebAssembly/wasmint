@@ -19,6 +19,7 @@
 
 #include <types/Type.h>
 #include <vector>
+#include <stdexcept>
 
 namespace wasm_module {
 
