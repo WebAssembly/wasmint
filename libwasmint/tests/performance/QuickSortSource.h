@@ -22,7 +22,7 @@
 
 const std::string quickSortSource =
         "module "
-        "    (memory 2500 2500 (segment 0 \""
+        "    (memory 5000 5000 (segment 0 \""
         WASMINT_PI_DIGITS_STR
                 "\"))"
         "    (func $swap (param $a i32) (param $b i32)"
@@ -58,7 +58,7 @@ const std::string quickSortSource =
         "        )" // end if
         "    )" // end quicksort func
         "    (func main"
-        "        (call $quicksort (i32.const 0) (i32.const 2499))"
+        "        (call $quicksort (i32.const 0) (i32.const 4999))"
         "    )";
 
 #endif //WASMINT_QUICKSORTSOURCE_H

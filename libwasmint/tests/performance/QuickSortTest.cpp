@@ -24,13 +24,20 @@
 #include <sexpr_parsing/ModuleParser.h>
 #include <interpreter/Thread.h>
 #include <assert.h>
-#include "performance/QuickSortSource.h"
+#include "QuickSortSource.h"
+#include <chrono>
+#include <iostream>
+
+using namespace std;
+using namespace std::chrono;
 
 using namespace wasm_module;
 using namespace wasm_module::sexpr;
 using namespace wasmint;
 
 int main() {
+    std::cout.setf( std::ios::fixed, std:: ios::floatfield );
+    std::cout.precision(4);
 
     MachineState environment;
 
@@ -38,15 +45,24 @@ int main() {
 
     environment.useModule(*positiveModule, true);
 
-    Thread& thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
-    thread.stepUntilFinished();
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    Thread* thread = &environment.createThread().startAtFunction(positiveModule->name(), "main");
+    thread->stepUntilFinished();
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
-    Heap& heap = thread.getHeap(*positiveModule);
+    int64_t duration = duration_cast<microseconds>( t2 - t1 ).count();
+    std::cout << "We took " << duration << " microseconds (" << (duration / 1000000.0) << " seconds)" << std::endl;
+
+
+    Heap& heap = thread->getHeap(*positiveModule);
 
     uint8_t smallestValue = 0;
     for (std::size_t i = 0; i < heap.size(); i++) {
         uint8_t value = heap.getByte(i);
-        assert (value >= smallestValue);
+        if (value < smallestValue) {
+            std::cout << "Heap not sorted! This means that quicksort was not proberly executed" << std::endl;
+            return 1;
+        }
         smallestValue = value;
     }
 }

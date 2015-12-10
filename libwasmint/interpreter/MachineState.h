@@ -64,6 +64,11 @@ namespace wasmint {
             return *threads_.front();
         }
 
+        void deleteThread() {
+            delete threads_.front();
+            threads_.clear();
+        }
+
         Thread &createThread();
 
         void useModule(wasm_module::Module &module, bool takeMemoryOwnership = false);

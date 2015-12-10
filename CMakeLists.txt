@@ -150,12 +150,5 @@ endif()
 
 add_executable(printQuicksortSource libwasmint/tests/performance/printProgram.cpp)
 
-add_executable(wasmint_perf main.cpp)
-target_link_libraries(wasmint_perf libwasmint wasm-module)
-
-if (SDL2_FOUND AND SDL2_IMAGE_FOUND)
-    target_link_libraries(wasmint_perf ${SDL2_LIBRARY}
-            ${SDL2_IMAGE_LIBRARIES})
-endif()
-
-
+add_executable(perfQuickSort libwasmint/tests/performance/QuickSortTest.cpp)
+target_link_libraries(perfQuickSort libwasmint wasm-module)
