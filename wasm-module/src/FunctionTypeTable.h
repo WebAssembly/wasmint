@@ -36,7 +36,7 @@ namespace wasm_module {
             namesToIndizes_[aliasName] = index;
         }
 
-        size_t getIndexForAliax(const std::string& alias) const {
+        size_t getIndexForAlias(const std::string &alias) const {
             auto iter = namesToIndizes_.find(alias);
             if (iter != namesToIndizes_.end()) {
                 return iter->second;
@@ -46,7 +46,7 @@ namespace wasm_module {
         }
 
         FunctionType getType(const std::string& alias) const {
-            return getType(getIndexForAliax(alias));
+            return getType(getIndexForAlias(alias));
         }
 
         FunctionType getType(size_t index) const {
