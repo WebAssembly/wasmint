@@ -26,7 +26,6 @@
 #include <string.h>
 #include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
-#include "HeapPatch.h"
 #include "../SafeAddition.h"
 
 namespace wasmint {
@@ -48,6 +47,10 @@ namespace wasmint {
         Heap() {
         }
 
+        Heap(std::size_t size) {
+            data_.resize(size, 0);
+        }
+
         Heap(const wasm_module::HeapData& data) {
             data_.resize(data.startSize());
             std::fill(data_.begin(), data_.end(), 0);
@@ -65,8 +68,6 @@ namespace wasmint {
         std::size_t maxSize() const {
             return maxSize_;
         }
-
-        void applyPatch(const HeapPatch& patch);
 
         void setState(ByteInputStream& stream);
 
@@ -93,30 +94,23 @@ namespace wasmint {
             std::fill(data_.begin() + oldSize, data_.end(), 0);
         }
 
-        void grow(std::size_t size, HeapPatch& patch) {
-            HeapPatch::createMemoryShrinked(patch, size);
-            grow(size);
-        }
+        void grow(std::size_t size, HeapPatch& patch);
 
         void shrink(std::size_t size) {
-
             if (size > data_.size())
                 throw CantChangeHeapSize("Can't shrink memory of size " + std::to_string(data_.size()) + " by " + std::to_string(size));
             data_.resize(data_.size() - size);
         }
 
-        void shrink(std::size_t size, HeapPatch& patch) {
-            std::vector<uint8_t> oldBytes;
-            oldBytes.resize(size);
-            memcpy(oldBytes.data(), data_.data() + (data_.size() - size), size);
-            HeapPatch::createMemoryGrow(patch, data_.size() - size, oldBytes);
-
-            shrink(size);
+        void resize(std::size_t size) {
+            if (size > maxSize_) {
+                throw CantChangeHeapSize("Can't set memory size to " + std::to_string(size) + " because it is bigger than the max size " + std::to_string(maxSize_));
+            }
+            data_.resize(size);
         }
 
         void setBytes(std::size_t offset, const std::vector<uint8_t>& bytes) {
             std::size_t end;
-
 
             if (safeSizeTAddition(offset, bytes.size(), &end)) {
                 throw OverFlowInHeapAccess(std::string("Offset ") + std::to_string(offset)
@@ -133,17 +127,9 @@ namespace wasmint {
             }
         }
 
-        void setBytes(uint32_t offset, const std::vector<uint8_t>& bytes, HeapPatch& patch) {
+        void setBytes(uint32_t offset, const std::vector<uint8_t>& bytes, HeapPatch& patch);
 
-            std::vector<uint8_t> oldBytes;
-            oldBytes.resize(bytes.size());
-            memcpy(oldBytes.data(), data_.data() + offset, bytes.size());
-            HeapPatch::createMemoryChanged(patch, offset, oldBytes);
-
-            setBytes(offset, bytes);
-        }
-
-        std::vector<uint8_t> getBytes(std::size_t offset, uint32_t size) {
+        std::vector<uint8_t> getBytes(std::size_t offset, std::size_t size) {
 
             std::size_t end;
 

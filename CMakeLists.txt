@@ -45,6 +45,8 @@ add_library(libwasmint
 
     libwasmint/interpreter/heap/Heap.cpp
     libwasmint/interpreter/heap/HeapPatch.cpp
+    libwasmint/interpreter/heap/HeapMultiPatch.cpp
+    libwasmint/interpreter/heap/HeapMultiPatchPart.cpp
 
     libwasmint/serialization/ByteOutputStream.cpp
     libwasmint/serialization/ByteInputStream.cpp
@@ -74,9 +76,13 @@ enable_testing()
 #    Unit tests    #
 ####################
 
-file(GLOB TEST_FILES "libwasmint/tests/*Test.cpp")
+file(GLOB_RECURSE TEST_FILES "libwasmint/tests/*Test.cpp")
 foreach(TEST_FILE ${TEST_FILES})
-  get_filename_component(BASENAME ${TEST_FILE} NAME_WE)
+  file(RELATIVE_PATH BASENAME ${CMAKE_SOURCE_DIR}/libwasmint/tests/ ${TEST_FILE})
+  STRING(REGEX REPLACE "/" "_" BASENAME ${BASENAME})
+  STRING(REGEX REPLACE "\\\\" "_" BASENAME ${BASENAME})
+  STRING(REGEX REPLACE ".cpp" "" BASENAME ${BASENAME})
+
   add_executable(${BASENAME} ${TEST_FILE})
   target_link_libraries(${BASENAME} libwasmint wasm-module)
   add_test(${BASENAME} ${BASENAME})
@@ -151,5 +157,5 @@ endif()
 
 add_executable(printQuicksortSource libwasmint/tests/performance/printProgram.cpp)
 
-add_executable(perfQuickSort libwasmint/tests/performance/QuickSortTest.cpp)
+add_executable(perfQuickSort libwasmint/tests/performance/QuickSortPerformance.cpp)
 target_link_libraries(perfQuickSort libwasmint wasm-module)

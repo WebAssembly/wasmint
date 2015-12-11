@@ -29,22 +29,25 @@ namespace wasmint {
         data_ = stream.getBytes();
     }
 
-    void Heap::applyPatch(const HeapPatch& patch) {
-        if (patch.onlyChangesMemory()) {
-            setBytes(patch.position(), patch.data());
-        } else {
-            if (patch.memorySizeGrows()) {
-                grow(patch.memorySizeDiff());
-                setBytes(patch.position(), patch.data());
-            } else {
-                shrink(patch.memorySizeDiff());
-            }
-        }
-    }
 
     bool Heap::operator==(const Heap& other) const {
         if (other.size() != size())
             return false;
         return memcmp(other.data_.data(), data_.data(), size()) == 0;
+    }
+
+    void Heap::setBytes(uint32_t offset, const std::vector<uint8_t>& bytes, HeapPatch& patch) {
+
+        std::vector<uint8_t> oldBytes;
+        oldBytes.resize(bytes.size());
+        memcpy(oldBytes.data(), data_.data() + offset, bytes.size());
+        HeapPatch::createMemoryChanged(patch, offset, oldBytes);
+
+        setBytes(offset, bytes);
+    }
+
+    void Heap::grow(std::size_t size, HeapPatch& patch) {
+        HeapPatch::createMemoryShrinked(patch, size);
+        grow(size);
     }
 }

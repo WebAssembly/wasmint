@@ -16,7 +16,7 @@
 
 
 #include <cstdint>
-#include <interpreter/Heap.h>
+#include <interpreter/heap/Heap.h>
 #include <cassert>
 #include <limits>
 

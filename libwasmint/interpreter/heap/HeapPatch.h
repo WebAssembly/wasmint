@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <vector>
+#include "Heap.h"
 
 namespace wasmint {
 
@@ -41,18 +42,23 @@ namespace wasmint {
             patch.memorySizeDiff_ = 0;
         }
 
-        static void createMemoryGrow(HeapPatch& patch, std::size_t position, const std::vector<uint8_t> &data) {
-            patch.data_ = data;
-            patch.position_ = position;
-            patch.memorySizeDiff_ = data.size();
-            patch.memorySizeGrows_ = true;
-        }
-
         static void createMemoryShrinked(HeapPatch& patch, std::size_t diff) {
             patch.data_.clear();
             patch.position_ = 0;
             patch.memorySizeDiff_ = diff;
             patch.memorySizeGrows_ = false;
+        }
+
+        void apply(Heap& heap) {
+            if (onlyChangesMemory()) {
+                heap.setBytes(position(), data());
+            } else {
+                if (memorySizeGrows()) {
+                    throw std::domain_error("Can't apply a HeapPatch that grows memory");
+                } else {
+                    heap.shrink(memorySizeDiff());
+                }
+            }
         }
 
         std::size_t position() const {

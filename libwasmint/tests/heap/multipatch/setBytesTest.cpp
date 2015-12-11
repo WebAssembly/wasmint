@@ -16,40 +16,31 @@
 
 
 #include <cstdint>
-#include <interpreter/Heap.h>
+#include <interpreter/heap/HeapMultiPatch.h>
 #include <cassert>
 
 using namespace wasmint;
 
 int main() {
-    Heap heap;
-    Heap heapBackup;
-    HeapPatch patch;
+    Heap heap(100);
+    Heap heapBackup = heap;
 
-    // create initial state we want to modify and revert back to
-    heap.grow(5);
-    heap.setBytes(0, {1, 2, 3, 4, 5});
-
-    // backup our original state
-    heapBackup = heap;
-
-    // test reverting grow
-    heap.grow(10, patch);
-    assert(heap.size() == 15);
-    assert(heap != heapBackup);
-    heap.applyPatch(patch);
     assert(heap == heapBackup);
 
-    // test reverting shrink
-    heap.shrink(2, patch);
-    assert(heap.size() == 3);
-    assert(heap != heapBackup);
-    heap.applyPatch(patch);
-    assert(heap == heapBackup);
+    HeapMultiPatch patch(heap.size());
 
-    // test set bytes
-    heap.setBytes(1, {8, 9}, patch);
+    patch.rescueBytes(heap, 4, 4);
+    heap.setBytes(4, {1, 2, 3, 4});
     assert(heap != heapBackup);
-    heap.applyPatch(patch);
+
+    patch.rescueBytes(heap, 23, 4);
+    heap.setBytes(23, {1, 2, 3, 4});
+    assert(heap != heapBackup);
+
+    patch.rescueBytes(heap, 6, 4);
+    heap.setBytes(6, {1, 2, 3, 4});
+    assert(heap != heapBackup);
+
+    patch.applyPatch(heap);
     assert(heap == heapBackup);
 }

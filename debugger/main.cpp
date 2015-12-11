@@ -17,7 +17,7 @@
 
 #include <stdlib.h>
 #include <curses.h>
-#include <interpreter/Heap.h>
+#include <interpreter/heap/Heap.h>
 #include <Module.h>
 #include <sexpr_parsing/ModuleParser.h>
 #include "MemoryViewer.h"
