@@ -42,7 +42,7 @@ add_library(libwasmint
 
     libwasmint/interpreter/at/MachineState.cpp
     libwasmint/interpreter/at/InstructionExecutor.cpp
-    libwasmint/interpreter/StepResult.cpp
+    libwasmint/interpreter/at/thread/StepResult.cpp
 
     libwasmint/interpreter/heap/Heap.cpp
     libwasmint/interpreter/heap/HeapPatch.cpp

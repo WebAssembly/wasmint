@@ -19,7 +19,7 @@
 
 #include <vector>
 #include <Variable.h>
-#include <interpreter/StepResult.h>
+#include <interpreter/at/thread/StepResult.h>
 #include <stdexcept>
 #include <ExceptionWithMessage.h>
 #include <serialization/ByteInputStream.h>

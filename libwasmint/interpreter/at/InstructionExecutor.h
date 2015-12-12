@@ -18,7 +18,7 @@
 #define WASMINT_INSTRUCTIONEXECUTOR_H
 
 
-#include <interpreter/StepResult.h>
+#include <interpreter/at/thread/StepResult.h>
 #include <ExceptionWithMessage.h>
 
 namespace wasmint {
