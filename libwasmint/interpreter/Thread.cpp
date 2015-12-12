@@ -92,20 +92,12 @@ namespace wasmint {
         }
     }
 
-    InstructionState &Thread::getRootInstructionState() {
-        if (rootInstructionState_)
-            return *rootInstructionState_;
-        throw ThreadNotRunning("Thread has not started");
-    }
-
     Thread& Thread::startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters) {
-        currentInstructionState_ = rootInstructionState_ = new InstructionState(*this, callFunction(moduleName, functionName, parameters));
+        instructionStack_.push_back(InstructionState(*this, *callFunction(moduleName, functionName, parameters)));
         return *this;
     }
 
     Thread::~Thread() {
-        if (rootInstructionState_)
-            delete rootInstructionState_;
     }
 
     Heap &Thread::getHeap(const wasm_module::Module& module) {
@@ -123,7 +115,7 @@ namespace wasmint {
 
     void Thread::stepInternal() {
         currentThread_ = this;
-        currentInstructionState_->step();
+        getInstructionState().step();
     }
 
     void Thread::serialize(ByteOutputStream& stream) const {
@@ -134,11 +126,9 @@ namespace wasmint {
             functionState.serialize(stream);
         }
 
-        if (rootInstructionState_) {
-            stream.writeBool(true);
-            rootInstructionState_->serialize(stream);
-        } else {
-            stream.writeBool(false);
+        stream.writeUInt64(instructionStack_.size());
+        for (const InstructionState& instructionState : instructionStack_) {
+            instructionState.serialize(stream);
         }
 
         stream.writeUInt64(heapsByModuleName_.size());
@@ -158,10 +148,10 @@ namespace wasmint {
             functionState.setState(stream);
         }
 
-        if (stream.getBool()) {
-            rootInstructionState_ = new InstructionState(*this);
-            rootInstructionState_->setState(stream, env_);
-            currentInstructionState_ = &rootInstructionState_->getChildOrThis();
+        uint64_t instructionStackSize = stream.getUInt64();
+        instructionStack_.resize(instructionStackSize);
+        for (uint64_t i = 0; i < instructionStackSize; i++) {
+            instructionStack_.at(i).setState(stream, env_);
         }
 
         uint64_t numberOfHeaps = stream.getUInt64();
@@ -172,31 +162,33 @@ namespace wasmint {
         }
     }
 
-    void Thread::setCurrentInstructionState(InstructionState* newState) {
-        currentInstructionState_ = newState;
-    }
-
     bool Thread::gotTrap() const {
-        if (!currentInstructionState_)
+        if (!hasCurrentInstruction())
             return false;
-        return currentInstructionState_->unhandledSignal();
+        return getInstructionState().unhandledSignal();
     }
 
     bool Thread::canStep() const {
-        if (currentInstructionState_ == nullptr)
+        if (!hasCurrentInstruction())
             return false;
-        if (currentInstructionState_->unhandledSignal())
+        if (getInstructionState().unhandledSignal())
             return false;
-        if (currentInstructionState_->finished())
+        if (getInstructionState().finished())
             return false;
         return true;
     }
 
-    InstructionState &Thread::getCurrentInstructionState() {
-        return *currentInstructionState_;
-    }
-
     bool Thread::canIncreaseStack() const {
         return stack.size() < stackLimit;
+    }
+
+    InstructionState &Thread::pushInstructionState(const wasm_module::Instruction& instruction) {
+        instructionStack_.push_back(InstructionState(*this, instruction));
+    }
+
+    void Thread::popInstructionState() {
+        if (instructionStack_.empty())
+            throw InstructionStackIsEmpty("popInstructionState() can't be called on a empty stack");
+        instructionStack_.resize(instructionStack_.size() - 1);
     }
 }

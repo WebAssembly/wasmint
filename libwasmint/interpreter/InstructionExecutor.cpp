@@ -30,7 +30,7 @@ namespace wasmint {
     StepResult InstructionExecutor::execute(const wasm_module::Instruction &instruction, Thread &thread) {
         using namespace wasm_module;
 
-        InstructionState& state = thread.getCurrentInstructionState();
+        InstructionState& state = thread.getInstructionState();
 
         using namespace wasm_module;
 

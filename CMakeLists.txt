@@ -34,7 +34,6 @@ include_directories (libwasmint)
 add_library(libwasmint
     libwasmint/builtins/StdioModule.cpp
     libwasmint/builtins/SDLModule.cpp
-    libwasmint/builtins/AssertModule.cpp
 
     libwasmint/interpreter/Thread.cpp
     libwasmint/interpreter/FunctionState.cpp

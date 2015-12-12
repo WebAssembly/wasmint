@@ -44,8 +44,8 @@ int main() {
     while (thread->canStep()) {
         thread->step();
 
-        ByteOutputStream outputStream(memory);
         memory.clear();
+        ByteOutputStream outputStream(memory);
         environment->serialize(outputStream);
 
         environment.reset(new MachineState());

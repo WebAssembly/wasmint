@@ -35,10 +35,10 @@ namespace wasmint {
     ExceptionMessage(StackLimitReached)
     ExceptionMessage(IllegalUseageOfBreak)
     ExceptionMessage(IllegalUseageOfContinue)
-    ExceptionMessage(ThreadNotRunning)
     ExceptionMessage(AssertTrap)
     ExceptionMessage(UnhandledSignal)
     ExceptionMessage(FailedToSetFloatingPointMode)
+    ExceptionMessage(InstructionStackIsEmpty)
 
     class MachineState;
     class InstructionState;
@@ -52,11 +52,9 @@ namespace wasmint {
          * function state is always on top of the stack.
          */
         std::vector<FunctionState> stack;
+        std::vector<InstructionState> instructionStack_;
 
         MachineState& env_;
-
-        InstructionState* rootInstructionState_ = nullptr;
-        InstructionState* currentInstructionState_ = nullptr;
 
         std::map<std::string, Heap> heapsByModuleName_;
 
@@ -80,6 +78,34 @@ namespace wasmint {
 
         bool canStep() const;
 
+        bool hasInstructionParent() {
+            return instructionStack_.size() >= 2;
+        }
+
+        InstructionState& getInstructionParent() {
+            return instructionStack_.at(instructionStack_.size() - 2);
+        }
+
+        bool hasCurrentInstruction() const {
+            return !instructionStack_.empty();
+        }
+
+        InstructionState& getInstructionState() {
+            if (!hasCurrentInstruction())
+                throw InstructionStackIsEmpty("getInstructionState() can't be called on a empty stack");
+            return instructionStack_.back();
+        }
+
+        const InstructionState& getInstructionState() const {
+            if (!hasCurrentInstruction())
+                throw InstructionStackIsEmpty("getInstructionState() can't be called on a empty stack");
+            return instructionStack_.back();
+        }
+
+        InstructionState& pushInstructionState(const wasm_module::Instruction& instruction);
+
+        void popInstructionState();
+
         /**
          * Leave the last entered function
          */
@@ -96,11 +122,6 @@ namespace wasmint {
         Heap&heap();
 
         Heap& getHeap(const wasm_module::Module& module);
-
-        InstructionState& getRootInstructionState();
-
-        InstructionState & getCurrentInstructionState();
-        void setCurrentInstructionState(InstructionState* newState);
 
         wasm_module::Variable& variable(uint32_t index) {
             return stack.back().variable(index);

@@ -47,28 +47,27 @@ namespace wasmint {
         std::vector<wasm_module::Variable> results_;
         const wasm_module::Instruction* instruction_ = nullptr;
 
-        InstructionState* parent_ = nullptr;
-
         wasm_module::Variable branchValue_;
         bool hasBranchValue_ = false;
-        InstructionState* childInstruction = nullptr;
         Thread* thread_ = nullptr;
 
         void finishSignal(StepResult result);
 
     public:
-        InstructionState(Thread& thread_, wasm_module::Instruction *instruction = nullptr, InstructionState* parent = nullptr);
+        InstructionState() {
+        }
+        InstructionState(Thread& thread_, const wasm_module::Instruction& instruction);
 
         virtual ~InstructionState();
 
         void step();
 
-        bool finished() {
+        bool finished() const {
             return finished_;
         }
 
-        const wasm_module::Instruction* instruction() {
-            return instruction_;
+        const wasm_module::Instruction& instruction() {
+            return *instruction_;
         }
 
         bool unhandledSignal() const {
@@ -87,20 +86,8 @@ namespace wasmint {
             state_ = newState;
         }
 
-        InstructionState &getChildOrThis() {
-            if (childInstruction != nullptr)
-                return childInstruction->getChildOrThis();
-            return *this;
-        }
-
         void clearResults() {
             results_.clear();
-        }
-
-        InstructionState* parent() {
-            if (parent_ == nullptr)
-                throw std::domain_error("InstructionState has no parent. parent() can't be executed");
-            return parent_;
         }
 
         const wasm_module::Variable& branchValue() const {
