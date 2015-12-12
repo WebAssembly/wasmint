@@ -22,12 +22,12 @@
 
 #include "MachineState.h"
 #include "../../wasm-module/src/instructions/InstructionId.h"
-#include <interpreter/thread/InstructionState.h>
-#include "SafeAddition.h"
+#include <interpreter/at/thread/InstructionState.h>
+#include <interpreter/SafeAddition.h>
 
 namespace wasmint {
 
-    StepResult InstructionExecutor::execute(const wasm_module::Instruction &instruction, Thread &thread) {
+    StepResult InstructionExecutor::execute(const wasm_module::Instruction &instruction, InterpreterThread &thread) {
         using namespace wasm_module;
 
         InstructionState& state = thread.getInstructionState();

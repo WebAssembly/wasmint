@@ -15,20 +15,17 @@
  */
 
 
-#ifndef WASMINT_SERIALIZEABLE_H
-#define WASMINT_SERIALIZEABLE_H
+#include "ThreadMultiPatch.h"
+#include "InterpreterThread.h"
 
-#include "ByteOutputStream.h"
+void wasmint::ThreadMultiPatch::update() {
+    if (functionStatesOffset_ < thread_->functionStackSize()) {
+    }
+    if (instructionStatesOffset_ < thread_->instructionStackSize()) {
 
-namespace wasmint {
-    class Serializeable {
-
-        virtual void serialize(ByteOutputStream& stream) const = 0;
-
-    };
+    }
 }
 
+void wasmint::ThreadMultiPatch::applyPatch() {
 
-
-
-#endif //WASMINT_SERIALIZEABLE_H
+}

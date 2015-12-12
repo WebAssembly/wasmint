@@ -20,8 +20,8 @@
 
 #include <Variable.h>
 #include <Module.h>
-#include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
+#include <serialization/ByteOutputStream.h>
 
 
 namespace wasm_module {
@@ -30,7 +30,7 @@ namespace wasm_module {
 
 namespace wasmint {
 
-    class FunctionState : public Serializeable {
+    class FunctionState {
 
         std::vector<wasm_module::Variable> variables_;
 

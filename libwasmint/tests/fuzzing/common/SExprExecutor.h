@@ -1,12 +1,12 @@
 #ifndef WASMINT_SEXPREXECUTOR_H
 #define WASMINT_SEXPREXECUTOR_H
 
-#include <interpreter/MachineState.h>
+#include <interpreter/at/MachineState.h>
 #include <sexpr_parsing/CharacterStream.h>
 #include <sexpr_parsing/SExpr.h>
 #include <sexpr_parsing/SExprParser.h>
 #include <sexpr_parsing/ModuleParser.h>
-#include <interpreter/thread/Thread.h>
+#include <interpreter/at/thread/InterpreterThread.h>
 #include <iostream>
 
 namespace wasmint {
@@ -28,7 +28,7 @@ namespace wasmint {
             try {
                 sexpr::SExpr expr = sexpr::SExprParser(stream).parse(true);
                 m = sexpr::ModuleParser::parse(expr[0]);
-                Thread& thread = machineState.createThread().startAtFunction(m->name(), "main");
+                InterpreterThread & thread = machineState.createThread().startAtFunction(m->name(), "main");
                 thread.stepUntilFinished();
             } catch (const std::exception& e) {
                 // uncommented because it only slows down the normal fuzzing

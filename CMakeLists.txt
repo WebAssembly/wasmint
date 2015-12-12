@@ -35,13 +35,13 @@ add_library(libwasmint
     libwasmint/builtins/StdioModule.cpp
     libwasmint/builtins/SDLModule.cpp
 
-    libwasmint/interpreter/thread/Thread.cpp
-    libwasmint/interpreter/thread/FunctionState.cpp
-    libwasmint/interpreter/thread/InstructionState.cpp
-    libwasmint/interpreter/thread/ThreadMultiPatch.cpp
+    libwasmint/interpreter/at/thread/InterpreterThread.cpp
+    libwasmint/interpreter/at/thread/FunctionState.cpp
+    libwasmint/interpreter/at/thread/InstructionState.cpp
+    libwasmint/interpreter/at/thread/ThreadMultiPatch.cpp
 
-    libwasmint/interpreter/MachineState.cpp
-    libwasmint/interpreter/InstructionExecutor.cpp
+    libwasmint/interpreter/at/MachineState.cpp
+    libwasmint/interpreter/at/InstructionExecutor.cpp
     libwasmint/interpreter/StepResult.cpp
 
     libwasmint/interpreter/heap/Heap.cpp
@@ -51,7 +51,6 @@ add_library(libwasmint
 
     libwasmint/serialization/ByteOutputStream.cpp
     libwasmint/serialization/ByteInputStream.cpp
-    libwasmint/serialization/Serializeable.cpp
 )
 
 

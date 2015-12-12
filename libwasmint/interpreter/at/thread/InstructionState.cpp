@@ -17,11 +17,11 @@
 #include "InstructionState.h"
 
 #include <instructions/Instruction.h>
-#include <interpreter/thread/Thread.h>
-#include <interpreter/thread/InstructionState.h>
+#include "InterpreterThread.h"
+#include <interpreter/at/thread/InstructionState.h>
 #include <types/Type.h>
 #include <iostream>
-#include <interpreter/MachineState.h>
+#include <interpreter/at/MachineState.h>
 
 namespace wasmint {
 
@@ -87,7 +87,7 @@ namespace wasmint {
     InstructionState::~InstructionState() {
     }
 
-    InstructionState::InstructionState(Thread& thread, const wasm_module::Instruction& instruction)
+    InstructionState::InstructionState(InterpreterThread & thread, const wasm_module::Instruction& instruction)
             : instruction_(&instruction), thread_(&thread) {
     }
 

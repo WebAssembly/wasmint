@@ -28,9 +28,8 @@
 #include <Module.h>
 #include <serialization/ByteInputStream.h>
 #include <serialization/ByteOutputStream.h>
-#include <serialization/Serializeable.h>
-#include "heap/Heap.h"
-#include <interpreter/thread/Thread.h>
+#include <interpreter/heap/Heap.h>
+#include "thread/InterpreterThread.h"
 
 namespace wasmint {
 
@@ -38,12 +37,12 @@ namespace wasmint {
 
     ExceptionMessage(NoFunctionWithName)
 
-    class Thread;
+    class InterpreterThread;
 
-    class MachineState : public Serializeable {
+    class MachineState {
 
         // FIXME Use smart pointers if possible...
-        std::vector<Thread *> threads_;
+        std::vector<InterpreterThread *> threads_;
 
         std::map<std::string, wasm_module::Module*> modules_;
 
@@ -60,7 +59,7 @@ namespace wasmint {
         void setState(ByteInputStream& stream);
 
         // TODO function doesn't work for multiple threads
-        Thread& getThread() {
+        InterpreterThread & getThread() {
             return *threads_.front();
         }
 
@@ -69,7 +68,7 @@ namespace wasmint {
             threads_.clear();
         }
 
-        Thread &createThread();
+        InterpreterThread &createThread();
 
         void useModule(wasm_module::Module &module, bool takeMemoryOwnership = false);
 
@@ -86,7 +85,7 @@ namespace wasmint {
             return getModule(moduleName).getFunction(functionName);
         }
 
-        virtual void serialize(ByteOutputStream& stream) const override;
+        virtual void serialize(ByteOutputStream& stream) const;
 
         const wasm_module::Instruction* getInstruction(const wasm_module::InstructionAddress& address);
     };

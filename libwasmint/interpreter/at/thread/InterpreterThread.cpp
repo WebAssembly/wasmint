@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include "Thread.h"
+#include "InterpreterThread.h"
 #include <iostream>
 #include <fenv.h>
-#include <interpreter/MachineState.h>
+#include <interpreter/at/MachineState.h>
 
 namespace wasmint {
 
@@ -38,13 +38,13 @@ namespace wasmint {
         }
     };
 
-    thread_local Thread* currentThread_ = nullptr;
+    thread_local InterpreterThread * currentThread_ = nullptr;
 
-    Thread::Thread(MachineState &env) : env_(env) {
+    InterpreterThread::InterpreterThread(MachineState &env) : env_(env) {
     }
 
 
-    wasm_module::Instruction* Thread::callFunction(
+    wasm_module::Instruction*InterpreterThread::callFunction(
             const std::string& moduleName, const std::string& functionName,
             std::vector<wasm_module::Variable> parameters) {
 
@@ -75,29 +75,29 @@ namespace wasmint {
         return func->mainInstruction();
     }
 
-    void Thread::step() {
+    void InterpreterThread::step() {
         FloatingPointGuard floatingPointGuard;
         if (!canStep())
             throw std::domain_error("Can't step");
         stepInternal();
     }
 
-    void Thread::stepUntilFinished() {
+    void InterpreterThread::stepUntilFinished() {
         FloatingPointGuard floatingPointGuard;
         while (canStep()) {
             stepInternal();
         }
     }
 
-    Thread& Thread::startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters) {
+    InterpreterThread &InterpreterThread::startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters) {
         instructionStack_.push_back(InstructionState(*this, *callFunction(moduleName, functionName, parameters)));
         return *this;
     }
 
-    Thread::~Thread() {
+    InterpreterThread::~InterpreterThread() {
     }
 
-    Heap &Thread::getHeap(const wasm_module::Module& module) {
+    Heap &InterpreterThread::getHeap(const wasm_module::Module& module) {
         auto iter = heapsByModuleName_.find(module.name());
         if (iter != heapsByModuleName_.end()) {
             return heapsByModuleName_[module.name()];
@@ -106,16 +106,16 @@ namespace wasmint {
         }
     }
 
-    Heap &Thread::heap() {
+    Heap &InterpreterThread::heap() {
         return getHeap(functionStack_.back().module());
     }
 
-    void Thread::stepInternal() {
+    void InterpreterThread::stepInternal() {
         currentThread_ = this;
         getInstructionState().step();
     }
 
-    void Thread::serialize(ByteOutputStream& stream) const {
+    void InterpreterThread::serialize(ByteOutputStream& stream) const {
         stream.writeUInt32(functionStackLimit);
 
         stream.writeUInt64(functionStack_.size());
@@ -135,7 +135,7 @@ namespace wasmint {
         }
     }
 
-    void Thread::setState(ByteInputStream& stream) {
+    void InterpreterThread::setState(ByteInputStream& stream) {
         functionStackLimit = stream.getUInt32();
 
         uint64_t stackSize = stream.getUInt64();
@@ -160,13 +160,13 @@ namespace wasmint {
         }
     }
 
-    bool Thread::gotTrap() const {
+    bool InterpreterThread::gotTrap() const {
         if (!hasCurrentInstruction())
             return false;
         return getInstructionState().unhandledSignal();
     }
 
-    bool Thread::canStep() const {
+    bool InterpreterThread::canStep() const {
         if (!hasCurrentInstruction())
             return false;
         if (getInstructionState().unhandledSignal())
@@ -176,17 +176,17 @@ namespace wasmint {
         return true;
     }
 
-    bool Thread::canIncreaseStack() const {
+    bool InterpreterThread::canIncreaseStack() const {
         return functionStack_.size() < functionStackLimit;
     }
 
-    void Thread::pushInstructionState(const wasm_module::Instruction& instruction) {
+    void InterpreterThread::pushInstructionState(const wasm_module::Instruction& instruction) {
         if (instructionStack_.size() >= instructionStackLimit)
             throw InstructionStackLimitReached("Size of " + std::to_string(instructionStackLimit) + " is already reached");
         instructionStack_.push_back(InstructionState(*this, instruction));
     }
 
-    void Thread::popInstructionState() {
+    void InterpreterThread::popInstructionState() {
         if (instructionStack_.empty())
             throw InstructionStackIsEmpty("popInstructionState() can't be called on a empty stack");
         instructionStack_.resize(instructionStack_.size() - 1);

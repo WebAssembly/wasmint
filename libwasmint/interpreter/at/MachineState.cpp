@@ -28,14 +28,14 @@ namespace wasmint {
         }
     }
 
-    Thread &MachineState::createThread() {
-        Thread *newThread = new Thread(*this);
+    InterpreterThread &MachineState::createThread() {
+        InterpreterThread *newThread = new InterpreterThread(*this);
         threads_.push_back(newThread);
         return *threads_.back();
     }
 
     MachineState::~MachineState() {
-        for (Thread *thread : threads_) {
+        for (InterpreterThread *thread : threads_) {
             delete thread;
         }
         for (wasm_module::Module* module : modulesToDelete_) {
@@ -45,7 +45,7 @@ namespace wasmint {
 
     void MachineState::serialize(ByteOutputStream& stream) const {
         stream.writeUInt64(threads_.size());
-        for (Thread* thread : threads_) {
+        for (InterpreterThread * thread : threads_) {
             thread->serialize(stream);
         }
     }
@@ -53,7 +53,7 @@ namespace wasmint {
     void MachineState::setState(ByteInputStream& stream) {
         uint64_t numberOfThreads = stream.getUInt64();
         for (uint64_t i = 0; i < numberOfThreads; i++) {
-            Thread& thread = createThread();
+            InterpreterThread & thread = createThread();
             thread.setState(stream);
         }
     }

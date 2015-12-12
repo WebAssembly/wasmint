@@ -24,8 +24,8 @@
 #include <ExceptionWithMessage.h>
 #include <HeapData.h>
 #include <string.h>
-#include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
+#include <serialization/ByteOutputStream.h>
 #include "../SafeAddition.h"
 
 namespace wasmint {
@@ -36,7 +36,7 @@ namespace wasmint {
 
     class HeapPatch;
 
-    class Heap : public Serializeable {
+    class Heap {
 
         const static std::size_t maxSize_ = 1073741824;
         std::vector<uint8_t> data_;
@@ -175,7 +175,7 @@ namespace wasmint {
             return data_.size();
         }
 
-        virtual void serialize(ByteOutputStream& stream) const override;
+        virtual void serialize(ByteOutputStream& stream) const;
 
         bool operator==(const Heap& other) const;
 

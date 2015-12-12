@@ -18,11 +18,10 @@
 #include <cstdint>
 #include <Module.h>
 #include <types/Int32.h>
-#include <interpreter/MachineState.h>
+#include <interpreter/at/MachineState.h>
 #include <sexpr_parsing/CharacterStream.h>
 #include <sexpr_parsing/SExprParser.h>
 #include <sexpr_parsing/ModuleParser.h>
-#include <interpreter/thread/Thread.h>
 #include <assert.h>
 #include "QuickSortSource.h"
 #include <chrono>
@@ -46,7 +45,7 @@ int main() {
     environment.useModule(*positiveModule, true);
 
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    Thread* thread = &environment.createThread().startAtFunction(positiveModule->name(), "main");
+    InterpreterThread * thread = &environment.createThread().startAtFunction(positiveModule->name(), "main");
     thread->stepUntilFinished();
     if (thread->gotTrap()) {
         std::cerr << "thread got trap: " << thread->trapReason() << std:: endl;

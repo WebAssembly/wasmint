@@ -24,11 +24,10 @@
 #include <Module.h>
 #include <Function.h>
 #include <serialization/ByteOutputStream.h>
-#include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
 #include <interpreter/heap/Heap.h>
-#include <interpreter/thread/FunctionState.h>
-#include <interpreter/thread/InstructionState.h>
+#include <interpreter/at/thread/FunctionState.h>
+#include <interpreter/at/thread/InstructionState.h>
 
 namespace wasmint {
 
@@ -44,7 +43,7 @@ namespace wasmint {
     class MachineState;
     class InstructionState;
 
-    class Thread : public Serializeable {
+    class InterpreterThread {
 
         friend class InstructionState;
 
@@ -67,10 +66,10 @@ namespace wasmint {
         void stepInternal();
 
     public:
-        Thread(MachineState & env);
-        virtual ~Thread();
+        InterpreterThread(MachineState & env);
+        virtual ~InterpreterThread();
 
-        Thread& startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
+        InterpreterThread & startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
 
         wasm_module::Instruction* callFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
 
@@ -156,10 +155,10 @@ namespace wasmint {
 
         bool canIncreaseStack() const;
 
-        virtual void serialize(ByteOutputStream& stream) const override;
+        virtual void serialize(ByteOutputStream& stream) const;
     };
 
-    extern thread_local Thread* currentThread_;
+    extern thread_local InterpreterThread * currentThread_;
 }
 
 #endif //WASMINT_THREAD_H

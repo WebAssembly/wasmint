@@ -14,5 +14,28 @@
  * limitations under the License.
  */
 
+#ifndef WASMINT_INSTRUCTIONEXECUTOR_H
+#define WASMINT_INSTRUCTIONEXECUTOR_H
 
-#include "Serializeable.h"
+
+#include <interpreter/StepResult.h>
+#include <ExceptionWithMessage.h>
+
+namespace wasmint {
+
+    class InterpreterThread;
+    class InstructionState;
+
+    ExceptionMessage(UnknownInstruction)
+
+    class InstructionExecutor {
+
+    public:
+        static StepResult execute(const wasm_module::Instruction &instruction, InterpreterThread &thread);
+
+        static bool handleSignal(const wasm_module::Instruction &instruction, InstructionState &currentState, StepResult& stepResult);
+    };
+
+}
+
+#endif //WASMINT_INSTRUCTIONEXECUTOR_H

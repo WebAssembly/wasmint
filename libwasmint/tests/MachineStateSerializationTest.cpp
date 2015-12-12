@@ -18,7 +18,7 @@
 #include <cstdint>
 #include <Module.h>
 #include <types/Int32.h>
-#include <interpreter/MachineState.h>
+#include <interpreter/at/MachineState.h>
 #include <sexpr_parsing/CharacterStream.h>
 #include <sexpr_parsing/SExprParser.h>
 #include <sexpr_parsing/ModuleParser.h>
@@ -39,7 +39,7 @@ int main() {
 
     environment->createThread().startAtFunction(module->name(), "main");
 
-    Thread* thread = &environment->getThread();
+    InterpreterThread * thread = &environment->getThread();
 
     while (thread->canStep()) {
         thread->step();

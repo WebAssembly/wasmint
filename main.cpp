@@ -5,8 +5,7 @@
 #include <binary_parsing/ByteStream.h>
 #include <Module.h>
 #include <binary_parsing/ModuleParser.h>
-#include <interpreter/MachineState.h>
-#include <interpreter/thread/Thread.h>
+#include <interpreter/at/MachineState.h>
 #include <sexpr_parsing/ModuleParser.h>
 #include <sexpr_parsing/SExprParser.h>
 #include <builtins/StdioModule.h>
@@ -137,7 +136,7 @@ int main(int argc, char** argv) {
     }
 
     try {
-        Thread& thread = environment.createThread().startAtFunction(mainModule->name(), "main");
+        InterpreterThread & thread = environment.createThread().startAtFunction(mainModule->name(), "main");
         thread.stepUntilFinished();
         if (thread.gotTrap()) {
             std::cerr << "Got trap while executing program" << std::endl;

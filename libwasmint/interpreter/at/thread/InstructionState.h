@@ -22,9 +22,9 @@
 #include <interpreter/StepResult.h>
 #include <stdexcept>
 #include <ExceptionWithMessage.h>
-#include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
-#include <interpreter/InstructionExecutor.h>
+#include <interpreter/at/InstructionExecutor.h>
+#include <serialization/ByteOutputStream.h>
 
 namespace wasm_module {
     class Instruction;
@@ -35,10 +35,10 @@ namespace wasmint {
     ExceptionMessage(IncompatibleChildReturnType)
     ExceptionMessage(StateHasNoBranchValue)
 
-    class Thread;
+    class InterpreterThread;
     class MachineState;
 
-    class InstructionState : public Serializeable {
+    class InstructionState {
 
         uint32_t state_ = 0;
         bool finished_ = false;
@@ -49,14 +49,14 @@ namespace wasmint {
 
         wasm_module::Variable branchValue_;
         bool hasBranchValue_ = false;
-        Thread* thread_ = nullptr;
+        InterpreterThread * thread_ = nullptr;
 
         void finishSignal(StepResult result);
 
     public:
         InstructionState() {
         }
-        InstructionState(Thread& thread_, const wasm_module::Instruction& instruction);
+        InstructionState(InterpreterThread & thread_, const wasm_module::Instruction& instruction);
 
         virtual ~InstructionState();
 
@@ -90,7 +90,7 @@ namespace wasmint {
             results_.clear();
         }
 
-        void setThread(Thread& newThread) {
+        void setThread(InterpreterThread & newThread) {
             thread_ = &newThread;
         }
 
@@ -109,7 +109,7 @@ namespace wasmint {
             return hasBranchValue_;
         }
 
-        virtual void serialize(ByteOutputStream& stream) const override;
+        virtual void serialize(ByteOutputStream& stream) const;
 
         void setState(ByteInputStream& stream, MachineState& state);
     };

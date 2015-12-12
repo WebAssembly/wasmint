@@ -18,11 +18,10 @@
 #include <cstdint>
 #include <Module.h>
 #include <types/Int32.h>
-#include <interpreter/MachineState.h>
+#include <interpreter/at/MachineState.h>
 #include <sexpr_parsing/CharacterStream.h>
 #include <sexpr_parsing/SExprParser.h>
 #include <sexpr_parsing/ModuleParser.h>
-#include <interpreter/thread/Thread.h>
 #include <assert.h>
 
 using namespace wasm_module;
@@ -42,7 +41,7 @@ int main() {
 
         environment.useModule(*positiveModule, true);
 
-        Thread& thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
+        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
         thread.stepUntilFinished();
     }
     {
@@ -52,7 +51,7 @@ int main() {
 
         environment.useModule(*positiveModule, true);
 
-        Thread& thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
+        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
         thread.stepUntilFinished();
     }
     // negative tests
@@ -64,7 +63,7 @@ int main() {
 
         environment.useModule(*positiveModule, true);
 
-        Thread& thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
+        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
         thread.stepUntilFinished();
         assert(thread.gotTrap());
     }
@@ -75,7 +74,7 @@ int main() {
 
         environment.useModule(*positiveModule, true);
 
-        Thread& thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
+        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
         thread.stepUntilFinished();
         assert(thread.gotTrap());
     }

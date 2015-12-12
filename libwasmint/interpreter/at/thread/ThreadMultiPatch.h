@@ -20,13 +20,13 @@
 
 #include <cstdint>
 #include <vector>
-#include <interpreter/thread/InstructionState.h>
-#include <interpreter/thread/FunctionState.h>
+#include <interpreter/at/thread/InstructionState.h>
+#include <interpreter/at/thread/FunctionState.h>
 
 namespace wasmint {
     class ThreadMultiPatch {
 
-        Thread* thread_ = nullptr;
+        InterpreterThread * thread_ = nullptr;
         std::size_t instructionStatesOffset_;
         std::vector<InstructionState> instructionStates_;
 
@@ -34,7 +34,7 @@ namespace wasmint {
         std::vector<FunctionState> functionStates_;
 
     public:
-        ThreadMultiPatch(Thread& thread) : thread_(&thread){
+        ThreadMultiPatch(InterpreterThread & thread) : thread_(&thread){
         }
 
         void update();
