@@ -24,7 +24,7 @@
 #include <ExceptionWithMessage.h>
 #include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
-#include "InstructionExecutor.h"
+#include <interpreter/InstructionExecutor.h>
 
 namespace wasm_module {
     class Instruction;
@@ -88,6 +88,10 @@ namespace wasmint {
 
         void clearResults() {
             results_.clear();
+        }
+
+        void setThread(Thread& newThread) {
+            thread_ = &newThread;
         }
 
         const wasm_module::Variable& branchValue() const {

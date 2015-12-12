@@ -22,7 +22,7 @@
 
 #include "MachineState.h"
 #include "../../wasm-module/src/instructions/InstructionId.h"
-#include "Thread.h"
+#include <interpreter/thread/InstructionState.h>
 #include "SafeAddition.h"
 
 namespace wasmint {

@@ -17,7 +17,6 @@
 
 #include "MachineState.h"
 #include <Function.h>
-#include "Thread.h"
 
 namespace wasmint {
 

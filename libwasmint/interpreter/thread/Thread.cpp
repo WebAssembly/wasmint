@@ -15,12 +15,9 @@
  */
 
 #include "Thread.h"
-#include <Function.h>
-#include <assert.h>
 #include <iostream>
 #include <fenv.h>
-#include "InstructionState.h"
-#include "MachineState.h"
+#include <interpreter/MachineState.h>
 
 namespace wasmint {
 
@@ -151,6 +148,7 @@ namespace wasmint {
         uint64_t instructionStackSize = stream.getUInt64();
         instructionStack_.resize(instructionStackSize);
         for (uint64_t i = 0; i < instructionStackSize; i++) {
+            instructionStack_.at(i).setThread(*this);
             instructionStack_.at(i).setState(stream, env_);
         }
 

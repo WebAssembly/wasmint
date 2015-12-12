@@ -35,9 +35,9 @@ add_library(libwasmint
     libwasmint/builtins/StdioModule.cpp
     libwasmint/builtins/SDLModule.cpp
 
-    libwasmint/interpreter/Thread.cpp
-    libwasmint/interpreter/FunctionState.cpp
-    libwasmint/interpreter/InstructionState.cpp
+    libwasmint/interpreter/thread/Thread.cpp
+    libwasmint/interpreter/thread/FunctionState.cpp
+    libwasmint/interpreter/thread/InstructionState.cpp
     libwasmint/interpreter/MachineState.cpp
     libwasmint/interpreter/InstructionExecutor.cpp
     libwasmint/interpreter/StepResult.cpp

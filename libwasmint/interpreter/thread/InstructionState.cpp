@@ -17,8 +17,8 @@
 #include "InstructionState.h"
 
 #include <instructions/Instruction.h>
-#include "Thread.h"
-#include "InstructionExecutor.h"
+#include <interpreter/thread/Thread.h>
+#include <interpreter/thread/InstructionState.h>
 #include <types/Type.h>
 #include <iostream>
 #include <interpreter/MachineState.h>
@@ -30,6 +30,9 @@ namespace wasmint {
             throw std::domain_error("Cant step in a InstructionState with a unhandled signal");
         if (finished_)
             throw std::domain_error("Cant step in a finished InstructionState");
+        if (thread_ == nullptr)
+            throw std::domain_error("Cant step in a InstructionState with no thread");
+
 
         StepResult result = InstructionExecutor::execute(instruction(), *thread_);
         state_++;

@@ -22,7 +22,7 @@
 #include <sexpr_parsing/CharacterStream.h>
 #include <sexpr_parsing/SExprParser.h>
 #include <sexpr_parsing/ModuleParser.h>
-#include <interpreter/Thread.h>
+#include <interpreter/thread/Thread.h>
 #include <assert.h>
 
 using namespace wasm_module;

@@ -21,7 +21,7 @@
 #include <Module.h>
 #include <types/Int32.h>
 #include <iostream>
-#include <interpreter/Thread.h>
+#include <interpreter/thread/Thread.h>
 #include <unistd.h>
 #include <types/Int64.h>
 #include <types/Float32.h>

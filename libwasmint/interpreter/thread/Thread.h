@@ -26,9 +26,9 @@
 #include <serialization/ByteOutputStream.h>
 #include <serialization/Serializeable.h>
 #include <serialization/ByteInputStream.h>
-#include "heap/Heap.h"
-#include "FunctionState.h"
-#include "InstructionState.h"
+#include <interpreter/heap/Heap.h>
+#include <interpreter/thread/FunctionState.h>
+#include <interpreter/thread/InstructionState.h>
 
 namespace wasmint {
 
