@@ -102,7 +102,7 @@ namespace wasmint {
             return instructionStack_.back();
         }
 
-        InstructionState& pushInstructionState(const wasm_module::Instruction& instruction);
+        void pushInstructionState(const wasm_module::Instruction& instruction);
 
         void popInstructionState();
 

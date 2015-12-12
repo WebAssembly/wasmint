@@ -180,7 +180,7 @@ namespace wasmint {
         return stack.size() < stackLimit;
     }
 
-    InstructionState &Thread::pushInstructionState(const wasm_module::Instruction& instruction) {
+    void Thread::pushInstructionState(const wasm_module::Instruction& instruction) {
         instructionStack_.push_back(InstructionState(*this, instruction));
     }
 
