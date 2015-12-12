@@ -48,14 +48,16 @@ namespace wasmint {
 
         friend class InstructionState;
 
-        uint32_t functionStackLimiit = 5000;
-        uint32_t instructionStackLimiit = 40000;
+        std::string trapReason_ = "Unknown reason";
+
+        uint32_t functionStackLimit = 50000;
+        uint32_t instructionStackLimit = 400000;
 
         /**
-         * The stack containing the states of all called functions. The most recently called
-         * function state is always on top of the stack.
+         * The functionStack_ containing the states of all called functions. The most recently called
+         * function state is always on top of the functionStack_.
          */
-        std::vector<FunctionState> stack;
+        std::vector<FunctionState> functionStack_;
         std::vector<InstructionState> instructionStack_;
 
         MachineState& env_;
@@ -72,13 +74,26 @@ namespace wasmint {
 
         wasm_module::Instruction* callFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
 
-        std::size_t stackSize() {
-            return stack.size();
+        std::size_t functionStackSize() {
+            return functionStack_.size();
+        }
+
+        std::size_t instructionStackSize() {
+            return instructionStack_.size();
         }
 
         void setState(ByteInputStream& stream);
 
         bool gotTrap() const;
+
+        Signal trapReason(const std::string& reason) {
+            trapReason_ = reason;
+            return Signal::AssertTrap;
+        }
+
+        const std::string& trapReason() const {
+            return trapReason_;
+        }
 
         bool canStep() const;
 
@@ -114,9 +129,9 @@ namespace wasmint {
          * Leave the last entered function
          */
         void leaveFunction() {
-            if (stack.empty())
+            if (functionStack_.empty())
                 throw std::domain_error("Can't leave function. Stack is empty!");
-            stack.resize(stack.size() - 1);
+            functionStack_.resize(functionStack_.size() - 1);
         }
 
         void step();
@@ -128,11 +143,11 @@ namespace wasmint {
         Heap& getHeap(const wasm_module::Module& module);
 
         wasm_module::Variable& variable(uint32_t index) {
-            return stack.back().variable(index);
+            return functionStack_.back().variable(index);
         }
 
         const std::vector<wasm_module::Variable>& locals() {
-            return stack.back().variables();
+            return functionStack_.back().variables();
         }
 
         MachineState & runtimeEnvironment() {

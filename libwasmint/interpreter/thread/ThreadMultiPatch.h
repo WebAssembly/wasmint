@@ -36,6 +36,10 @@ namespace wasmint {
     public:
         ThreadMultiPatch(Thread& thread) : thread_(&thread){
         }
+
+        void update();
+
+        void applyPatch();
     };
 }
 

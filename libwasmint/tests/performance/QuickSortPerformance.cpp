@@ -48,6 +48,10 @@ int main() {
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
     Thread* thread = &environment.createThread().startAtFunction(positiveModule->name(), "main");
     thread->stepUntilFinished();
+    if (thread->gotTrap()) {
+        std::cerr << "thread got trap: " << thread->trapReason() << std:: endl;
+        return 1;
+    }
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
     int64_t duration = duration_cast<microseconds>( t2 - t1 ).count();
@@ -60,7 +64,9 @@ int main() {
     for (std::size_t i = 0; i < heap.size(); i++) {
         uint8_t value = heap.getByte(i);
         if (value < smallestValue) {
-            std::cout << "Heap not sorted! This means that quicksort was not proberly executed" << std::endl;
+            for (std::size_t j = 0; j < 20; j++)
+                std::cout << std::to_string(heap.getByte((i + j) - 10)) << std::endl;
+            std::cout << "Heap not sorted at position " << i << "! This means that quicksort was not proberly executed" << std::endl;
             return 1;
         }
         smallestValue = value;

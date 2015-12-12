@@ -16,3 +16,16 @@
 
 
 #include "ThreadMultiPatch.h"
+#include <interpreter/thread/Thread.h>
+
+void wasmint::ThreadMultiPatch::update() {
+    if (functionStatesOffset_ < thread_->functionStackSize()) {
+    }
+    if (instructionStatesOffset_ < thread_->instructionStackSize()) {
+
+    }
+}
+
+void wasmint::ThreadMultiPatch::applyPatch() {
+
+}

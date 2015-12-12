@@ -88,11 +88,10 @@ namespace wasmint {
                             int32_t right = wasm_module::Int32::getValue(state.results().at(1));
 
                             if (left == std::numeric_limits<int32_t>::min() && right == -1)
-                                return Signal::AssertTrap;
-
+                                return thread.trapReason("Cant execute i32.div_s INT32_MIN / -1 (overflow)");
 
                             if (right == 0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason("Cant execute i32.div_s x / 0 (division through zero)");
 
                             return Variable::createInt32(left / right);
                     }
@@ -106,7 +105,7 @@ namespace wasmint {
                             uint32_t right = wasm_module::Int32::getUnsignedValue(state.results().at(1));
 
                             if (right == 0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason("Cant execute i32.div_u x / 0 (division through zero)");
 
                             return Variable::createUInt32(left / right);
 
@@ -124,7 +123,7 @@ namespace wasmint {
 
                             // TODO that exception should be in the interpreter namespace
                             if (right == 0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason("Cant execute i32.rem_s x / 0 (division through zero)");
                             if (right < 0)
                                 right = -right;
 
@@ -142,7 +141,7 @@ namespace wasmint {
 
                             // TODO that exception should be in the interpreter namespace
                             if (right == 0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason("Cant execute i32.rem_u x / 0 (division through zero)");
 
                             return Variable::createInt32(left % right);
 
@@ -482,9 +481,9 @@ namespace wasmint {
                             int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
                             if (left == std::numeric_limits<int64_t>::min() && right == -1)
-                                return Signal::AssertTrap;
+                                return thread.trapReason("Cant execute i64.div_s INT64 / 1 (overflow)");
                             if (right == 0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason("Cant execute i64.div_s x / 0 (division through zero)");
 
                             return Variable::createInt64(left / right);
                     }
@@ -498,7 +497,7 @@ namespace wasmint {
                             uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
                             if (right == 0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + ": division thorugh zero");
 
                             return Variable::createUInt64(left / right);
                     }
@@ -512,7 +511,7 @@ namespace wasmint {
                             int64_t right = wasm_module::Int64::getValue(state.results().at(1));
 
                             if (right == 0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + ": division thorugh zero");
                             if (right < 0)
                                 right = -right;
 
@@ -528,7 +527,7 @@ namespace wasmint {
                             uint64_t right = wasm_module::Int64::getUnsignedValue(state.results().at(1));
 
                             if (right == 0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + ": division thorugh zero");
 
                             return Variable::createUInt64(left % right);
                     }
@@ -962,7 +961,7 @@ namespace wasmint {
                             parameters.push_back(state.results().at(i));
                         }
                         if (!thread.canIncreaseStack())
-                            return Signal::AssertTrap;
+                            return thread.trapReason(instruction.name() + ": can't increase function stack");
                         const wasm_module::Call& functionCall = dynamic_cast<const wasm_module::Call &>(instruction);
                         return StepResult(thread.callFunction(functionCall.moduleName, functionCall.functionSignature.name(), parameters));
                     } else {
@@ -979,7 +978,7 @@ namespace wasmint {
                             parameters.push_back(state.results().at(i));
                         }
                         if (!thread.canIncreaseStack())
-                            return Signal::AssertTrap;
+                            return thread.trapReason(instruction.name() + ": can't increase function stack");
                         const wasm_module::CallImport& functionCall = dynamic_cast<const wasm_module::CallImport &>(instruction);
                         return StepResult(thread.callFunction(functionCall.functionSignature.moduleName(), functionCall.functionSignature.name(), parameters));
                     } else {
@@ -1000,11 +999,11 @@ namespace wasmint {
                         const FunctionSignature& signature = functionCall.context_->indirectCallTable().getFunctionSignature(state.results().front().uint32());
 
                         if (!signature.compatibleWith(functionCall.functionType())) {
-                            return Signal::AssertTrap;
+                            return thread.trapReason(instruction.name() + ": can't increase function stack");
                         }
 
                         if (!thread.canIncreaseStack())
-                            return Signal::AssertTrap;
+                            return thread.trapReason(instruction.name() + ": can't increase function stack");
                         return StepResult(thread.callFunction(signature.moduleName(), signature.name(), parameters));
                     } else {
                         thread.leaveFunction();
@@ -1039,7 +1038,7 @@ namespace wasmint {
                         }
                     }
 
-                    return StepResult(Signal::AssertTrap);
+                    return thread.trapReason("Reached unreachable instruction");
                 case InstructionId::SetLocal:
                     switch (state.state()) {
                         case 0:
@@ -1061,7 +1060,7 @@ namespace wasmint {
                             uint32_t value = wasm_module::Int32::getUnsignedValue(state.results().at(0));
 
                             if (value % thread.heap().pageSize() != 0) {
-                                return Signal::AssertTrap;
+                                return thread.trapReason("Grow memory not multitude of page size");
                             }
 
                             // TODO risky conversion
@@ -1088,7 +1087,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
 
@@ -1113,7 +1114,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
@@ -1133,7 +1136,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
@@ -1159,7 +1164,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
@@ -1178,7 +1185,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> bytes = thread.heap().getBytes(offset, static_cast<uint32_t>(wasm_module::Int32::instance()->size()));
@@ -1198,7 +1207,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
@@ -1224,7 +1235,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 1u);
@@ -1244,7 +1257,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
@@ -1270,7 +1285,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 2u);
@@ -1290,7 +1307,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 4u);
@@ -1317,7 +1336,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> loadedBytes = thread.heap().getBytes(offset, 4u);
@@ -1338,7 +1359,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> bytes = thread.heap().getBytes
@@ -1358,7 +1381,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> bytes = thread.heap().getBytes
@@ -1378,7 +1403,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             std::vector<uint8_t> bytes = thread.heap().getBytes
@@ -1399,7 +1426,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             wasm_module::Variable value = state.results().at(1);
@@ -1417,7 +1446,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             wasm_module::Variable value = state.results().at(1);
@@ -1435,7 +1466,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             wasm_module::Variable value = state.results().at(1);
@@ -1453,7 +1486,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             wasm_module::Variable value = state.results().at(1);
@@ -1471,7 +1506,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                         " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             wasm_module::Variable value = state.results().at(1);
@@ -1492,7 +1529,9 @@ namespace wasmint {
                             uint32_t staticOffset = static_cast<const LoadStoreInstruction&>(instruction).offset();
 
                             if (safeUInt32Addition(offset, staticOffset, &offset))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() +
+                                                                 " got integer overflow in calculating target address: "
+                                                         + std::to_string(offset) + "+" + std::to_string(staticOffset));
 
 
                             wasm_module::Variable value = state.results().at(1);
@@ -2133,13 +2172,13 @@ namespace wasmint {
                             float value = wasm_module::Float32::getValue(state.results().at(0));
 
                             if (value >= 2.14748365e+09f)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (value < std::numeric_limits<int32_t>::min())
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isinf(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isnan(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
 
 
                             int32_t result = (int32_t) value;
@@ -2155,13 +2194,13 @@ namespace wasmint {
                             double value = wasm_module::Float64::getValue(state.results().at(0));
 
                             if (value > 2147483647.0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (value < -2147483648.0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isinf(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isnan(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
 
                             int32_t result = (int32_t) value;
 
@@ -2176,13 +2215,13 @@ namespace wasmint {
                             float value = wasm_module::Float32::getValue(state.results().at(0));
 
                             if (value >= 4.2949673e+09f)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (value <= -1.0f)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isinf(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isnan(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
 
 
                             uint32_t result = (uint32_t) value;
@@ -2198,13 +2237,13 @@ namespace wasmint {
                             double value = wasm_module::Float64::getValue(state.results().at(0));
 
                             if (value >= 4294967296)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (value <= -1.0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isinf(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isnan(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
 
 
                             uint32_t result = (uint32_t) value;
@@ -2251,13 +2290,13 @@ namespace wasmint {
                             float value = wasm_module::Float32::getValue(state.results().at(0));
 
                             if (value >= 9.22337204e+18f)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (value < -9223372036854775808.0f)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isinf(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isnan(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
 
 
                             int64_t result = (int64_t) value;
@@ -2273,13 +2312,13 @@ namespace wasmint {
                             double value = wasm_module::Float64::getValue(state.results().at(0));
 
                             if (value >= 9.2233720368547758e+18)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (value < -9223372036854775808.0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isinf(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isnan(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
 
 
                             int64_t result = (int64_t) value;
@@ -2295,13 +2334,13 @@ namespace wasmint {
                             float value = wasm_module::Float32::getValue(state.results().at(0));
 
                             if (value >= 1.84467441e+19f)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (value <= -1.0f)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isinf(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isnan(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
 
 
                             uint64_t result = (uint64_t) value;
@@ -2317,13 +2356,13 @@ namespace wasmint {
                             double value = wasm_module::Float64::getValue(state.results().at(0));
 
                             if (value >= 1.8446744073709552e+19)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (value <= -1.0)
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isinf(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
                             if (std::isnan(value))
-                                return Signal::AssertTrap;
+                                return thread.trapReason(instruction.name() + " can't handle value " + std::to_string(value));
 
 
                             uint64_t result = (uint64_t) value;
@@ -2463,16 +2502,16 @@ namespace wasmint {
                     }
 
                 default:
-                    throw UnknownInstruction(std::string("Unknown Instruction " + instruction.name()));
+                    return thread.trapReason("Unknown instruction: " + std::string(instruction.name()));
             }
         } catch (const OverFlowInHeapAccess& ex) {
-            return Signal::AssertTrap;
+            return thread.trapReason("Integer overflow in heap access: " + std::string(ex.what()));
         } catch (const OutOfBounds& ex) {
-            return Signal::AssertTrap;
+            return thread.trapReason("Out of bounds access: " + std::string(ex.what()));
         } catch (const CantChangeHeapSize& ex) {
-            return Signal::AssertTrap;
+            return thread.trapReason("Can't change heap size: " + std::string(ex.what()));
         } catch (const std::exception& ex) {
-            return Signal::AssertTrap;
+            return thread.trapReason("Exception while executing instruction: " + std::string(ex.what()));
         }
     }
 
