@@ -39,6 +39,7 @@ namespace wasmint {
 
         if (result.newChildInstruction()) {
             thread_->pushInstructionState(*result.newChildInstruction());
+            thread_->stepInternal();
         } else if (result.signal() == Signal::Return || result.signal() == Signal::Branch) {
             if (thread_->hasInstructionParent()) {
                 thread_->getInstructionParent().finishSignal(result);
@@ -101,6 +102,7 @@ namespace wasmint {
         }
 
         stream.writeInstructionAddress(instruction_->getAddress());
+
         stream.writeVariable(branchValue_);
         stream.writeBool(hasBranchValue_);
     }

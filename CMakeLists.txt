@@ -38,6 +38,8 @@ add_library(libwasmint
     libwasmint/interpreter/thread/Thread.cpp
     libwasmint/interpreter/thread/FunctionState.cpp
     libwasmint/interpreter/thread/InstructionState.cpp
+    libwasmint/interpreter/thread/ThreadMultiPatch.cpp
+
     libwasmint/interpreter/MachineState.cpp
     libwasmint/interpreter/InstructionExecutor.cpp
     libwasmint/interpreter/StepResult.cpp

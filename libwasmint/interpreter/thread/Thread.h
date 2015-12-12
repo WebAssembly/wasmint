@@ -33,6 +33,7 @@
 namespace wasmint {
 
     ExceptionMessage(StackLimitReached)
+    ExceptionMessage(InstructionStackLimitReached)
     ExceptionMessage(IllegalUseageOfBreak)
     ExceptionMessage(IllegalUseageOfContinue)
     ExceptionMessage(AssertTrap)
@@ -45,7 +46,10 @@ namespace wasmint {
 
     class Thread : public Serializeable {
 
-        uint32_t stackLimit = 5000;
+        friend class InstructionState;
+
+        uint32_t functionStackLimiit = 5000;
+        uint32_t instructionStackLimiit = 40000;
 
         /**
          * The stack containing the states of all called functions. The most recently called

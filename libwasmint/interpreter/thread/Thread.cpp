@@ -48,7 +48,7 @@ namespace wasmint {
             const std::string& moduleName, const std::string& functionName,
             std::vector<wasm_module::Variable> parameters) {
 
-        if (stack.size() >= stackLimit)
+        if (stack.size() >= functionStackLimiit)
             throw StackLimitReached(std::to_string(stack.size()));
 
         wasm_module::Function* func = nullptr;
@@ -116,7 +116,7 @@ namespace wasmint {
     }
 
     void Thread::serialize(ByteOutputStream& stream) const {
-        stream.writeUInt32(stackLimit);
+        stream.writeUInt32(functionStackLimiit);
 
         stream.writeUInt64(stack.size());
         for (const FunctionState& functionState : stack) {
@@ -136,7 +136,7 @@ namespace wasmint {
     }
 
     void Thread::setState(ByteInputStream& stream) {
-        stackLimit = stream.getUInt32();
+        functionStackLimiit = stream.getUInt32();
 
         uint64_t stackSize = stream.getUInt64();
 
@@ -177,10 +177,12 @@ namespace wasmint {
     }
 
     bool Thread::canIncreaseStack() const {
-        return stack.size() < stackLimit;
+        return stack.size() < functionStackLimiit;
     }
 
     void Thread::pushInstructionState(const wasm_module::Instruction& instruction) {
+        if (instructionStack_.size() >= instructionStackLimiit)
+            throw InstructionStackLimitReached("Size of " + std::to_string(instructionStackLimiit) + " is already reached");
         instructionStack_.push_back(InstructionState(*this, instruction));
     }
 
