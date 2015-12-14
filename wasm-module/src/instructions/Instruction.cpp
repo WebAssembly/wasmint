@@ -34,8 +34,8 @@ namespace wasm_module {
             }
 
             for (std::size_t i = 0; i < children_.size(); i++) {
-                // skip type check if the given child instruction will certainly terminate this program
-                if (UnreachableValidator::willExecuteUnreachable(children_[i])) {
+                // skip type check if the given child instruction will never return
+                if (UnreachableValidator::willNeverEvaluate(children_[i])) {
                     continue;
                 }
                 if (!Type::typeCompatible(childrenTypes()[i], children_[i]->returnType())) {

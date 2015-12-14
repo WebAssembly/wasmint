@@ -171,16 +171,16 @@ namespace wasm_module {
 
         InstructionAddress getAddress() const;
 
-        const BranchInformation* branchInformation() const {
-            return nullptr;
-        }
-
         const Function* function() const {
             return function_;
         }
 
         void function(const Function* function) {
             function_ = function;
+        }
+
+        virtual const BranchInformation* branchInformation() const {
+            return nullptr;
         }
     };
 }

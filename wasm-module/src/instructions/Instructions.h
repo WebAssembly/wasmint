@@ -623,6 +623,10 @@ namespace wasm_module {
         const Instruction& getBranchTarget() const {
             return *branchInformation_.target();
         }
+
+        virtual const BranchInformation* branchInformation() const override {
+            return &branchInformation_;
+        }
     };
 
 
@@ -686,6 +690,10 @@ namespace wasm_module {
 
         uint32_t branchLabel() const {
             return branchInformation_.label();
+        }
+
+        virtual const BranchInformation* branchInformation() const override {
+            return &branchInformation_;
         }
     };
 

@@ -47,7 +47,11 @@ namespace wasm_module {
 
         virtual ~Function();
 
-        Instruction *mainInstruction() {
+        Instruction* mainInstruction() {
+            return mainInstruction_;
+        }
+
+        const Instruction* mainInstruction() const {
             return mainInstruction_;
         }
 

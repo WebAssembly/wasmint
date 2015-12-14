@@ -89,7 +89,7 @@ namespace wasmint {
         }
     }
 
-    InterpreterThread &InterpreterThread::startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters) {
+    InterpreterThread& InterpreterThread::startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters) {
         instructionStack_.push_back(InstructionState(*this, *callFunction(moduleName, functionName, parameters)));
         return *this;
     }

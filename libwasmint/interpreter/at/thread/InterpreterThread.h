@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef WASMINT_THREAD_H
-#define WASMINT_THREAD_H
+#ifndef WASMINT_INTERPRETER_THREAD_H
+#define WASMINT_INTERPRETER_THREAD_H
 
 #include <Variable.h>
 #include <vector>
@@ -69,7 +69,7 @@ namespace wasmint {
         InterpreterThread(MachineState & env);
         virtual ~InterpreterThread();
 
-        InterpreterThread & startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
+        InterpreterThread& startAtFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
 
         wasm_module::Instruction* callFunction(const std::string& moduleName, const std::string& functionName, std::vector<wasm_module::Variable> parameters = std::vector<wasm_module::Variable>());
 
@@ -161,4 +161,4 @@ namespace wasmint {
     extern thread_local InterpreterThread * currentThread_;
 }
 
-#endif //WASMINT_THREAD_H
+#endif //WASMINT_INTERPRETER_THREAD_H

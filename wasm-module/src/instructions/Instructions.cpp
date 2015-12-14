@@ -17,6 +17,7 @@
 #include <sexpr_parsing/Types.h>
 #include <branching/BranchTypeValidator.h>
 #include "Instructions.h"
+#include "UnreachableValidator.h"
 
 
 namespace wasm_module {
@@ -44,13 +45,19 @@ namespace wasm_module {
     }
 
     void Loop::secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) {
+        bool hasChildReturnType = false;
         if (!children().empty()) {
             returnType_ = children().back()->returnType();
+            hasChildReturnType = !UnreachableValidator::willNeverEvaluate(children().back());
         }
         const Type* branchType = BranchTypeValidator::checkBranchType(*this, 1);
         if (branchType) {
-            if (returnType_ != branchType) {
-                returnType_ = Void::instance();
+            if (hasChildReturnType) {
+                if (returnType_ != branchType) {
+                    returnType_ = Void::instance();
+                }
+            } else {
+                returnType_ = branchType;
             }
         }
     }
@@ -77,9 +84,9 @@ namespace wasm_module {
 
     void Branch::secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) {
         if (!labelName_.empty()) {
-            branchInformation_ = BranchInformation::getBranchInformation(*this, labelName_, Void::instance());
+            branchInformation_ = BranchInformation::getBranchInformation(*this, labelName_, children().at(0)->returnType());
         } else {
-            branchInformation_ = BranchInformation::getBranchInformation(*this, branchLabel_, Void::instance());
+            branchInformation_ = BranchInformation::getBranchInformation(*this, branchLabel_, children().at(0)->returnType());
         }
     }
 
@@ -254,7 +261,7 @@ namespace wasm_module {
         }
 
         if (hasBranchTarget) {
-            returnType_ = Void::instance();
+            //returnType_ = Void::instance();
         }
     }
 

@@ -7,7 +7,7 @@ namespace wasm_module {
 
     class UnreachableValidator {
     public:
-        static bool willExecuteUnreachable(const Instruction* instruction);
+        static bool willNeverEvaluate(const Instruction *instruction);
     };
 }
 

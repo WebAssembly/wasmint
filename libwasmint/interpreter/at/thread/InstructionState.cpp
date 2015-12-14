@@ -39,7 +39,6 @@ namespace wasmint {
 
         if (result.newChildInstruction()) {
             thread_->pushInstructionState(*result.newChildInstruction());
-            thread_->stepInternal();
         } else if (result.signal() == Signal::Return || result.signal() == Signal::Branch) {
             if (thread_->hasInstructionParent()) {
                 thread_->getInstructionParent().finishSignal(result);

@@ -32,26 +32,26 @@ include_directories(wasm-module/src)
 include_directories (libwasmint)
 
 add_library(libwasmint
-    libwasmint/builtins/StdioModule.cpp
-    libwasmint/builtins/SDLModule.cpp
+        libwasmint/builtins/StdioModule.cpp
+        libwasmint/builtins/SDLModule.cpp
 
-    libwasmint/interpreter/at/thread/InterpreterThread.cpp
-    libwasmint/interpreter/at/thread/FunctionState.cpp
-    libwasmint/interpreter/at/thread/InstructionState.cpp
-    libwasmint/interpreter/at/thread/ThreadMultiPatch.cpp
+        libwasmint/interpreter/at/thread/InterpreterThread.cpp
+        libwasmint/interpreter/at/thread/FunctionState.cpp
+        libwasmint/interpreter/at/thread/InstructionState.cpp
+        libwasmint/interpreter/at/thread/ThreadMultiPatch.cpp
+        libwasmint/interpreter/at/thread/StepResult.cpp
 
-    libwasmint/interpreter/at/MachineState.cpp
-    libwasmint/interpreter/at/InstructionExecutor.cpp
-    libwasmint/interpreter/at/thread/StepResult.cpp
+        libwasmint/interpreter/at/MachineState.cpp
+        libwasmint/interpreter/at/InstructionExecutor.cpp
 
-    libwasmint/interpreter/heap/Heap.cpp
-    libwasmint/interpreter/heap/HeapPatch.cpp
-    libwasmint/interpreter/heap/HeapMultiPatch.cpp
-    libwasmint/interpreter/heap/HeapMultiPatchPart.cpp
+        libwasmint/interpreter/heap/Heap.cpp
+        libwasmint/interpreter/heap/HeapPatch.cpp
+        libwasmint/interpreter/heap/HeapMultiPatch.cpp
+        libwasmint/interpreter/heap/HeapMultiPatchPart.cpp
 
-    libwasmint/serialization/ByteOutputStream.cpp
-    libwasmint/serialization/ByteInputStream.cpp
-)
+        libwasmint/serialization/ByteOutputStream.cpp
+        libwasmint/serialization/ByteInputStream.cpp
+        libwasmint/interpreter/sm/RegisterAllocator.cpp libwasmint/interpreter/sm/RegisterAllocator.h)
 
 
 ###########################
@@ -150,6 +150,17 @@ if(${Boost_FOUND})
 
     target_link_libraries(wasmdbg libwasmint wasm-module ${CURSES_LIBRARIES})
 endif()
+
+###########################
+#   wasm to c compiler    #
+###########################
+
+add_executable(wasm2c
+        wasm-to-c/main.cpp
+        wasm-to-c/ModuleConverter.cpp
+        wasm-to-c/FunctionConverter.cpp wasm-to-c/FunctionConverter.h wasm-to-c/InjectedWasmLib.h)
+target_link_libraries(wasm2c wasm-module)
+
 
 ###########################
 #    Performance tests    #
