@@ -897,6 +897,7 @@ namespace wasm_module {
         bool isCase_ = 0;
         std::string targetName_;
         std::size_t index_ = 0;
+        BranchInformation branchInformation_;
 
     public:
         TableSwitchTarget() {
@@ -913,6 +914,13 @@ namespace wasm_module {
         const std::string & targetName() const;
         std::size_t index() const;
         void index(std::size_t index);
+        void branchInformation(const BranchInformation& information) {
+            branchInformation_ = information;
+        }
+
+        const BranchInformation& branchInformation() const {
+            return branchInformation_;
+        }
     };
 
     ExceptionMessage(CantFindFittingCaseLabel)

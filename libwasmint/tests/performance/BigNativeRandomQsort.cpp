@@ -19,6 +19,7 @@
 #include <climits>
 #include <cstdint>
 #include "PiDigits.h"
+#include <vector>
 
 void swap(char *a, char *b)
 {
@@ -46,27 +47,41 @@ void quicksort(char *begin, char *end)
     quicksort(split, end);
 }
 
-int main()
-{
-    char str[] = WASMINT_PI_DIGITS_STR;
+void randomString(std::vector<char>& str) {
+    static const char alphanum[] =
+            "0123456789"
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            "abcdefghijklmnopqrstuvwxyz";
 
-    /*std::qsort(str, sizeof str, sizeof(char), [](const void* a, const void* b)
-    {
-        char arg1 = *static_cast<const char*>(a);
-        char arg2 = *static_cast<const char*>(b);
+    for (int i = 0; i < str.size(); ++i) {
+        str[i] = alphanum[rand() % (sizeof(alphanum) - 1)];
+    }
+}
 
-        if(arg1 < arg2) return -1;
-        if(arg1 > arg2) return 1;
-        return 0;
-    }); */
-    quicksort(str, str + sizeof(str));
+
+void testQsort() {
+    std::vector<char> data;
+    data.resize(100000);
+
+    quicksort(data.data(), data.data() + data.size());
 
     char smallestValue = -128;
-    for (std::size_t i = 0; i < sizeof str; i++) {
-        char value = str[i];
-        if (value < smallestValue)
-            return 1;
+    for (std::size_t i = 0; i < data.size(); i++) {
+        char value = data[i];
+        if (value < smallestValue) {
+            std::cerr << "Heap unsorted" << std::endl;
+            abort();
+        }
         smallestValue = value;
     }
+}
+
+int main()
+{
+    for (std::size_t i = 0; i < 10; i++) {
+        std::cout << i << std::endl;
+        testQsort();
+    }
+
     return 0;
 }

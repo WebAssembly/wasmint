@@ -17,8 +17,9 @@
 
 #include "RegisterAllocator.h"
 
-std::size_t wasmint::RegisterAllocator::calculateNumberOfRegisters(const wasm_module::Instruction& instruction, std::size_t offset) {
-    switch (instruction.id()) {
+
+void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instruction* instruction, std::size_t offset) {
+    switch (instruction->id()) {
         case InstructionId::I32Add:
         case InstructionId::I32Sub:
         case InstructionId::I32Mul:
@@ -112,14 +113,12 @@ std::size_t wasmint::RegisterAllocator::calculateNumberOfRegisters(const wasm_mo
         case InstructionId::I64Store:
         case InstructionId::F32Store:
         case InstructionId::F64Store:
+        case InstructionId::BranchIf:
         {
-            std::size_t left = calculateNumberOfRegisters(*instruction.children().at(0), offset);
-            std::size_t right = calculateNumberOfRegisters(*instruction.children().at(1), offset + 1);
-
-            if (right > left)
-                return right;
-            else
-                return left;
+            allocateRegisters(instruction->children().at(0), offset);
+            allocateRegisters(instruction->children().at(1), offset + 1);
+            setRegister(instruction, offset);
+            break;
         }
 
         case InstructionId::I32CountLeadingZeroes:
@@ -135,8 +134,6 @@ std::size_t wasmint::RegisterAllocator::calculateNumberOfRegisters(const wasm_mo
         case InstructionId::GetLocal:
         case InstructionId::SetLocal:
         case InstructionId::GrowMemory:
-        case InstructionId::PageSize:
-        case InstructionId::MemorySize:
         case InstructionId::I32Load8Signed:
         case InstructionId::I32Load8Unsigned:
         case InstructionId::I32Load16Signed:
@@ -178,40 +175,64 @@ std::size_t wasmint::RegisterAllocator::calculateNumberOfRegisters(const wasm_mo
         case InstructionId::F64ConvertUnsignedI32:
         case InstructionId::F64ConvertUnsignedI64:
         case InstructionId::F64ReinterpretI64:
-            return offset;
-
-        case InstructionId::Nop:
-        case InstructionId::Unreachable:
-        case InstructionId::HasFeature:
-            return 0;
-
-
-        case InstructionId::CallIndirect:
-        case InstructionId::CallImport:
-        case InstructionId::Call:
-        case InstructionId::Block:
-        case InstructionId::If:
-        case InstructionId::IfElse:
         case InstructionId::Return:
         case InstructionId::Label:
         case InstructionId::Loop:
         case InstructionId::Branch:
-        case InstructionId::BranchIf:
+        case InstructionId::PageSize:
+        case InstructionId::MemorySize:
+        {
+            allocateRegisters(instruction->children().at(0), offset);
+            setRegister(instruction, offset);
+            break;
+        }
 
+        case InstructionId::Nop:
+        case InstructionId::Unreachable:
+        case InstructionId::HasFeature:
+        {
+            break;
+        }
 
+        case InstructionId::CallIndirect:
+        case InstructionId::CallImport:
+        case InstructionId::Call:
+        {
+            for (std::size_t localOffset = 0; localOffset < instruction->children().size(); localOffset++)
+                allocateRegisters(instruction->children().at(localOffset), offset + localOffset);
+            setRegister(instruction, offset);
+            break;
+        }
+
+        case InstructionId::TableSwitch:
+        case InstructionId::Case:
+        case InstructionId::Block:
+        case InstructionId::If:
+        case InstructionId::IfElse:
+        {
+            for (const wasm_module::Instruction* child : instruction->children())
+                allocateRegisters(instruction->children().at(0), offset);
+
+            setRegister(instruction, offset);
+            break;
+        }
 
         case InstructionId::I32Select:
         case InstructionId::I64Select:
         case InstructionId::F32Select:
         case InstructionId::F64Select:
+        {
+            allocateRegisters(instruction->children().at(0), offset);
+            allocateRegisters(instruction->children().at(1), offset);
+            allocateRegisters(instruction->children().at(2), offset);
+            setRegister(instruction, offset);
+            break;
+        }
 
-        case InstructionId::TableSwitch:
-        case InstructionId::Case:
-        case InstructionId::NativeInstruction:
-
-        case InstructionId::AddressOf:
         default:
-            throw std::domain_error("calculateNumberOfRegisters can't handle instruction " + instruction.name());
+            throw std::domain_error("calculateNumberOfRegisters can't handle instruction " + instruction->name());
     }
+
+
 
 }

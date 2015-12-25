@@ -23,10 +23,10 @@
 #include <vector>
 #include <ExceptionWithMessage.h>
 #include <HeapData.h>
-#include <string.h>
 #include <serialization/ByteInputStream.h>
 #include <serialization/ByteOutputStream.h>
 #include "../SafeAddition.h"
+#include <cstring>
 
 namespace wasmint {
 
@@ -127,7 +127,81 @@ namespace wasmint {
             }
         }
 
+        template<typename T>
+        bool setStaticOffset(std::size_t staticOffset, std::size_t offset, T value) {
+            std::size_t end;
+
+            if (safeSizeTAddition(offset, sizeof(T), &end)) {
+                return false;
+            }
+            if (safeSizeTAddition(staticOffset, end, &end)) {
+                return false;
+            }
+
+            if (end > data_.size()) {
+                return false;
+            }
+
+            std::memcpy(data_.data() + offset, &value, sizeof(T));
+
+            return true;
+        }
+
+        template<typename T>
+        bool set(std::size_t offset, T value) {
+            std::size_t end;
+
+            if (safeSizeTAddition(offset, sizeof(T), &end)) {
+                return false;
+            }
+
+            if (end > data_.size()) {
+                return false;
+            }
+
+            std::memcpy(data_.data() + offset, &value, sizeof(T));
+
+            return true;
+        }
+
         void setBytes(uint32_t offset, const std::vector<uint8_t>& bytes, HeapPatch& patch);
+
+        template<typename T>
+        bool get(std::size_t offset, T* value) {
+            std::size_t end;
+
+            if (safeSizeTAddition(offset, sizeof(T), &end)) {
+                return false;
+            }
+
+            if (end > data_.size()) {
+                return false;
+            }
+
+            std::memcpy(value, data_.data() + offset, sizeof(T));
+
+            return true;
+        }
+
+        template<typename T>
+        bool getStaticOffset(std::size_t offset, std::size_t staticOffset, T* value) {
+            std::size_t end;
+
+            if (safeSizeTAddition(offset, sizeof(T), &end)) {
+                return false;
+            }
+            if (safeSizeTAddition(staticOffset, end, &end)) {
+                return false;
+            }
+
+            if (end > data_.size()) {
+                return false;
+            }
+
+            std::memcpy(value, data_.data() + offset, sizeof(T));
+
+            return true;
+        }
 
         std::vector<uint8_t> getBytes(std::size_t offset, std::size_t size) {
 

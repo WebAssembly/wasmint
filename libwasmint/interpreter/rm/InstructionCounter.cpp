@@ -15,21 +15,4 @@
  */
 
 
-#ifndef WASMINT_REGISTERCOUNTCALCULATOR_H
-#define WASMINT_REGISTERCOUNTCALCULATOR_H
-
-
-#include <cstdint>
-#include <instructions/Instruction.h>
-
-namespace wasmint {
-    class RegisterAllocator {
-
-    public:
-        static std::size_t calculateNumberOfRegisters(const wasm_module::Instruction& instruction, std::size_t parent = 1);
-    };
-}
-
-
-
-#endif //WASMINT_REGISTERCOUNTCALCULATOR_H
+#include "InstructionCounter.h"

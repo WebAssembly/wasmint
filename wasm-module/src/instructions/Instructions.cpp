@@ -211,6 +211,8 @@ namespace wasm_module {
                         const Case &caseExpr = dynamic_cast<const Case &>(*child);
 
                         if (target.targetName() == caseExpr.labelName()) {
+                            target.branchInformation(BranchInformation(0, child, 0));
+
                             target.index(index);
                             foundFittingChild = true;
                         }
@@ -234,6 +236,7 @@ namespace wasm_module {
                     const Case &caseExpr = dynamic_cast<const Case &>(*child);
 
                     if (defaultTarget_.targetName() == caseExpr.labelName()) {
+                        defaultTarget_.branchInformation(BranchInformation(0, child, 0));
                         defaultTarget_.index(index);
                         foundFittingChild = true;
                     }

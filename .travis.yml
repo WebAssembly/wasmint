@@ -25,7 +25,6 @@ addons:
       - clang-3.6
       - valgrind
       - libboost1.55-all-dev
-      - libncurses-dev
 
 script:
   - cmake .
