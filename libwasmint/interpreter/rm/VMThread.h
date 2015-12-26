@@ -15,8 +15,8 @@
  */
 
 
-#ifndef WASMINT_BYTECODERUNNER_H
-#define WASMINT_BYTECODERUNNER_H
+#ifndef WASMINT_VMTHREAD_H
+#define WASMINT_VMTHREAD_H
 
 #include <cstdint>
 #include <vector>
@@ -29,24 +29,31 @@ namespace wasmint {
 
     class RegisterMachine;
 
-    class ByteCodeRunner {
+    class VMThread {
 
         std::vector<FunctionFrame> frames_;
         std::string trapReason_;
         RegisterMachine* machine_ = nullptr;
 
     public:
-        ByteCodeRunner() {
+        VMThread() {
         }
 
-        ByteCodeRunner(RegisterMachine* machine) : machine_(machine) {
+        VMThread(RegisterMachine* machine) : machine_(machine) {
         }
 
         void finishFrame(uint64_t result) {
             if (frames_.empty())
                 throw std::domain_error("Can't call finishFrame(): frame stack is empty!");
             frames_.resize(frames_.size() - 1);
-            frames_.back().passFunctionResult(result);
+            if (!frames_.empty())
+                frames_.back().passFunctionResult(result);
+        }
+
+        FunctionFrame& currentFrame() {
+            if (frames_.empty())
+                throw std::domain_error("currentFrame() called on empty frame stack");
+            return frames_.back();
         }
 
         void pushFrame(const FunctionFrame& frame) {
@@ -55,6 +62,10 @@ namespace wasmint {
 
         void trap(const std::string& reason) {
             trapReason_ = reason;
+        }
+
+        bool finished() {
+            return gotTrap() || frames_.empty();
         }
 
         bool gotTrap() const {
@@ -74,6 +85,8 @@ namespace wasmint {
         }
 
         void enterFunction(std::size_t functionId);
+
+        void enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset);
     };
 }
 

@@ -26,6 +26,7 @@
 #include "QuickSortSource.h"
 #include <chrono>
 #include <iostream>
+#include <interpreter/rm/RegisterMachine.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -34,7 +35,19 @@ using namespace wasm_module;
 using namespace wasm_module::sexpr;
 using namespace wasmint;
 
-int main() {
+void assertHeapSorted(Heap& heap) {
+    uint8_t smallestValue = 0;
+    for (std::size_t i = 0; i < heap.size(); i++) {
+        uint8_t value = heap.getByte(i);
+        if (value < smallestValue) {
+            std::cout << "Heap not sorted at position " << i << "! This means that quicksort was not proberly executed" << std::endl;
+            abort();
+        }
+        smallestValue = value;
+    }
+}
+
+void runATCore() {
     std::cout.setf( std::ios::fixed, std:: ios::floatfield );
     std::cout.precision(4);
 
@@ -48,8 +61,8 @@ int main() {
     InterpreterThread * thread = &environment.createThread().startAtFunction(positiveModule->name(), "main");
     thread->stepUntilFinished();
     if (thread->gotTrap()) {
-        std::cerr << "thread got trap: " << thread->trapReason() << std:: endl;
-        return 1;
+        std::cerr << "thread got trap: " << thread->trapReason() << std::endl;
+        abort();
     }
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
@@ -59,15 +72,40 @@ int main() {
 
     Heap& heap = thread->getHeap(*positiveModule);
 
-    uint8_t smallestValue = 0;
-    for (std::size_t i = 0; i < heap.size(); i++) {
-        uint8_t value = heap.getByte(i);
-        if (value < smallestValue) {
-            for (std::size_t j = 0; j < 20; j++)
-                std::cout << std::to_string(heap.getByte((i + j) - 10)) << std::endl;
-            std::cout << "Heap not sorted at position " << i << "! This means that quicksort was not proberly executed" << std::endl;
-            return 1;
-        }
-        smallestValue = value;
+    assertHeapSorted(heap);
+}
+
+void runRMCore() {
+    std::cout.setf( std::ios::fixed, std:: ios::floatfield );
+    std::cout.precision(4);
+
+    RegisterMachine registerMachine;
+
+    Module* positiveModule = ModuleParser::parse(quickSortSource);
+
+    registerMachine.loadModule(positiveModule, true);
+
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+    VMThread& thread = registerMachine.startAtFunction(*positiveModule->functions().back());
+
+    registerMachine.stepUntilFinished();
+
+    if (thread.gotTrap()) {
+        std::cerr << "thread got trap: " << thread.trapReason() << std::endl;
+        abort();
     }
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+
+    int64_t duration = duration_cast<microseconds>( t2 - t1 ).count();
+    std::cout << "We took " << duration << " microseconds (" << (duration / 1000000.0) << " seconds)" << std::endl;
+
+
+    Heap& heap = registerMachine.heap();
+
+    assertHeapSorted(heap);
+}
+
+int main() {
+ //   runATCore();
+    runRMCore();
 }

@@ -18,18 +18,18 @@
 #include "FunctionFrame.h"
 #include <cmath>
 #include <limits>
-#include "ByteCodeRunner.h"
+#include <iostream>
+#include "VMThread.h"
 
 namespace wasmint {
 
-void FunctionFrame::step(ByteCodeRunner& runner, Heap& heap) {
+void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
-    const ByteOpcodes::Values opcode = function_->code().get<ByteOpcodes::Values>(instructionPointer_);
-    instructionPointer_ += sizeof(uint8_t);
+    const ByteOpcodes::Values opcode = (const ByteOpcodes::Values) popFromCode<uint16_t>();
 
-    const uint16_t opcodeData = function_->code().get<uint16_t>(instructionPointer_);
-    instructionPointer_ += sizeof(uint16_t);
+    const uint16_t opcodeData = popFromCode<uint16_t>();
 
+    // TODO dumpStatus(opcode, opcodeData);
 
     switch (opcode) {
         /******************************************************
@@ -473,6 +473,14 @@ void FunctionFrame::step(ByteCodeRunner& runner, Heap& heap) {
             }
             break;
         }
+        case ByteOpcodes::BranchIfNot:
+        {
+            uint32_t jumpOffset = popFromCode<uint32_t>();
+            if (!getRegister<uint32_t>(opcodeData)) {
+                instructionPointer_ = jumpOffset;
+            }
+            break;
+        }
 
         case ByteOpcodes::Return:
         {
@@ -493,23 +501,23 @@ void FunctionFrame::step(ByteCodeRunner& runner, Heap& heap) {
             instructionPointer_ = jumpTarget;
         }
 
+        case ByteOpcodes::CallImport:
         case ByteOpcodes::Call:
         {
             functionTargetRegister_ = opcodeData;
-            runner.enterFunction(popFromCode<uint16_t>());
-
+            uint32_t functionId = popFromCode<uint32_t>();
+            uint32_t parameterSize = popFromCode<uint32_t>();
+            runner.enterFunction(functionId, parameterSize, opcodeData);
             break;
         }
-
-        case ByteOpcodes::CallImport:
-            break;
         case ByteOpcodes::CallIndirect:
+            throw std::domain_error("CallIndirect is not implemented");
             break;
         case ByteOpcodes::SetLocal:
             setVariable(popFromCode<uint16_t>(), getRegister<uint64_t>(opcodeData));
             break;
         case ByteOpcodes::GetLocal:
-            setRegister(opcodeData, getVariable(popFromCode<uint16_t>()));
+            setRegister<uint64_t>(opcodeData, getVariable(popFromCode<uint16_t>()));
             break;
         case ByteOpcodes::I32Const:
             setRegister(opcodeData, popFromCode<uint32_t>());
@@ -553,7 +561,8 @@ void FunctionFrame::step(ByteCodeRunner& runner, Heap& heap) {
             /******************************************************
              ************** Load / Store Operations ***************
              ******************************************************/
-        case ByteOpcodes::I32Load8Signed: {
+        case ByteOpcodes::I32Load8Signed:
+        {
             int8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
                 runner.trap("Memory trap");
@@ -561,7 +570,8 @@ void FunctionFrame::step(ByteCodeRunner& runner, Heap& heap) {
             break;
         }
 
-        case ByteOpcodes::I32Load8Unsigned: {
+        case ByteOpcodes::I32Load8Unsigned:
+        {
             uint8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
                 runner.trap("Memory trap");
@@ -569,7 +579,8 @@ void FunctionFrame::step(ByteCodeRunner& runner, Heap& heap) {
             break;
         }
 
-        case ByteOpcodes::I32Load16Signed: {
+        case ByteOpcodes::I32Load16Signed:
+        {
             int16_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
                 runner.trap("Memory trap");
@@ -577,14 +588,16 @@ void FunctionFrame::step(ByteCodeRunner& runner, Heap& heap) {
             break;
         }
 
-        case ByteOpcodes::I32Load16Unsigned: {
+        case ByteOpcodes::I32Load16Unsigned:
+        {
             uint16_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
                 runner.trap("Memory trap");
             setRegister<uint32_t>(opcodeData, value);
             break;
         }
-        case ByteOpcodes::I32Load: {
+        case ByteOpcodes::I32Load:
+        {
             uint32_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
                 runner.trap("Memory trap");
@@ -592,8 +605,8 @@ void FunctionFrame::step(ByteCodeRunner& runner, Heap& heap) {
             break;
         }
 
-
-        case ByteOpcodes::I64Load8Signed: {
+        case ByteOpcodes::I64Load8Signed:
+        {
             int8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
                 runner.trap("Memory trap");
@@ -1313,8 +1326,33 @@ void FunctionFrame::step(ByteCodeRunner& runner, Heap& heap) {
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(sourceRegister));
             break;
         }
+        case ByteOpcodes::End:
+            runner.finishFrame(getRegister<uint64_t>(0));
+            break;
         default:
             return runner.trap("Unknown instruction with opcode " + std::to_string(opcode));
     }
 }
+
+    void FunctionFrame::dumpStatus(ByteOpcodes::Values opcode, uint16_t opcodeData) {
+        std::cout << "Opcode: " << ByteOpcodes::name(opcode) << " " << opcodeData << "\n";
+        std::cout << "Registers:\n";
+        for (std::size_t i = 0; i < registers_.size(); i++) {
+            std::cout << "r" << std::to_string(i) << " = " << registers_[i] << "\n";
+        }
+        std::cout << "Variables:\n";
+        for (std::size_t i = 0; i < variables_.size(); i++) {
+            std::cout << "Var " << std::to_string(i) << " = " << variables_[i] << "\n";
+        }
+        std::cout << "#########################\n";
+    }
+
+    void FunctionFrame::step(VMThread &runner, Heap &heap) {
+        stepInternal(runner, heap);
+        /*const wasm_module::Instruction* instruction = function_->jitCompiler().getInstruction(instructionPointer_);
+        if (instruction) {
+            std::cout << instruction->toSExprString() << std::endl;
+        }*/
+
+    }
 }

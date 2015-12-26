@@ -59,7 +59,7 @@ namespace wasmint {
         }
 
         void appendOpcode(ByteOpcode opcode) {
-            byteCode_.push_back(opcode);
+            append((uint16_t) opcode);
         }
 
         template<typename T>
@@ -67,6 +67,15 @@ namespace wasmint {
             byteCode_.resize(byteCode_.size() + sizeof value);
             memcpy(byteCode_.data() + (byteCode_.size() - sizeof(value)), &value, sizeof(value));
         }
+
+        template<typename T>
+        void write(std::size_t offset, T value) {
+            if (offset + sizeof(value) > byteCode_.size()) {
+                throw std::domain_error(std::to_string(offset) + " + " + std::to_string(sizeof(value)) + " <= " + std::to_string(byteCode_.size()) + " failed");
+            }
+            memcpy(byteCode_.data() + offset, &value, sizeof(value));
+        }
+
 
         uint32_t size() const {
             return (uint32_t) byteCode_.size();

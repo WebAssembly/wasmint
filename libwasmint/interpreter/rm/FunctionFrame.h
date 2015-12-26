@@ -25,7 +25,7 @@
 #include "CompiledFunction.h"
 
 namespace wasmint {
-    class ByteCodeRunner;
+    class VMThread;
 
     class FunctionFrame {
         std::vector<uint64_t> registers_;
@@ -33,24 +33,23 @@ namespace wasmint {
 
         uint16_t functionTargetRegister_ = 0;
 
-        std::size_t instructionPointer_ = 0;
-        CompiledFunction* function_;
+        uint32_t instructionPointer_ = 0;
+        const CompiledFunction* function_ = nullptr;
+
+        void dumpStatus(ByteOpcodes::Values opcode, uint16_t opcodeData);
+
+        void stepInternal(VMThread &runner, Heap &heap);
 
     public:
         FunctionFrame() {
         }
 
-        FunctionFrame(CompiledFunction& function) : function_(&function) {
+        FunctionFrame(const CompiledFunction& function) : function_(&function) {
+            uint16_t numberOfRegisters = popFromCode<uint16_t>();
+            registers_.resize(numberOfRegisters, 0);
 
-            uint16_t numberOfRegisters;
-            function_->code().get<uint16_t>(&numberOfRegisters, 0);
-            registers_.resize(numberOfRegisters);
-            instructionPointer_ = sizeof numberOfRegisters;
-
-            uint16_t numberOfVariables;
-            function_->code().get<uint16_t>(&numberOfVariables, 0);
-            registers_.resize(numberOfVariables);
-            instructionPointer_ += sizeof numberOfVariables;
+            uint16_t numberOfVariables = popFromCode<uint16_t>();
+            variables_.resize(numberOfVariables, 0);
         }
 
         void passFunctionResult(uint64_t value) {
@@ -85,15 +84,18 @@ namespace wasmint {
 
         uint64_t getVariable(uint16_t index) {
             uint64_t result;
-            std::memcpy(&result, registers_.data() + index, sizeof(uint64_t));
+            std::memcpy(&result, variables_.data() + index, sizeof(uint64_t));
             return result;
         }
 
         void setVariable(uint64_t index, uint64_t value) {
+            if (index >= variables_.size())
+                throw std::domain_error("Can't access variable with index " + std::to_string(index)
+                                        + ". Current function has variable array of size " + std::to_string(variables_.size()));
             std::memcpy(variables_.data() + index, &value, sizeof(uint64_t));
         }
 
-        void step(ByteCodeRunner& runner, Heap& heap);
+        void step(VMThread &runner, Heap &heap);
 
     };
 }

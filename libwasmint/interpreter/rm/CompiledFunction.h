@@ -24,13 +24,13 @@
 
 namespace wasmint {
     class CompiledFunction {
-        wasm_module::Function* function_;
+        const wasm_module::Function* function_;
         JITCompiler compiler_;
 
     public:
         CompiledFunction() {
         }
-        CompiledFunction(wasm_module::Function* function) : function_(function) {
+        CompiledFunction(const wasm_module::Function* function) : function_(function) {
             compiler_.compile(function);
         }
 
@@ -40,6 +40,14 @@ namespace wasmint {
 
         const wasm_module::Function& function() const {
             return *function_;
+        }
+
+        const JITCompiler& jitCompiler() const {
+            return compiler_;
+        }
+
+        JITCompiler& jitCompiler() {
+            return compiler_;
         }
     };
 

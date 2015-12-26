@@ -17,16 +17,22 @@
 
 #include <instructions/Instructions.h>
 #include "JITCompiler.h"
+#include "RegisterMachine.h"
 
 #define Op2Case(Name) case InstructionId:: Name : \
-        compileInstruction(instruction->children()[0]); \
-        compileInstruction(instruction->children()[1]); \
+        compileInstruction(instruction->children().at(0)); \
+        compileInstruction(instruction->children().at(1)); \
         code_.appendOpcode(ByteOpcodes:: Name ); \
         code_.append(registerAllocator_(instruction)); \
         break;
 
 #define Op1Case(Name) case InstructionId:: Name : \
-        compileInstruction(instruction->children()[0]); \
+        compileInstruction(instruction->children().at(0)); \
+        code_.appendOpcode(ByteOpcodes:: Name ); \
+        code_.append(registerAllocator_(instruction)); \
+        break;
+
+#define Op0Case(Name) case InstructionId:: Name : \
         code_.appendOpcode(ByteOpcodes:: Name ); \
         code_.append(registerAllocator_(instruction)); \
         break;
@@ -120,15 +126,6 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         Op2Case(F64GreaterEqual)
         Op2Case(F64Min)
         Op2Case(F64Max)
-        Op2Case(I32Store8)
-        Op2Case(I32Store16)
-        Op2Case(I32Store)
-        Op2Case(I64Store8)
-        Op2Case(I64Store16)
-        Op2Case(I64Store32)
-        Op2Case(I64Store)
-        Op2Case(F32Store)
-        Op2Case(F64Store)
 
         Op1Case(I32CountLeadingZeroes)
         Op1Case(I32CountTrailingZeroes)
@@ -136,25 +133,6 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         Op1Case(I64CountLeadingZeroes)
         Op1Case(I64CountTrailingZeroes)
         Op1Case(I64PopulationCount)
-        Op1Case(GetLocal)
-        Op1Case(SetLocal)
-        Op1Case(GrowMemory)
-        Op1Case(PageSize)
-        Op1Case(MemorySize)
-        Op1Case(I32Load8Signed)
-        Op1Case(I32Load8Unsigned)
-        Op1Case(I32Load16Signed)
-        Op1Case(I32Load16Unsigned)
-        Op1Case(I32Load)
-        Op1Case(I64Load8Signed)
-        Op1Case(I64Load8Unsigned)
-        Op1Case(I64Load16Signed)
-        Op1Case(I64Load16Unsigned)
-        Op1Case(I64Load32Signed)
-        Op1Case(I64Load32Unsigned)
-        Op1Case(I64Load)
-        Op1Case(F32Load)
-        Op1Case(F64Load)
         Op1Case(F32Sqrt)
         Op1Case(F64Sqrt)
         Op1Case(I32TruncSignedF32)
@@ -177,7 +155,170 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         Op1Case(F64ConvertSignedI64)
         Op1Case(F64ConvertUnsignedI32)
         Op1Case(F64ConvertUnsignedI64)
+        Op1Case(GrowMemory)
+        Op0Case(PageSize)
+        Op0Case(MemorySize)
 
+        case InstructionId::I32Load8Signed:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I32Load8Signed);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I32Load8Signed*>(instruction)->offset());
+            break;
+        case InstructionId::I32Load8Unsigned:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I32Load8Unsigned);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I32Load8Unsigned*>(instruction)->offset());
+            break;
+        case InstructionId::I32Load16Signed:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I32Load16Signed);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I32Load16Signed*>(instruction)->offset());
+            break;
+        case InstructionId::I32Load16Unsigned:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I32Load16Unsigned);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I32Load16Unsigned*>(instruction)->offset());
+            break;
+        case InstructionId::I32Load:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I32Load);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I32Load*>(instruction)->offset());
+            break;
+        case InstructionId::I64Load8Signed:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I64Load8Signed);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Load8Signed*>(instruction)->offset());
+            break;
+        case InstructionId::I64Load8Unsigned:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I64Load8Unsigned);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Load8Unsigned*>(instruction)->offset());
+            break;
+        case InstructionId::I64Load16Signed:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I64Load16Signed);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Load16Signed*>(instruction)->offset());
+            break;
+        case InstructionId::I64Load16Unsigned:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I64Load16Unsigned);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Load16Unsigned*>(instruction)->offset());
+            break;
+        case InstructionId::I64Load32Signed:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I64Load32Signed);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Load32Signed*>(instruction)->offset());
+            break;
+        case InstructionId::I64Load32Unsigned:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I64Load32Unsigned);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Load32Unsigned*>(instruction)->offset());
+            break;
+        case InstructionId::I64Load:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I64Load);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Load*>(instruction)->offset());
+            break;
+        case InstructionId::F32Load:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::F32Load);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::F32Load*>(instruction)->offset());
+            break;
+        case InstructionId::F64Load:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::F64Load);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::F64Load*>(instruction)->offset());
+            break;
+
+        case InstructionId::I32Store8:
+            compileInstruction(instruction->children().at(0));
+            compileInstruction(instruction->children().at(1));
+            code_.appendOpcode(ByteOpcodes::I32Store8);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I32Store8*>(instruction)->offset());
+            break;
+        case InstructionId::I32Store16:
+            compileInstruction(instruction->children().at(0));
+            compileInstruction(instruction->children().at(1));
+            code_.appendOpcode(ByteOpcodes::I32Store16);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I32Store16*>(instruction)->offset());
+            break;
+        case InstructionId::I32Store:
+            compileInstruction(instruction->children().at(0));
+            compileInstruction(instruction->children().at(1));
+            code_.appendOpcode(ByteOpcodes::I32Store);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I32Store*>(instruction)->offset());
+            break;
+        case InstructionId::I64Store8:
+            compileInstruction(instruction->children().at(0));
+            compileInstruction(instruction->children().at(1));
+            code_.appendOpcode(ByteOpcodes::I64Store8);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Store8*>(instruction)->offset());
+            break;
+        case InstructionId::I64Store16:
+            compileInstruction(instruction->children().at(0));
+            compileInstruction(instruction->children().at(1));
+            code_.appendOpcode(ByteOpcodes::I64Store16);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Store16*>(instruction)->offset());
+            break;
+        case InstructionId::I64Store32:
+            compileInstruction(instruction->children().at(0));
+            compileInstruction(instruction->children().at(1));
+            code_.appendOpcode(ByteOpcodes::I64Store32);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Store32*>(instruction)->offset());
+            break;
+        case InstructionId::I64Store:
+            compileInstruction(instruction->children().at(0));
+            compileInstruction(instruction->children().at(1));
+            code_.appendOpcode(ByteOpcodes::I64Store);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::I64Store*>(instruction)->offset());
+            break;
+        case InstructionId::F32Store:
+            compileInstruction(instruction->children().at(0));
+            compileInstruction(instruction->children().at(1));
+            code_.appendOpcode(ByteOpcodes::F32Store);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::F32Store*>(instruction)->offset());
+            break;
+        case InstructionId::F64Store:
+            compileInstruction(instruction->children().at(0));
+            compileInstruction(instruction->children().at(1));
+            code_.appendOpcode(ByteOpcodes::F64Store);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint32_t>(dynamic_cast<const wasm_module::F64Store*>(instruction)->offset());
+            break;
+
+        case InstructionId::GetLocal:
+            code_.appendOpcode(ByteOpcodes::GetLocal);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint16_t>((uint16_t) dynamic_cast<const wasm_module::GetLocal*>(instruction)->localIndex);
+            break;
+        case InstructionId::SetLocal:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::SetLocal);
+            code_.append(registerAllocator_(instruction));
+            code_.append<uint16_t>((uint16_t) dynamic_cast<const wasm_module::SetLocal*>(instruction)->localIndex);
+            break;
         case InstructionId::I32Const:
             code_.appendOpcode(ByteOpcodes::I32Const);
             code_.append(registerAllocator_(instruction));
@@ -218,8 +359,13 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             for (std::size_t i = 0; i < instruction->children().size(); i++)
                 compileInstruction(instruction->children()[i]);
 
+            const wasm_module::Call* call = dynamic_cast<const wasm_module::Call*>(instruction);
+
             code_.appendOpcode(ByteOpcodes::Call);
-            code_.append<uint16_t>(0);
+            code_.append<uint16_t>(registerAllocator_(instruction));
+            needsFunctionIndex.push_back(std::make_pair(call->functionSignature, code_.size()));
+            code_.append<uint32_t>(0);
+            code_.append<uint32_t>((uint32_t) call->functionSignature.parameters().size());
             break;
         }
 
@@ -251,6 +397,8 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         {
             for (std::size_t i = 0; i < instruction->children().size(); i++)
                 compileInstruction(instruction->children()[i]);
+            code_.appendOpcode(ByteOpcodes::Nop);
+            code_.append<uint16_t>(0);
             break;
         }
         case InstructionId::BranchIf:
@@ -263,14 +411,14 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         case InstructionId::If:
         {
             compileInstruction(instruction->children().at(0));
-            addBranchIf(instruction, registerAllocator_(instruction), false);
+            addBranchIfNot(instruction, registerAllocator_(instruction), false);
             compileInstruction(instruction->children().at(1));
             break;
         }
         case InstructionId::IfElse:
         {
             compileInstruction(instruction->children().at(0));
-            addBranchIf(instruction->children().at(2), registerAllocator_(instruction), true);
+            addBranchIfNot(instruction->children().at(2), registerAllocator_(instruction), true);
             compileInstruction(instruction->children().at(1));
             addBranch(instruction, registerAllocator_(instruction), false);
             compileInstruction(instruction->children().at(2));
@@ -329,6 +477,7 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
     }
 
     instructionEndAddresses[instruction] = code_.size();
+    instructionFinishedAddresses[code_.size()] = instruction;
 }
 
 void wasmint::JITCompiler::addBranch(const wasm_module::BranchInformation* information, uint16_t opcodeData) {
@@ -338,18 +487,28 @@ void wasmint::JITCompiler::addBranch(const wasm_module::BranchInformation* infor
 void wasmint::JITCompiler::addBranch(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before) {
     code_.appendOpcode(ByteOpcodes::Branch);
     addBranchAddress(instruction, before);
-    addCopyRegister(registerAllocator_(instruction), opcodeData);
+    if (instruction->returnType() != wasm_module::Void::instance() && registerAllocator_(instruction) != opcodeData)
+        addCopyRegister(registerAllocator_(instruction), opcodeData);
 }
 
 void wasmint::JITCompiler::addBranchIf(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before) {
     code_.appendOpcode(ByteOpcodes::BranchIf);
     code_.append(opcodeData);
     addBranchAddress(instruction, before);
-    addCopyRegister(registerAllocator_(instruction), opcodeData);
+    if (instruction->returnType() != wasm_module::Void::instance() && registerAllocator_(instruction) != opcodeData)
+        addCopyRegister(registerAllocator_(instruction), opcodeData);
+}
+
+void wasmint::JITCompiler::addBranchIfNot(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before) {
+    code_.appendOpcode(ByteOpcodes::BranchIfNot);
+    code_.append(opcodeData);
+    addBranchAddress(instruction, before);
+    if (instruction->returnType() != wasm_module::Void::instance() && registerAllocator_(instruction) != opcodeData)
+        addCopyRegister(registerAllocator_(instruction), opcodeData);
 }
 
 void wasmint::JITCompiler::addCopyRegister(uint16_t target, uint16_t source) {
-    code_.appendOpcode(ByteOpcodes::BranchIf);
+    code_.appendOpcode(ByteOpcodes::CopyReg);
     code_.append(target);
     code_.append(source);
 }
@@ -361,4 +520,52 @@ void wasmint::JITCompiler::addBranchAddress(const wasm_module::Instruction* inst
         needsInstructionEndAddress.push_back(std::make_pair(instruction, code_.size()));
     }
     code_.append<uint32_t>(0);
+}
+
+void wasmint::JITCompiler::linkGlobally(const RegisterMachine* registerMachine) {
+    for (auto pair : needsFunctionIndex) {
+        auto& signature = pair.first;
+
+        bool foundFunction = false;
+
+        for (uint32_t i = 0; i < registerMachine->getNumberOfCompiledFunction(); i++) {
+            const wasm_module::Function& function = registerMachine->getCompiledFunction(i).function();
+            if (signature.moduleName() == function.moduleName() && signature.name() == function.name()) {
+                code_.write<uint32_t>(pair.second, i);
+                foundFunction = true;
+                break;
+            }
+        }
+        if (!foundFunction) {
+            throw std::domain_error("Can't find link target " + signature.toString());
+        }
+    }
+}
+
+void wasmint::JITCompiler::linkLocally() {
+    for (auto pair : needsInstructionStartAddress) {
+        auto addressIter = instructionStartAddresses.find(pair.first);
+        if (addressIter != instructionStartAddresses.end())
+            code_.write(pair.second, addressIter->second);
+        else
+            throw std::domain_error("Can't find start address of instruction " + pair.first->toSExprString());
+    }
+    for (auto pair : needsInstructionEndAddress) {
+        auto addressIter = instructionEndAddresses.find(pair.first);
+        if (addressIter != instructionEndAddresses.end())
+            code_.write(pair.second, addressIter->second);
+        else
+            throw std::domain_error("Can't find end address of instruction " + pair.first->toSExprString());
+    }
+}
+
+void wasmint::JITCompiler::compile(const wasm_module::Function* function) {
+    registerAllocator_ = RegisterAllocator();
+    registerAllocator_.allocateRegisters(function->mainInstruction());
+    code_.append<uint16_t>(registerAllocator_.registersRequired());
+    code_.append<uint16_t>((uint16_t) function->locals().size());
+    compileInstruction(function->mainInstruction());
+    code_.appendOpcode(ByteOpcodes::End);
+    code_.append<uint16_t>(0);
+    linkLocally();
 }

@@ -48,18 +48,22 @@ add_library(libwasmint
     libwasmint/interpreter/heap/HeapPatch.cpp
     libwasmint/interpreter/heap/HeapMultiPatch.cpp
     libwasmint/interpreter/heap/HeapMultiPatchPart.cpp
+    libwasmint/interpreter/heap/judy/JudyArray.cpp
 
     libwasmint/serialization/ByteOutputStream.cpp
     libwasmint/serialization/ByteInputStream.cpp
+
     libwasmint/interpreter/rm/RegisterAllocator.cpp
     libwasmint/interpreter/rm/ByteOpcodes.h
     libwasmint/interpreter/rm/JITCompiler.cpp
     libwasmint/interpreter/rm/ByteCode.cpp
-    libwasmint/interpreter/rm/ByteCodeRunner.cpp
+    libwasmint/interpreter/rm/VMThread.cpp
     libwasmint/interpreter/rm/FunctionFrame.cpp
     libwasmint/interpreter/rm/RegisterMachine.cpp
     libwasmint/interpreter/rm/ProgramCache.cpp
-        libwasmint/interpreter/rm/CompiledFunction.cpp libwasmint/interpreter/rm/CompiledFunction.h libwasmint/interpreter/heap/judy/JudyArray.cpp libwasmint/interpreter/heap/judy/JudyArray.h libwasmint/interpreter/rm/InstructionCounter.cpp libwasmint/interpreter/rm/InstructionCounter.h)
+    libwasmint/interpreter/rm/CompiledFunction.cpp
+    libwasmint/interpreter/rm/InstructionCounter.cpp
+)
 
 
 ###########################

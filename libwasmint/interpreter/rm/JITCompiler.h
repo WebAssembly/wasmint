@@ -22,8 +22,11 @@
 #include "RegisterAllocator.h"
 #include "ByteCode.h"
 #include <Function.h>
+#include <stdexcept>
 
 namespace wasmint {
+    class RegisterMachine;
+
     class JITCompiler {
 
         RegisterAllocator registerAllocator_;
@@ -31,9 +34,11 @@ namespace wasmint {
         std::map<const wasm_module::Instruction*, uint32_t> instructionStartAddresses;
         std::map<const wasm_module::Instruction*, uint32_t> instructionEndAddresses;
 
+        std::map<uint32_t, const wasm_module::Instruction*> instructionFinishedAddresses;
+
         std::vector<std::pair<const wasm_module::Instruction*, uint32_t>> needsInstructionStartAddress;
         std::vector<std::pair<const wasm_module::Instruction*, uint32_t>> needsInstructionEndAddress;
-
+        std::vector<std::pair<wasm_module::FunctionSignature, uint32_t>> needsFunctionIndex;
 
         void compileInstruction(const wasm_module::Instruction* instruction);
 
@@ -41,19 +46,30 @@ namespace wasmint {
         void addBranch(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before);
         void addBranch(const wasm_module::BranchInformation* information, uint16_t opcodeData);
         void addBranchIf(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before);
+        void addBranchIfNot(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before);
         void addCopyRegister(uint16_t target, uint16_t source);
+
+        void linkLocally();
 
     public:
         JITCompiler() {
         }
 
-        void compile(const wasm_module::Function* function) {
-            registerAllocator_ = RegisterAllocator();
-            registerAllocator_.allocateRegisters(function->mainInstruction());
-        }
+        void compile(const wasm_module::Function* function);
 
         const ByteCode& code() const {
             return code_;
+        }
+
+        void linkGlobally(const RegisterMachine* registerMachine);
+
+        const wasm_module::Instruction* getInstruction(uint32_t address) const {
+            auto iter = instructionFinishedAddresses.find(address);
+            if (iter != instructionFinishedAddresses.end()) {
+                return iter->second;
+            } else {
+                return nullptr;
+            }
         }
 
     };

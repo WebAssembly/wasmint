@@ -15,6 +15,7 @@
  */
 
 
+#include <iostream>
 #include "RegisterAllocator.h"
 
 
@@ -127,11 +128,6 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
         case InstructionId::I64CountLeadingZeroes:
         case InstructionId::I64CountTrailingZeroes:
         case InstructionId::I64PopulationCount:
-        case InstructionId::I32Const:
-        case InstructionId::I64Const:
-        case InstructionId::F32Const:
-        case InstructionId::F64Const:
-        case InstructionId::GetLocal:
         case InstructionId::SetLocal:
         case InstructionId::GrowMemory:
         case InstructionId::I32Load8Signed:
@@ -177,12 +173,20 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
         case InstructionId::F64ReinterpretI64:
         case InstructionId::Return:
         case InstructionId::Label:
-        case InstructionId::Loop:
         case InstructionId::Branch:
-        case InstructionId::PageSize:
-        case InstructionId::MemorySize:
         {
             allocateRegisters(instruction->children().at(0), offset);
+            setRegister(instruction, offset);
+            break;
+        }
+        case InstructionId::I32Const:
+        case InstructionId::I64Const:
+        case InstructionId::F32Const:
+        case InstructionId::F64Const:
+        case InstructionId::PageSize:
+        case InstructionId::MemorySize:
+        case InstructionId::GetLocal:
+        {
             setRegister(instruction, offset);
             break;
         }
@@ -207,11 +211,12 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
         case InstructionId::TableSwitch:
         case InstructionId::Case:
         case InstructionId::Block:
+        case InstructionId::Loop:
         case InstructionId::If:
         case InstructionId::IfElse:
         {
             for (const wasm_module::Instruction* child : instruction->children())
-                allocateRegisters(instruction->children().at(0), offset);
+                allocateRegisters(child, offset);
 
             setRegister(instruction, offset);
             break;

@@ -17,13 +17,21 @@
 
 #include <cmath>
 #include <limits>
-#include "ByteCodeRunner.h"
+#include "VMThread.h"
 #include "RegisterMachine.h"
 
 namespace wasmint {
 
 
-    void ByteCodeRunner::enterFunction(std::size_t functionId) {
+    void VMThread::enterFunction(std::size_t functionId) {
         pushFrame(FunctionFrame(machine().getCompiledFunction(functionId)));
+    }
+
+    void VMThread::enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset) {
+        pushFrame(FunctionFrame(machine().getCompiledFunction(functionId)));
+
+        for (uint32_t i = 0; i < parameterSize; i++) {
+            currentFrame().setVariable(i, frames_.at(frames_.size() - 2).getRegister<uint64_t>(parameterRegisterOffset + i));
+        }
     }
 }

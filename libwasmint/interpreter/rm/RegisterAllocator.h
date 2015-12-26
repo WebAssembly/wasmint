@@ -27,13 +27,13 @@ namespace wasmint {
     class RegisterAllocator {
 
         std::map<const wasm_module::Instruction*, std::size_t> registers_;
-        std::size_t registersRequired = 0;
+        std::size_t registersRequired_ = 0;
 
         void setRegister(const wasm_module::Instruction *instruction, std::size_t registerIndex) {
             registers_[instruction] = registerIndex;
             std::size_t newRegistersRequired = registerIndex + 1;
-            if (newRegistersRequired > registersRequired)
-                registersRequired = newRegistersRequired;
+            if (newRegistersRequired > registersRequired_)
+                registersRequired_ = newRegistersRequired;
         }
 
     public:
@@ -46,6 +46,10 @@ namespace wasmint {
             } else {
                 throw std::domain_error("Instruction " + instr->name() + " isn't handled by this register allocator");
             }
+        }
+
+        uint16_t registersRequired() {
+            return (uint16_t) registersRequired_;
         }
     };
 }
