@@ -115,9 +115,19 @@ namespace wasm_module {
         if (tableExpr == nullptr)
             throw NoTableExprInTableSwitch(expr.toString());
 
+        if (expr[1].hasValue()) {
+            labelName_ = expr[1].value();
+        }
 
         for (std::size_t i = 1; i < tableExpr->children().size(); i++) {
             TableSwitchTarget target = TableSwitchTarget::parse(tableExpr->children().at(i));
+            if (target.isBranch()) {
+                if (target.targetName() == labelName_) {
+                    target.branchInformation(BranchInformation(0, this, 0, Void::instance()));
+                } else {
+                    target.branchInformation(BranchInformation::getBranchInformation(*this, target.targetName(), Void::instance()));
+                }
+            }
             targets_.push_back(target);
         }
 
@@ -134,9 +144,6 @@ namespace wasm_module {
         }
         childrenTypes_.resize(childrenTypes_.size() - 2);
 
-        if (expr[1].hasValue()) {
-            labelName_ = expr[1].value();
-        }
     }
 
     bool TableSwitchTarget::isCase() const {
@@ -264,7 +271,7 @@ namespace wasm_module {
         }
 
         if (hasBranchTarget) {
-            //returnType_ = Void::instance();
+            returnType_ = Void::instance();
         }
     }
 

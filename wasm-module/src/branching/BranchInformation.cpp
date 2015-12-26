@@ -25,7 +25,7 @@ wasm_module::BranchInformation::BranchInformation(uint32_t labelIndex, const Ins
 
 }
 
-BranchInformation wasm_module::BranchInformation::getBranchInformation(const Instruction& start, std::string& labelName, const Type* valueType) {
+BranchInformation wasm_module::BranchInformation::getBranchInformation(const Instruction& start, const std::string& labelName, const Type* valueType) {
     uint32_t labelIndex = 0;
     uint32_t label = 0;
     const Instruction* target = nullptr;

@@ -232,7 +232,15 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             code_.append<uint32_t>((uint32_t) tableSwitch->targets().size());
 
             for (const wasm_module::TableSwitchTarget& target : tableSwitch->targets()) {
-                addBranch(target.branchInformation().target(), registerAllocator_(instruction), target.branchInformation().labelIndex() == 1);
+                if (target.isCase()) {
+                    addBranch(target.branchInformation().target(), registerAllocator_(instruction), true);
+                } else if (target.isBranch()) {
+                    addBranch(target.branchInformation().target(), registerAllocator_(instruction), target.branchInformation().labelIndex() == 1);
+                }
+            }
+
+            for (const wasm_module::Instruction* child : tableSwitch->children()) {
+                compileInstruction(child);
             }
 
             break;
