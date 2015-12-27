@@ -19,6 +19,7 @@
 #include <cmath>
 #include <limits>
 #include <iostream>
+#include <instructions/Instructions.h>
 #include "VMThread.h"
 
 namespace wasmint {
@@ -28,8 +29,6 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
     const ByteOpcodes::Values opcode = (const ByteOpcodes::Values) popFromCode<uint16_t>();
 
     const uint16_t opcodeData = popFromCode<uint16_t>();
-
-    // TODO dumpStatus(opcode, opcodeData);
 
     switch (opcode) {
         /******************************************************
@@ -1326,8 +1325,25 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(sourceRegister));
             break;
         }
+        case ByteOpcodes::Native:
+        {
+            auto nativeInstruction = dynamic_cast<const wasm_module::NativeInstruction*>(function_->function().mainInstruction());
+            std::vector<wasm_module::Variable> parameters;
+            parameters.reserve(nativeInstruction->childrenTypes().size());
+            uint32_t i = 0;
+            for (const wasm_module::Type* type : nativeInstruction->childrenTypes()) {
+                wasm_module::Variable parameter(type);
+                memcpy(parameter.value(), registers_.data() + i, type->size());
+                i++;
+            }
+            wasm_module::Variable result = nativeInstruction->call(parameters);
+            memcpy(registers_.data(),result.value(), result.type().size());
+        }
         case ByteOpcodes::End:
-            runner.finishFrame(getRegister<uint64_t>(0));
+            if (registers_.empty())
+                runner.finishFrame(0);
+            else
+                runner.finishFrame(getRegister<uint64_t>(0));
             break;
         default:
             return runner.trap("Unknown instruction with opcode " + std::to_string(opcode));
@@ -1335,24 +1351,25 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 }
 
     void FunctionFrame::dumpStatus(ByteOpcodes::Values opcode, uint16_t opcodeData) {
-        std::cout << "Opcode: " << ByteOpcodes::name(opcode) << " " << opcodeData << "\n";
+        std::cout << "#########################\n";
+        std::cout << "Opcode: " << ByteOpcodes::name(opcode) << " r" << opcodeData << "\n";
         std::cout << "Registers:\n";
         for (std::size_t i = 0; i < registers_.size(); i++) {
-            std::cout << "r" << std::to_string(i) << " = " << registers_[i] << "\n";
+            std::cout << "  r" << std::to_string(i) << " = " << registers_[i] << "\n";
         }
         std::cout << "Variables:\n";
         for (std::size_t i = 0; i < variables_.size(); i++) {
-            std::cout << "Var " << std::to_string(i) << " = " << variables_[i] << "\n";
+            std::cout << "  " << function_->function().variableName((uint32_t) i) << " = " << variables_[i] << "\n";
         }
-        std::cout << "#########################\n";
     }
 
     void FunctionFrame::step(VMThread &runner, Heap &heap) {
         stepInternal(runner, heap);
-        /*const wasm_module::Instruction* instruction = function_->jitCompiler().getInstruction(instructionPointer_);
+        /* Comment out for debugging *
+        const wasm_module::Instruction* instruction = function_->jitCompiler().getInstruction(instructionPointer_);
         if (instruction) {
             std::cout << instruction->toSExprString() << std::endl;
-        }*/
+        } */
 
     }
 }

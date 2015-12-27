@@ -28,6 +28,7 @@
 namespace wasm_module {
 
     ExceptionMessage(UnknownVariableName);
+    ExceptionMessage(UnknownVariableIndex);
 
     /**
      * The context of a function. This contains all information that are needed to
@@ -37,6 +38,7 @@ namespace wasm_module {
 
         std::vector<const Type*> locals_;
         std::unordered_map<std::string, uint32_t> namesToIndizes_;
+        std::unordered_map<uint32_t, std::string> indizesToNames_;
 
     public:
         FunctionContext() {
@@ -70,6 +72,9 @@ namespace wasm_module {
 
         void setVariableNameToIndexMap(const std::unordered_map<std::string, uint32_t> map) {
             namesToIndizes_ = map;
+            for (auto& pair : map) {
+                indizesToNames_[pair.second] = pair.first;
+            }
         }
 
         uint32_t variableNameToIndex(const std::string& name) const {
@@ -78,6 +83,15 @@ namespace wasm_module {
                 return iter->second;
             } else {
                 throw UnknownVariableName(name);
+            }
+        }
+
+        std::string variableName(uint32_t variableIndex) const {
+            auto iter = indizesToNames_.find(variableIndex);
+            if (iter != indizesToNames_.end()) {
+                return iter->second;
+            } else {
+                throw UnknownVariableIndex(std::to_string(variableIndex));
             }
         }
     };

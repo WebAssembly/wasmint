@@ -19,6 +19,7 @@
 #include "Function.h"
 #include <instructions/Instruction.h>
 #include <instructions/InstructionAddress.h>
+#include <instructions/Instructions.h>
 
 namespace wasm_module {
 
@@ -43,5 +44,9 @@ namespace wasm_module {
             result = result->children().at(address.childrenIndized()[i - 1]);
         }
         return result;
+    }
+
+    bool Function::isNative() const {
+        return dynamic_cast<const wasm_module::NativeInstruction*>(mainInstruction_) != nullptr;
     }
 }

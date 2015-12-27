@@ -79,6 +79,15 @@ namespace wasm_module {
                 functionsToDelete_.push_back(function);
         }
 
+        const Function* function(const std::string& functionName) {
+            for (const Function* function : functions_) {
+                if (function->name() == functionName) {
+                    return function;
+                }
+            }
+            throw std::domain_error("Module " + functionName + " has no function with name " + name());
+        }
+
         FunctionTable& mainFunctionTable() {
             return context().mainFunctionTable();
         }

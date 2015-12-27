@@ -31,19 +31,27 @@ using namespace wasm_module::sexpr;
 using namespace wasmint;
 
 int main() {
-    RegisterMachine registerMachine;
-
-    Module* module = ModuleParser::parse("module (func main (if_else (i32.const 0) (unreachable) (i32.add (i32.const 1) (i32.const 2))))");
-
-    registerMachine.loadModule(module, true);
-
-    VMThread& thread = registerMachine.startAtFunction(*module->functions().front());
-
-    registerMachine.stepUntilFinished();
-
-    if (thread.gotTrap()) {
-        std::cerr << "Got trap: " << thread.trapReason() << std::endl;
+    {
+        RegisterMachine registerMachine;
+        Module* module = ModuleParser::parse("module (func main (if_else (i32.const 0) (unreachable) (nop)))");
+        registerMachine.useModule(*module, true);
+        VMThread& thread = registerMachine.startAtFunction(*module->functions().front());
+        registerMachine.stepUntilFinished();
+        if (thread.gotTrap()) {
+            std::cerr << "Got trap: " << thread.trapReason() << std::endl;
+        }
+        assert(!thread.gotTrap());
+    }
+    {
+        RegisterMachine registerMachine;
+        Module* module = ModuleParser::parse("module (func main (if_else (i32.const 1) (unreachable) (nop)))");
+        registerMachine.useModule(*module, true);
+        VMThread& thread = registerMachine.startAtFunction(*module->functions().front());
+        registerMachine.stepUntilFinished();
+        if (!thread.gotTrap()) {
+            std::cerr << "Got no trap but shouldn't trap " << std::endl;
+        }
+        assert(thread.gotTrap());
     }
 
-    assert(!thread.gotTrap());
 }

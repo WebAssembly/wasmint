@@ -24,6 +24,7 @@
 #include <interpreter/SafeAddition.h>
 #include <stdexcept>
 #include <cstring>
+#include <iostream>
 
 namespace wasmint {
 

@@ -40,7 +40,8 @@ void assertHeapSorted(Heap& heap) {
     for (std::size_t i = 0; i < heap.size(); i++) {
         uint8_t value = heap.getByte(i);
         if (value < smallestValue) {
-            std::cout << "Heap not sorted at position " << i << "! This means that quicksort was not proberly executed" << std::endl;
+            std::cout << "Heap not sorted at position " << i
+                      << "! This means that quicksort was not proberly executed" << std::endl;
             abort();
         }
         smallestValue = value;
@@ -67,7 +68,7 @@ void runATCore() {
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
     int64_t duration = duration_cast<microseconds>( t2 - t1 ).count();
-    std::cout << "We took " << duration << " microseconds (" << (duration / 1000000.0) << " seconds)" << std::endl;
+    std::cout << "AT core took " << duration << " microseconds (" << (duration / 1000000.0) << " seconds)" << std::endl;
 
 
     Heap& heap = thread->getHeap(*positiveModule);
@@ -83,10 +84,10 @@ void runRMCore() {
 
     Module* positiveModule = ModuleParser::parse(quickSortSource);
 
-    registerMachine.loadModule(positiveModule, true);
+    registerMachine.useModule(*positiveModule, true);
 
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
     VMThread& thread = registerMachine.startAtFunction(*positiveModule->functions().back());
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
     registerMachine.stepUntilFinished();
 
@@ -97,7 +98,7 @@ void runRMCore() {
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
 
     int64_t duration = duration_cast<microseconds>( t2 - t1 ).count();
-    std::cout << "We took " << duration << " microseconds (" << (duration / 1000000.0) << " seconds)" << std::endl;
+    std::cout << "RM core took " << duration << " microseconds (" << (duration / 1000000.0) << " seconds)" << std::endl;
 
 
     Heap& heap = registerMachine.heap();
@@ -106,6 +107,6 @@ void runRMCore() {
 }
 
 int main() {
- //   runATCore();
+    //runATCore();
     runRMCore();
 }

@@ -10,6 +10,7 @@
 #include <sexpr_parsing/SExprParser.h>
 #include <builtins/StdioModule.h>
 #include <builtins/SDLModule.h>
+#include <interpreter/rm/RegisterMachine.h>
 
 using namespace wasm_module;
 using namespace wasmint;
@@ -30,12 +31,12 @@ int main(int argc, char** argv) {
 
     Module* mainModule = nullptr;
 
-    MachineState environment;
+    RegisterMachine registerMachine;
 
 #ifdef WASMINT_HAS_SDL
-    environment.useModule(*SDLModule::create(), true);
+    registerMachine.useModule(*SDLModule::create(), true);
 #endif
-    environment.useModule(*StdioModule::create(), true);
+    registerMachine.useModule(*StdioModule::create(), true);
 
     for(int i = 1; i < argc; i++) {
         std::string arg = argv[i];
@@ -103,7 +104,7 @@ int main(int argc, char** argv) {
         }
 
         try {
-            environment.useModule(*m, true);
+            registerMachine.useModule(*m, true);
 
             if (runMain) {
                 try {
@@ -136,10 +137,10 @@ int main(int argc, char** argv) {
     }
 
     try {
-        InterpreterThread & thread = environment.createThread().startAtFunction(mainModule->name(), "main");
-        thread.stepUntilFinished();
+        VMThread& thread = registerMachine.startAtFunction(*mainModule->function("main"));
+        registerMachine.stepUntilFinished();
         if (thread.gotTrap()) {
-            std::cerr << "Got trap while executing program" << std::endl;
+            std::cerr << "Got trap while executing program: " << thread.trapReason() << std::endl;
             return 2;
         }
     } catch(const wasm_module::NoFunctionWithName& e) {
@@ -148,6 +149,7 @@ int main(int argc, char** argv) {
         } else {
             std::cerr << "Exiting because we can't find function with name: " << e.what() << std::endl;
         }
+        return 3;
     } catch(const std::exception& ex) {
         std::cerr << "Got exception while executing: " << ex.what() << " (typeid name " << typeid(ex).name() << ")"
         << std::endl;

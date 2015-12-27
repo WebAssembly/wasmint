@@ -346,14 +346,30 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         case InstructionId::F32ReinterpretI32:
         case InstructionId::I32ReinterpretF32:
         case InstructionId::Nop:
-        case InstructionId::Unreachable:
         case InstructionId::HasFeature:
             code_.appendOpcode(ByteOpcodes::Nop);
+            code_.append<uint16_t>(0);
+            break;
+        case InstructionId::Unreachable:
+            code_.appendOpcode(ByteOpcodes::Unreachable);
             code_.append<uint16_t>(0);
             break;
 
         case InstructionId::CallIndirect:
         case InstructionId::CallImport:
+        {
+            for (std::size_t i = 0; i < instruction->children().size(); i++)
+                compileInstruction(instruction->children()[i]);
+
+            const wasm_module::CallImport* call = dynamic_cast<const wasm_module::CallImport*>(instruction);
+
+            code_.appendOpcode(ByteOpcodes::Call);
+            code_.append<uint16_t>(registerAllocator_(instruction));
+            needsFunctionIndex.push_back(std::make_pair(call->functionSignature, code_.size()));
+            code_.append<uint32_t>(0);
+            code_.append<uint32_t>((uint32_t) call->functionSignature.parameters().size());
+            break;
+        }
         case InstructionId::Call:
         {
             for (std::size_t i = 0; i < instruction->children().size(); i++)
@@ -472,6 +488,13 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             break;
         }
 
+        case InstructionId::NativeInstruction:
+        {
+            code_.appendOpcode(ByteOpcodes::Native);
+            code_.append<uint16_t>(0);
+            break;
+        }
+
         default:
             throw std::domain_error("calculateNumberOfRegisters can't handle instruction " + instruction->name());
     }
@@ -481,7 +504,11 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
 }
 
 void wasmint::JITCompiler::addBranch(const wasm_module::BranchInformation* information, uint16_t opcodeData) {
-    addBranch(information->target(), information->labelIndex() == 1, opcodeData);
+    if (information->target()->id() == InstructionId::Loop) {
+        addBranch(information->target(), opcodeData, information->labelIndex() == 0);
+    } else {
+        addBranch(information->target(), opcodeData, false);
+    }
 }
 
 void wasmint::JITCompiler::addBranch(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before) {
@@ -561,8 +588,12 @@ void wasmint::JITCompiler::linkLocally() {
 
 void wasmint::JITCompiler::compile(const wasm_module::Function* function) {
     registerAllocator_ = RegisterAllocator();
-    registerAllocator_.allocateRegisters(function->mainInstruction());
-    code_.append<uint16_t>(registerAllocator_.registersRequired());
+    if (function->isNative()) {
+        code_.append<uint16_t>(1); // one register for the result
+    } else {
+        registerAllocator_.allocateRegisters(function->mainInstruction());
+        code_.append<uint16_t>(registerAllocator_.registersRequired());
+    }
     code_.append<uint16_t>((uint16_t) function->locals().size());
     compileInstruction(function->mainInstruction());
     code_.appendOpcode(ByteOpcodes::End);

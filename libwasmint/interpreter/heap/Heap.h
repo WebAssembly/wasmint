@@ -142,7 +142,7 @@ namespace wasmint {
                 return false;
             }
 
-            std::memcpy(data_.data() + offset, &value, sizeof(T));
+            std::memcpy(data_.data() + offset + staticOffset, &value, sizeof(T));
 
             return true;
         }
@@ -198,7 +198,7 @@ namespace wasmint {
                 return false;
             }
 
-            std::memcpy(value, data_.data() + offset, sizeof(T));
+            std::memcpy(value, data_.data() + offset + staticOffset, sizeof(T));
 
             return true;
         }

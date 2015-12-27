@@ -68,6 +68,8 @@ namespace wasm_module {
 
         Instruction* instruction(const InstructionAddress& address) const;
 
+        bool isNative() const;
+
     };
 
 }

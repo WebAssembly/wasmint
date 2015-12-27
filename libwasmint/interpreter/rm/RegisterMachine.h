@@ -58,25 +58,25 @@ namespace wasmint {
             }
         }
 
-        void loadModule(wasm_module::Module* module, bool takeMemoryOwnership) {
-            if (module->heapData().startSize() != 0) {
+        void useModule(wasm_module::Module &module, bool takeMemoryOwnership) {
+            if (module.heapData().startSize() != 0) {
                 if (heap_.size() == 0) {
-                    heap_ = Heap(module->heapData());
+                    heap_ = Heap(module.heapData());
                 } else {
                     throw std::domain_error("Only one module with heap supported at the moment");
                 }
             }
 
-            for (auto function :  module->functions()) {
+            for (auto function :  module.functions()) {
                 compileFunction(function);
             }
 
             if (takeMemoryOwnership) {
-                modulesToDelete_.push_back(module);
+                modulesToDelete_.push_back(&module);
             }
         }
 
-        VMThread& startAtFunction(wasm_module::Function& function) {
+        VMThread& startAtFunction(const wasm_module::Function& function) {
             linkModules();
             for (std::size_t i = 0; i < functions_.size(); i++) {
                 if (&functions_[i].function() == &function) {
