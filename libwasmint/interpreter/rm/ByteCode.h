@@ -31,6 +31,7 @@ namespace wasmint {
     class ByteCode {
 
         std::vector<uint8_t> byteCode_;
+
     public:
         ByteCode() {
         }
@@ -59,6 +60,11 @@ namespace wasmint {
             return target;
         }
 
+        template<typename T>
+        void getUnsafe(T* target, std::size_t position) const {
+            (*target) = *((T*) (byteCode_.data() + position));
+        }
+
         void appendOpcode(ByteOpcode opcode) {
             append((uint16_t) opcode);
         }
@@ -76,7 +82,6 @@ namespace wasmint {
             }
             memcpy(byteCode_.data() + offset, &value, sizeof(value));
         }
-
 
         uint32_t size() const {
             return (uint32_t) byteCode_.size();

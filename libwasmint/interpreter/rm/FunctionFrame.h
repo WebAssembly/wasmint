@@ -28,6 +28,7 @@ namespace wasmint {
     class VMThread;
 
     class FunctionFrame {
+        const ByteCode* code_ = nullptr;
         std::vector<uint64_t> registers_;
         std::vector<uint64_t> variables_;
 
@@ -45,6 +46,7 @@ namespace wasmint {
         }
 
         FunctionFrame(const CompiledFunction& function) : function_(&function) {
+            code_ = &function.code();
             uint16_t numberOfRegisters = popFromCode<uint16_t>();
             registers_.resize(numberOfRegisters, 0);
 
@@ -58,41 +60,42 @@ namespace wasmint {
 
         template<typename T>
         T popFromCode() {
-            T result = function_->code().get<uint16_t>(instructionPointer_);
+            T result = code_->get<uint16_t>(instructionPointer_);
             instructionPointer_ += sizeof(T);
             return result;
         }
 
         template<typename T>
+        void popFromCode(T* target) {
+            code_->getUnsafe<T>(target, instructionPointer_);
+            instructionPointer_ += sizeof(T);
+        }
+
+        template<typename T>
         T peekFromCode(uint32_t offset = 0) {
-            T result = function_->code().get<uint16_t>(offset + instructionPointer_);
+            T result = code_->get<uint16_t>(offset + instructionPointer_);
             instructionPointer_ += sizeof(T);
             return result;
         }
 
         template<typename T>
         void setRegister(uint16_t index, T value) {
-            std::memcpy(registers_.data() + index, &value,sizeof(T));
+            *((T*)(registers_.data() + index)) = value;
         }
 
         template<typename T>
         T getRegister(unsigned index) {
-            T result;
-            std::memcpy(&result, registers_.data() + index, sizeof(T));
+            T result = *((T*)(registers_.data() + index));
             return result;
         }
 
         uint64_t getVariable(uint16_t index) {
-            uint64_t result;
-            std::memcpy(&result, variables_.data() + index, sizeof(uint64_t));
+            uint64_t result = *(variables_.data() + index);
             return result;
         }
 
         void setVariable(uint64_t index, uint64_t value) {
-            if (index >= variables_.size())
-                throw std::domain_error("Can't access variable with index " + std::to_string(index)
-                                        + ". Current function has variable array of size " + std::to_string(variables_.size()));
-            std::memcpy(variables_.data() + index, &value, sizeof(uint64_t));
+            *(variables_.data() + index) = value;
         }
 
         void step(VMThread &runner, Heap &heap);

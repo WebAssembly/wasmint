@@ -31,9 +31,12 @@ namespace wasmint {
 
     class VMThread {
 
+        FunctionFrame* currentFrame_ = nullptr;
         std::vector<FunctionFrame> frames_;
         std::string trapReason_;
         RegisterMachine* machine_ = nullptr;
+
+        bool finished_ = false;
 
     public:
         VMThread() {
@@ -46,26 +49,30 @@ namespace wasmint {
             if (frames_.empty())
                 throw std::domain_error("Can't call finishFrame(): frame stack is empty!");
             frames_.resize(frames_.size() - 1);
-            if (!frames_.empty())
-                frames_.back().passFunctionResult(result);
+            if (!frames_.empty()) {
+                currentFrame_ = &frames_.back();
+                currentFrame_->passFunctionResult(result);
+            }
+            else
+                finished_ = true;
         }
 
         FunctionFrame& currentFrame() {
-            if (frames_.empty())
-                throw std::domain_error("currentFrame() called on empty frame stack");
-            return frames_.back();
+            return *currentFrame_;
         }
 
         void pushFrame(const FunctionFrame& frame) {
             frames_.push_back(frame);
+            currentFrame_ = &frames_.back();
         }
 
         void trap(const std::string& reason) {
+            finished_ = true;
             trapReason_ = reason;
         }
 
         bool finished() {
-            return gotTrap() || frames_.empty();
+            return finished_;
         }
 
         bool gotTrap() const {
@@ -77,7 +84,7 @@ namespace wasmint {
         }
 
         void step(Heap& heap) {
-            frames_.back().step(*this, heap);
+            currentFrame_->step(*this, heap);
         }
 
         RegisterMachine& machine() {

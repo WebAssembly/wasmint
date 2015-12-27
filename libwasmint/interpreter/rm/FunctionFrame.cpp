@@ -26,9 +26,11 @@ namespace wasmint {
 
 void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
-    const ByteOpcodes::Values opcode = (const ByteOpcodes::Values) popFromCode<uint16_t>();
+    uint16_t opcode;
+    popFromCode<uint16_t>(&opcode);
 
-    const uint16_t opcodeData = popFromCode<uint16_t>();
+    uint16_t opcodeData;
+    popFromCode<uint16_t>(&opcodeData);
 
     switch (opcode) {
         /******************************************************
