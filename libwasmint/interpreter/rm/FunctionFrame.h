@@ -60,7 +60,7 @@ namespace wasmint {
 
         template<typename T>
         T popFromCode() {
-            T result = code_->get<uint16_t>(instructionPointer_);
+            T result = code_->get<T>(instructionPointer_);
             instructionPointer_ += sizeof(T);
             return result;
         }
@@ -73,7 +73,7 @@ namespace wasmint {
 
         template<typename T>
         T peekFromCode(uint32_t offset = 0) {
-            T result = code_->get<uint16_t>(offset + instructionPointer_);
+            T result = code_->get<T>(offset + instructionPointer_);
             instructionPointer_ += sizeof(T);
             return result;
         }

@@ -32,6 +32,8 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
     uint16_t opcodeData;
     popFromCode<uint16_t>(&opcodeData);
 
+    // dumpStatus((ByteOpcodes::Values) opcode, opcodeData);
+
     switch (opcode) {
         /******************************************************
          ***************** Int 32 Operations ******************
@@ -1371,7 +1373,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         const wasm_module::Instruction* instruction = function_->jitCompiler().getInstruction(instructionPointer_);
         if (instruction) {
             std::cout << instruction->toSExprString() << std::endl;
-        } */
+        } /**/
 
     }
 }
