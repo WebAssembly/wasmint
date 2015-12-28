@@ -684,6 +684,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint8_t>(opcodeData + 1)))
                 runner.trap("Memory trap");
+            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
@@ -691,6 +692,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint16_t>(opcodeData + 1)))
                 runner.trap("Memory trap");
+            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
@@ -698,6 +700,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint8_t>(opcodeData + 1)))
                 runner.trap("Memory trap");
+            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
@@ -705,6 +708,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint16_t>(opcodeData + 1)))
                 runner.trap("Memory trap");
+            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
@@ -712,6 +716,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint32_t>(opcodeData + 1)))
                 runner.trap("Memory trap");
+            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
@@ -719,24 +724,28 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<float>(opcodeData + 1)))
                 runner.trap("Memory trap");
+            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::F64Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<double>(opcodeData + 1)))
                 runner.trap("Memory trap");
+            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::I32Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint32_t>(opcodeData + 1)))
                 runner.trap("Memory trap");
+            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::I64Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint64_t>(opcodeData + 1)))
                 runner.trap("Memory trap");
+            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
