@@ -71,13 +71,7 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
         case InstructionId::F32Sub:
         case InstructionId::F32Mul:
         case InstructionId::F32Div:
-        case InstructionId::F32Abs:
-        case InstructionId::F32Neg:
         case InstructionId::F32CopySign:
-        case InstructionId::F32Ceil:
-        case InstructionId::F32Floor:
-        case InstructionId::F32Trunc:
-        case InstructionId::F32Nearest:
         case InstructionId::F32Equal:
         case InstructionId::F32NotEqual:
         case InstructionId::F32LesserThan:
@@ -90,13 +84,7 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
         case InstructionId::F64Sub:
         case InstructionId::F64Mul:
         case InstructionId::F64Div:
-        case InstructionId::F64Abs:
-        case InstructionId::F64Neg:
         case InstructionId::F64CopySign:
-        case InstructionId::F64Ceil:
-        case InstructionId::F64Floor:
-        case InstructionId::F64Trunc:
-        case InstructionId::F64Nearest:
         case InstructionId::F64Equal:
         case InstructionId::F64NotEqual:
         case InstructionId::F64LesserThan:
@@ -174,6 +162,18 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
         case InstructionId::Return:
         case InstructionId::Label:
         case InstructionId::Branch:
+        case InstructionId::F64Abs:
+        case InstructionId::F64Neg:
+        case InstructionId::F64Ceil:
+        case InstructionId::F64Floor:
+        case InstructionId::F64Trunc:
+        case InstructionId::F64Nearest:
+        case InstructionId::F32Abs:
+        case InstructionId::F32Neg:
+        case InstructionId::F32Ceil:
+        case InstructionId::F32Floor:
+        case InstructionId::F32Trunc:
+        case InstructionId::F32Nearest:
         {
             allocateRegisters(instruction->children().at(0), offset);
             setRegister(instruction, offset);

@@ -32,7 +32,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
     uint16_t opcodeData;
     popFromCode<uint16_t>(&opcodeData);
 
-    // dumpStatus((ByteOpcodes::Values) opcode, opcodeData);
+    //dumpStatus((ByteOpcodes::Values) opcode, opcodeData);
 
     switch (opcode) {
         /******************************************************
@@ -782,7 +782,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             float left = getRegister<float>(opcodeData);
             float right = getRegister<float>(opcodeData + 1);
             if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && std::signbit(right)) {
-                setRegister<float>(opcodeData, std::numeric_limits<float>::quiet_NaN());
+                setRegister<float>(opcodeData, std::numeric_limits<float>::infinity());
             } else {
                 setRegister<float>(opcodeData, getRegister<float>(opcodeData) - getRegister<float>(opcodeData + 1));
             }
@@ -850,27 +850,27 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             break;
 
         case ByteOpcodes::F32Equal:
-            setRegister<float>(opcodeData, getRegister<float>(opcodeData) == getRegister<float>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) == getRegister<float>(opcodeData + 1));
             break;
 
         case ByteOpcodes::F32NotEqual:
-            setRegister<float>(opcodeData, getRegister<float>(opcodeData) != getRegister<float>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) != getRegister<float>(opcodeData + 1));
             break;
 
         case ByteOpcodes::F32LesserThan:
-            setRegister<float>(opcodeData, getRegister<float>(opcodeData) < getRegister<float>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) < getRegister<float>(opcodeData + 1));
             break;
 
         case ByteOpcodes::F32LesserEqual:
-            setRegister<float>(opcodeData, getRegister<float>(opcodeData) <= getRegister<float>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) <= getRegister<float>(opcodeData + 1));
             break;
 
         case ByteOpcodes::F32GreaterThan:
-            setRegister<float>(opcodeData, getRegister<float>(opcodeData) > getRegister<float>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) > getRegister<float>(opcodeData + 1));
             break;
 
         case ByteOpcodes::F32GreaterEqual:
-            setRegister<float>(opcodeData, getRegister<float>(opcodeData) >= getRegister<float>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) >= getRegister<float>(opcodeData + 1));
             break;
         case ByteOpcodes::F32Sqrt: {
             float value = getRegister<float>(opcodeData);
@@ -965,7 +965,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             double left = getRegister<double>(opcodeData);
             double right = getRegister<double>(opcodeData + 1);
             if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && std::signbit(right)) {
-                setRegister<double>(opcodeData, std::numeric_limits<double>::quiet_NaN());
+                setRegister<double>(opcodeData, std::numeric_limits<double>::infinity());
             } else {
                 setRegister<double>(opcodeData, getRegister<double>(opcodeData) - getRegister<double>(opcodeData + 1));
             }
@@ -1033,27 +1033,27 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             break;
 
         case ByteOpcodes::F64Equal:
-            setRegister<double>(opcodeData, getRegister<double>(opcodeData) == getRegister<double>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) == getRegister<double>(opcodeData + 1));
             break;
 
         case ByteOpcodes::F64NotEqual:
-            setRegister<double>(opcodeData, getRegister<double>(opcodeData) != getRegister<double>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) != getRegister<double>(opcodeData + 1));
             break;
 
         case ByteOpcodes::F64LesserThan:
-            setRegister<double>(opcodeData, getRegister<double>(opcodeData) < getRegister<double>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) < getRegister<double>(opcodeData + 1));
             break;
 
         case ByteOpcodes::F64LesserEqual:
-            setRegister<double>(opcodeData, getRegister<double>(opcodeData) <= getRegister<double>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) <= getRegister<double>(opcodeData + 1));
             break;
 
         case ByteOpcodes::F64GreaterThan:
-            setRegister<double>(opcodeData, getRegister<double>(opcodeData) > getRegister<double>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) > getRegister<double>(opcodeData + 1));
             break;
 
         case ByteOpcodes::F64GreaterEqual:
-            setRegister<double>(opcodeData, getRegister<double>(opcodeData) >= getRegister<double>(opcodeData + 1));
+            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) >= getRegister<double>(opcodeData + 1));
             break;
         case ByteOpcodes::F64Sqrt: {
             double value = getRegister<double>(opcodeData);
@@ -1130,6 +1130,10 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
              ************** Conversion Operations ***************
              ******************************************************/
 
+        case ByteOpcodes::I32Wrap: {
+            setRegister<int64_t>(opcodeData, getRegister<int32_t>(opcodeData));
+            break;
+        }
         case ByteOpcodes::I32TruncSignedF32: {
             float value = getRegister<float>(opcodeData);
 
@@ -1359,7 +1363,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         std::cout << "Opcode: " << ByteOpcodes::name(opcode) << " r" << opcodeData << "\n";
         std::cout << "Registers:\n";
         for (std::size_t i = 0; i < registers_.size(); i++) {
-            std::cout << "  r" << std::to_string(i) << " = " << registers_[i] << "\n";
+            std::cout << "  r" << std::to_string(i) << " = " << registers_[i] << "| float: " << getRegister<float>(i) << "| double: " << getRegister<double>(i) << "\n";
         }
         std::cout << "Variables:\n";
         for (std::size_t i = 0; i < variables_.size(); i++) {

@@ -104,7 +104,7 @@ namespace wasm_module { namespace sexpr {
                 addParameter(variableName, typeName);
             } else {
                 for (std::size_t i = 1; i < param.children().size(); i++) {
-                    addVariable(std::to_string(parameters.size() + locals.size()), param[i].value());
+                    addParameter(std::to_string(parameters.size() + locals.size()), param[i].value());
                 }
             }
         }

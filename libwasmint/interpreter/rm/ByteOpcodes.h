@@ -126,6 +126,7 @@ namespace wasmint {
         F32Store,
         F64Store,
 
+        I32Wrap,
         I32TruncSignedF32,
         I32TruncSignedF64,
         I32TruncUnsignedF32,
@@ -303,6 +304,7 @@ namespace wasmint {
                 "F32Store",
                 "F64Store",
 
+                "I32Wrap",
                 "I32TruncSignedF32",
                 "I32TruncSignedF64",
                 "I32TruncUnsignedF32",

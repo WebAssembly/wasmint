@@ -37,6 +37,7 @@ namespace wasmint {
         RegisterMachine* machine_ = nullptr;
 
         bool finished_ = false;
+        uint32_t stackLimit = 10000;
 
     public:
         VMThread() {
@@ -64,6 +65,9 @@ namespace wasmint {
         void pushFrame(const FunctionFrame& frame) {
             frames_.push_back(frame);
             currentFrame_ = &frames_.back();
+            if (frames_.size() > stackLimit) {
+                trap("maximum amount of function frames reached: " + stackLimit);
+            }
         }
 
         void trap(const std::string& reason) {

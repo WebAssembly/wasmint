@@ -92,13 +92,7 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         Op2Case(F32Sub)
         Op2Case(F32Mul)
         Op2Case(F32Div)
-        Op2Case(F32Abs)
-        Op2Case(F32Neg)
         Op2Case(F32CopySign)
-        Op2Case(F32Ceil)
-        Op2Case(F32Floor)
-        Op2Case(F32Trunc)
-        Op2Case(F32Nearest)
         Op2Case(F32Equal)
         Op2Case(F32NotEqual)
         Op2Case(F32LesserThan)
@@ -111,13 +105,7 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         Op2Case(F64Sub)
         Op2Case(F64Mul)
         Op2Case(F64Div)
-        Op2Case(F64Abs)
-        Op2Case(F64Neg)
         Op2Case(F64CopySign)
-        Op2Case(F64Ceil)
-        Op2Case(F64Floor)
-        Op2Case(F64Trunc)
-        Op2Case(F64Nearest)
         Op2Case(F64Equal)
         Op2Case(F64NotEqual)
         Op2Case(F64LesserThan)
@@ -156,6 +144,19 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         Op1Case(F64ConvertUnsignedI32)
         Op1Case(F64ConvertUnsignedI64)
         Op1Case(GrowMemory)
+        Op1Case(F64Abs)
+        Op1Case(F64Neg)
+        Op1Case(F64Ceil)
+        Op1Case(F64Floor)
+        Op1Case(F64Trunc)
+        Op1Case(F64Nearest)
+        Op1Case(F32Abs)
+        Op1Case(F32Neg)
+        Op1Case(F32Ceil)
+        Op1Case(F32Floor)
+        Op1Case(F32Trunc)
+        Op1Case(F32Nearest)
+
         Op0Case(PageSize)
         Op0Case(MemorySize)
 
@@ -325,28 +326,34 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             code_.append(dynamic_cast<const wasm_module::Literal*>(instruction)->literalValue().uint32());
             break;
         case InstructionId::I64Const:
-            code_.appendOpcode(ByteOpcodes::I32Const);
+            code_.appendOpcode(ByteOpcodes::I64Const);
             code_.append(registerAllocator_(instruction));
             code_.append(dynamic_cast<const wasm_module::Literal*>(instruction)->literalValue().uint64());
             break;
         case InstructionId::F32Const:
-            code_.appendOpcode(ByteOpcodes::I32Const);
+            code_.appendOpcode(ByteOpcodes::F32Const);
             code_.append(registerAllocator_(instruction));
             code_.append(dynamic_cast<const wasm_module::Literal*>(instruction)->literalValue().float32());
             break;
         case InstructionId::F64Const:
-            code_.appendOpcode(ByteOpcodes::I32Const);
+            code_.appendOpcode(ByteOpcodes::F64Const);
             code_.append(registerAllocator_(instruction));
             code_.append(dynamic_cast<const wasm_module::Literal*>(instruction)->literalValue().float64());
             break;
 
         case InstructionId::I32Wrap:
+            compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::I32Wrap);
+            code_.append<uint16_t>(registerAllocator_(instruction));
+            break;
         case InstructionId::I64ReinterpretF64:
         case InstructionId::F64ReinterpretI64:
         case InstructionId::F32ReinterpretI32:
         case InstructionId::I32ReinterpretF32:
         case InstructionId::Nop:
         case InstructionId::HasFeature:
+            for (std::size_t i = 0; i < instruction->children().size(); i++)
+                compileInstruction(instruction->children()[i]);
             code_.appendOpcode(ByteOpcodes::Nop);
             code_.append<uint16_t>(0);
             break;
@@ -368,6 +375,9 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             needsFunctionIndex.push_back(std::make_pair(call->functionSignature, code_.size()));
             code_.append<uint32_t>(0);
             code_.append<uint32_t>((uint32_t) call->functionSignature.parameters().size());
+            // nop that will trigger when we return (just for the debugger)
+            code_.appendOpcode(ByteOpcodes::Nop);
+            code_.append<uint16_t>(0);
             break;
         }
         case InstructionId::Call:
@@ -381,7 +391,10 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             code_.append<uint16_t>(registerAllocator_(instruction));
             needsFunctionIndex.push_back(std::make_pair(call->functionSignature, code_.size()));
             code_.append<uint32_t>(0);
-            code_.append<uint32_t>((uint32_t) call->functionSignature.parameters().size());
+            code_.append<uint32_t>((uint32_t) call->childrenTypes().size());
+            // nop that will trigger when we return (just for the debugger)
+            code_.appendOpcode(ByteOpcodes::Nop);
+            code_.append<uint16_t>(0);
             break;
         }
 
@@ -409,6 +422,7 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         }
         case InstructionId::Loop:
         case InstructionId::Case:
+        case InstructionId::Label:
         case InstructionId::Block:
         {
             for (std::size_t i = 0; i < instruction->children().size(); i++)
@@ -442,6 +456,7 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         }
         case InstructionId::Return:
         {
+            compileInstruction(instruction->children().at(0));
             addBranch(instruction->function()->mainInstruction(), registerAllocator_(instruction), false);
             break;
         }
