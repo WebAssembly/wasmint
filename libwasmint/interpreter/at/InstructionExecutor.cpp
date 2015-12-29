@@ -24,6 +24,7 @@
 #include "../../wasm-module/src/instructions/InstructionId.h"
 #include <interpreter/at/thread/InstructionState.h>
 #include <interpreter/SafeAddition.h>
+#include <limits>
 
 namespace wasmint {
 

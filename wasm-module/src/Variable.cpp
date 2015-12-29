@@ -22,6 +22,7 @@
 #include "Variable.h"
 #include "types/Type.h"
 #include <cstring>
+#include <stdexcept>
 
 
 namespace wasm_module {
