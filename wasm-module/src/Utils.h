@@ -63,9 +63,9 @@ namespace wasm_module {
         static bool isHexChar(char c) {
             if (c >= '0' && c <= '9')
                 return true;
-            if (c >= 'a' && c <= 'z')
+            if (c >= 'a' && c <= 'f')
                 return true;
-            if (c >= 'A' && c <= 'Z')
+            if (c >= 'A' && c <= 'F')
                 return true;
             return false;
         }
