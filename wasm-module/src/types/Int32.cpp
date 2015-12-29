@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
+#include <Utils.h>
 #include "Int32.h"
 
 namespace wasm_module {
 
-    const std::regex Int32::hexNumber("(-)?0(x|X)[0-9a-fA-F]{1,8}");
-    const std::regex Int32::decNumber("(-)?[0-9]+");
-
     void Int32::parse(const std::string& literal, void *data) const {
-        if (std::regex_match(literal, hexNumber)) {
+        if (Utils::isHexNumber(literal, 8)) {
             if (literal.at(0) == '-') {
                 int32_t value = 0;
                 for(std::size_t i = 3; i < literal.size(); i++) {
@@ -52,7 +50,7 @@ namespace wasm_module {
                 }
                 (*(uint32_t*) data) = value;
             }
-        } else if (std::regex_match(literal, decNumber)) {
+        } else if (Utils::isDecNumber(literal, true)) {
             if (literal.at(0) == '-') {
                 int32_t value = 0;
                 for(std::size_t i = 0; i < literal.size(); i++) {

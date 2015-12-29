@@ -16,14 +16,13 @@
 
 
 
+#include <Utils.h>
 #include "Int64.h"
+
 namespace wasm_module {
 
-    const std::regex Int64::hexNumber("(-)?0(x|X)[0-9a-fA-F]{1,16}");
-    const std::regex Int64::decNumber("(-)?[0-9]+");
-
     void Int64::parse(const std::string& literal, void *data) const {
-        if (std::regex_match(literal, hexNumber)) {
+        if (Utils::isHexNumber(literal, 16)) {
             if (literal.at(0) == '-') {
                 int64_t value = 0;
                 for(std::size_t i = 3; i < literal.size(); i++) {
@@ -53,7 +52,7 @@ namespace wasm_module {
                 }
                 (*(uint64_t*) data) = value;
             }
-        } else if (std::regex_match(literal, decNumber)) {
+        } else if (Utils::isDecNumber(literal, true)) {
             if (literal.at(0) == '-') {
                 int64_t value = 0;
                 for(std::size_t i = 0; i < literal.size(); i++) {

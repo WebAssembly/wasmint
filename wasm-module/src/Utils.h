@@ -3,7 +3,6 @@
 
 #include <string>
 #include <sstream>
-#include <regex>
 #include "ExceptionWithMessage.h"
 
 namespace wasm_module {
@@ -12,8 +11,6 @@ namespace wasm_module {
 
     class Utils {
 
-        static const std::regex decNumber;
-
     public:
         static bool hasDollarPrefix(const std::string& s) {
             if (s.empty())
@@ -21,7 +18,21 @@ namespace wasm_module {
             return s[0] == '$';
         }
 
-        static std::size_t strToSizeT(const std::string& str);
+        static std::size_t strToSizeT(const std::string& str) {
+            if (!isDecNumber(str, false)) {
+                throw InvalidNumberLiteral(str);
+            }
+
+            std::istringstream iss(str);
+            size_t result;
+            iss >> result;
+
+            if (std::to_string(result) != str) {
+                throw InvalidNumberLiteral(str);
+            }
+
+            return result;
+        }
 
         static uint32_t reinterpretFloatAsInt(float value) {
             uint32_t* result = (uint32_t *) &value;
@@ -41,7 +52,67 @@ namespace wasm_module {
         static double reinterpretIntAsDouble(uint64_t value) {
             double* result = (double *) &value;
             return *result;
+        }
 
+        static bool isDecChar(char c) {
+            if (c >= '0' && c <= '9')
+                return true;
+            return false;
+        }
+
+        static bool isHexChar(char c) {
+            if (c >= '0' && c <= '9')
+                return true;
+            if (c >= 'a' && c <= 'z')
+                return true;
+            if (c >= 'A' && c <= 'Z')
+                return true;
+            return false;
+        }
+
+        static bool isHexNumber(const std::string& str, std::size_t maxDigits) {
+            if (str.size() < 2)
+                return false;
+            std::size_t startPos = 0;
+            if (str.at(0) == '-') {
+                startPos = 1;
+            }
+            if (str.at(startPos) != '0') {
+                return false;
+            }
+            startPos++;
+            if (str.at(startPos) != 'x' && str.at(startPos) != 'X') {
+                return false;
+            }
+            startPos++;
+            if (startPos >= str.size())
+                return false;
+            if (str.size() - startPos > maxDigits) {
+                return false;
+            }
+            for (; startPos < str.size(); startPos++) {
+                if (!isHexChar(str.at(startPos))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        static bool isDecNumber(const std::string& str, bool allowSigned = true) {
+            if (str.empty())
+                return false;
+            std::size_t pos = 0;
+            if (allowSigned) {
+                if (str.at(pos) == '-') {
+                    pos++;
+                }
+            }
+            for (; pos < str.size(); pos++) {
+                if (!isDecChar(str.at(pos))) {
+                    return false;
+                }
+            }
+            return true;
         }
     };
 }

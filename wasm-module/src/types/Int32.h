@@ -20,7 +20,6 @@
 
 #include <types/Type.h>
 #include <Variable.h>
-#include <regex>
 #include <ExceptionWithMessage.h>
 
 namespace wasm_module {
@@ -28,9 +27,6 @@ namespace wasm_module {
     ExceptionMessage(InvalidI32Format)
 
     class Int32 : public Type {
-
-        static const std::regex hexNumber;
-        static const std::regex decNumber;
 
     protected:
         Int32() {

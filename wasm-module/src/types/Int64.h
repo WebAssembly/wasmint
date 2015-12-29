@@ -21,16 +21,12 @@
 #include <types/Type.h>
 #include <Variable.h>
 #include <ExceptionWithMessage.h>
-#include <regex>
 
 namespace wasm_module {
 
     ExceptionMessage(InvalidI64Format)
 
     class Int64 : public Type {
-
-        static const std::regex hexNumber;
-        static const std::regex decNumber;
 
     protected:
         Int64() {
