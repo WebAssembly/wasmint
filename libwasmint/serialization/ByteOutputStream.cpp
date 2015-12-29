@@ -20,6 +20,7 @@
 #include <types/Int64.h>
 #include <types/Float32.h>
 #include <types/Float64.h>
+#include <stdexcept>
 
 void wasmint::ByteOutputStream::writeVariable(const wasm_module::Variable& variable) {
     if (&variable.type() == wasm_module::Void::instance())

@@ -17,6 +17,7 @@
 #include <limits>
 #include "Float64.h"
 #include "Int64.h"
+#include <stdexcept>
 
 namespace wasm_module {
 
