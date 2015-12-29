@@ -20,6 +20,7 @@
 #include <types/Int64.h>
 #include <types/Float64.h>
 #include <types/Float32.h>
+#include <stdexcept>
 
 namespace wasm_module {
 
@@ -35,6 +36,8 @@ namespace wasm_module {
             return Float32::instance();
         } else if (typeName == "float364") {
             return Float64::instance();
+        } else {
+            throw std::domain_error("Unknown local type code" + std::to_string(localTypeCode));
         }
     }
 }

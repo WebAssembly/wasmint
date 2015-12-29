@@ -66,7 +66,7 @@ namespace wasmint {
             frames_.push_back(frame);
             currentFrame_ = &frames_.back();
             if (frames_.size() > stackLimit) {
-                trap("maximum amount of function frames reached: " + stackLimit);
+                trap("maximum amount of function frames reached: " + std::to_string(stackLimit));
             }
         }
 

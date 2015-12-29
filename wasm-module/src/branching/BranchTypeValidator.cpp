@@ -31,7 +31,7 @@ namespace wasm_module {
                 if (branchInformation->target() == &instruction && !branchInformation->targetsStart()) {
                     if (type) {
                         if (type != branchInformation->valueType()) {
-                            return Void::instance();
+                            type = Void::instance();
                         }
                     }
 

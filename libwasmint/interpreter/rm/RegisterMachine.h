@@ -26,6 +26,7 @@
 #include "JITCompiler.h"
 #include "VMThread.h"
 #include "CompiledFunction.h"
+#include <stdexcept>
 
 namespace wasmint {
     class RegisterMachine {
@@ -85,6 +86,7 @@ namespace wasmint {
                     return thread_;
                 }
             }
+            throw std::domain_error("Can't find compiled function with name " + function.name());
         }
 
         bool step() {
