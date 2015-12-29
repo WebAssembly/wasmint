@@ -25,46 +25,33 @@ using namespace wasmint;
 int main() {
     Heap heap1, heap2;
     assert (heap1 == heap2);
-    heap1.grow(10);
+
+    assert (heap1.grow(10));
     assert (heap1.size() == 10);
     assert (heap1 != heap2);
-    heap1.shrink(9);
+
+    assert (heap1.shrink(9));
     assert (heap1.size() == 1);
     assert (heap1 != heap2);
-    heap1.shrink(1);
+
+    assert (heap1.shrink(1));
     assert (heap1.size() == 0);
     assert (heap1 == heap2);
 
-    try {
-        heap1.shrink(1);
-        assert (false);
-    } catch (const CantChangeHeapSize& ex) {
-        // expected exception
-    }
+    assert (!heap1.shrink(1));
+    assert (!heap1.shrink(std::numeric_limits<std::size_t>::max()));
 
-    try {
-        heap1.shrink(std::numeric_limits<std::size_t>::max());
-        assert (false);
-    } catch (const CantChangeHeapSize& ex) {
-        // expected exception
-    }
-
-    heap1.shrink(0);
+    assert (heap1.shrink(0));
     assert (heap1 == heap2);
     assert (heap1.size() == 0);
 
-    heap1.grow(0);
+    assert (heap1.grow(0));
     assert (heap1 == heap2);
     assert (heap1.size() == 0);
 
-    heap1.grow(1);
+    assert (heap1.grow(1));
     assert (heap1 != heap2);
     assert (heap1.size() == 1);
 
-    try {
-        heap1.grow(std::numeric_limits<std::size_t>::max());
-        assert (false);
-    } catch (const CantChangeHeapSize& ex) {
-        // expected exception
-    }
+    assert (!heap1.grow(std::numeric_limits<std::size_t>::max()));
 }

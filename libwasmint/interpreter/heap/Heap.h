@@ -32,7 +32,6 @@ namespace wasmint {
 
     ExceptionMessage(OverFlowInHeapAccess)
     ExceptionMessage(OutOfBounds)
-    ExceptionMessage(CantChangeHeapSize)
 
     class HeapPatch;
 
@@ -97,17 +96,19 @@ namespace wasmint {
 
         void grow(std::size_t size, HeapPatch& patch);
 
-        void shrink(std::size_t size) {
+        bool shrink(std::size_t size) {
             if (size > data_.size())
-                throw CantChangeHeapSize("Can't shrink memory of size " + std::to_string(data_.size()) + " by " + std::to_string(size));
+                return false;
             data_.resize(data_.size() - size);
+            return true;
         }
 
-        void resize(std::size_t size) {
+        bool resize(std::size_t size) {
             if (size > maxSize_) {
-                throw CantChangeHeapSize("Can't set memory size to " + std::to_string(size) + " because it is bigger than the max size " + std::to_string(maxSize_));
+                return false;
             }
             data_.resize(size);
+            return true;
         }
 
         void setBytes(std::size_t offset, const std::vector<uint8_t>& bytes) {

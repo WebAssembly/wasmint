@@ -2510,8 +2510,6 @@ namespace wasmint {
             return thread.trapReason("Integer overflow in heap access: " + std::string(ex.what()));
         } catch (const OutOfBounds& ex) {
             return thread.trapReason("Out of bounds access: " + std::string(ex.what()));
-        } catch (const CantChangeHeapSize& ex) {
-            return thread.trapReason("Can't change heap size: " + std::string(ex.what()));
         } catch (const std::exception& ex) {
             return thread.trapReason("Exception while executing instruction: " + std::string(ex.what()));
         }
