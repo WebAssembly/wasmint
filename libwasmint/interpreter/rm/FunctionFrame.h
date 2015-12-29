@@ -59,7 +59,7 @@ namespace wasmint {
         }
 
         void passFunctionResult(const wasm_module::Variable& value) {
-            setRegister(functionTargetRegister_, value);
+            setRegisterFromVariable(functionTargetRegister_, value);
         }
         template<typename T>
         T popFromCode() {
@@ -86,9 +86,8 @@ namespace wasmint {
             *((T*)(registers_.data() + index)) = value;
         }
 
-        template<typename T>
-        void setRegister(uint16_t index, const wasm_module::Variable& variable) {
-            *((T*)(registers_.data() + index)) = *((T*) variable.value());
+        void setRegisterFromVariable(uint16_t index, const wasm_module::Variable& variable) {
+            *(registers_.data() + index) = *((uint64_t*) variable.value());
         }
 
         template<typename T>
