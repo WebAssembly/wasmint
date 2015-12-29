@@ -15,6 +15,7 @@
  */
 
 #include <iostream>
+#include <limits>
 #include "ModuleParser.h"
 #include "FunctionParser.h"
 #include "SExprParser.h"

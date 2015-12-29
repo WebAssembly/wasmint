@@ -22,6 +22,7 @@
 #include <types/Float64.h>
 #include <cstring>
 #include "ByteInputStream.h"
+#include <stdexcept>
 
 wasm_module::Variable wasmint::ByteInputStream::getVariable() {
     const wasm_module::Type* type;
