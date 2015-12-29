@@ -79,6 +79,10 @@ namespace wasm_module {
             return indirectCallTable_;
         }
 
+        const FunctionTable& indirectCallTable() const {
+            return indirectCallTable_;
+        }
+
         FunctionTypeTable& functionTypeTable() {
             return functionTypeTable_;
         }

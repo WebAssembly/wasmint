@@ -104,6 +104,10 @@ namespace wasm_module {
             return context_;
         }
 
+        const ModuleContext& context() const {
+            return context_;
+        }
+
         void addFunction(std::string functionName, const Type* returnType, std::vector<const Type*> parameterTypes, std::function<Variable(std::vector<Variable>)> givenFunction);
 
         void addVariadicFunction(std::string functionName, const Type *returnType,

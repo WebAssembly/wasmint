@@ -61,7 +61,7 @@ BranchInformation wasm_module::BranchInformation::getBranchInformation(const Ins
 
     uint32_t labelCounter = label;
     start.foreachParent([&](const Instruction* instruction) {
-        if (instruction->labelCount() < labelCounter) {
+        if (instruction->labelCount() <= labelCounter) {
             labelCounter -= instruction->labelCount();
             return true;
         } else {

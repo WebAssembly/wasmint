@@ -60,7 +60,12 @@ namespace wasm_module {
                 throw FunctionWithoutModule();
             return *module_;
         }
-        
+
+        const Module& module() const {
+            if (module_ == nullptr)
+                throw FunctionWithoutModule();
+            return *module_;
+        }
 
         void module(Module* module) {
             this->module_ = module;

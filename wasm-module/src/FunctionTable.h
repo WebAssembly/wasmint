@@ -54,7 +54,7 @@ namespace wasm_module {
             return iter != functionsByAlias_.end();
         }
 
-        const FunctionSignature& getFunctionSignature(const std::string& alias) {
+        const FunctionSignature& getFunctionSignature(const std::string& alias) const {
             auto iter = functionsByAlias_.find(alias);
             if (iter != functionsByAlias_.end()) {
                 return getFunctionSignature(iter->second);
@@ -63,7 +63,7 @@ namespace wasm_module {
             }
         }
 
-        const FunctionSignature& getFunctionSignature(std::size_t localFunctionId) {
+        const FunctionSignature& getFunctionSignature(std::size_t localFunctionId) const {
             if (localFunctionId >= functions_.size())
                 throw UnknownLocalFunctionId(std::to_string(localFunctionId));
             return functions_.at(localFunctionId);

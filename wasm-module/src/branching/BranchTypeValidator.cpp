@@ -28,10 +28,10 @@ namespace wasm_module {
             const BranchInformation* branchInformation = child->branchInformation();
 
             if (branchInformation) {
-                if (branchInformation->target() == &instruction && branchInformation->labelIndex() == onlyLabelIndex) {
+                if (branchInformation->target() == &instruction && !branchInformation->targetsStart()) {
                     if (type) {
                         if (type != branchInformation->valueType()) {
-                            throw IncompatibleBranchTypes(type->name() + " and " + branchInformation->valueType()->name());
+                            return Void::instance();
                         }
                     }
 

@@ -202,7 +202,6 @@ namespace wasmint {
 
         CopyReg,
         Nop,
-        Native,
         End
         };
         
@@ -383,7 +382,6 @@ namespace wasmint {
 
                 "CopyReg",
                 "Nop",
-                "Native",
                 "End"
             };
             if (opcode >= names.size()) {

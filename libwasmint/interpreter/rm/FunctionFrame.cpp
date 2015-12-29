@@ -21,6 +21,8 @@
 #include <iostream>
 #include <instructions/Instructions.h>
 #include "VMThread.h"
+#include <Module.h>
+#include "RegisterMachine.h"
 
 namespace wasmint {
 
@@ -546,7 +548,20 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             break;
         }
         case ByteOpcodes::CallIndirect:
-            throw std::domain_error("CallIndirect is not implemented");
+            try {
+                const wasm_module::FunctionSignature& signature = function_->function().module().context().indirectCallTable().getFunctionSignature(getRegister<uint16_t>(opcodeData));
+                std::size_t index = signature.index();
+                uint16_t neededIndex = popFromCode<uint16_t>();
+                if (index == neededIndex) {
+                    uint32_t functionId = (uint32_t) runner.machine().getIndex(signature.moduleName(), signature.name());
+                    uint16_t parameterSize = popFromCode<uint16_t>();
+                    runner.enterFunction(functionId, parameterSize, opcodeData);
+                } else {
+                    runner.trap("Indirct call signature doesn't match target");
+                }
+            } catch (const wasm_module::UnknownLocalFunctionId& ex) {
+                runner.trap("Unknown function id");
+            }
             break;
         case ByteOpcodes::SetLocal:
             setVariable(popFromCode<uint16_t>(), getRegister<uint64_t>(opcodeData));
@@ -1375,20 +1390,6 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             uint16_t sourceRegister = popFromCode<uint16_t>();
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(sourceRegister));
             break;
-        }
-        case ByteOpcodes::Native:
-        {
-            auto nativeInstruction = dynamic_cast<const wasm_module::NativeInstruction*>(function_->function().mainInstruction());
-            std::vector<wasm_module::Variable> parameters;
-            parameters.reserve(nativeInstruction->childrenTypes().size());
-            uint32_t i = 0;
-            for (const wasm_module::Type* type : nativeInstruction->childrenTypes()) {
-                wasm_module::Variable parameter(type);
-                memcpy(parameter.value(), registers_.data() + i, type->size());
-                i++;
-            }
-            wasm_module::Variable result = nativeInstruction->call(parameters);
-            memcpy(registers_.data(),result.value(), result.type().size());
         }
         case ByteOpcodes::End:
             if (registers_.empty())

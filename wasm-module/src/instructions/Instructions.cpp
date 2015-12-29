@@ -130,6 +130,13 @@ namespace wasm_module {
             }
             targets_.push_back(target);
         }
+        if (defaultTarget_.isBranch()) {
+            if (defaultTarget_.targetName() == labelName_) {
+                defaultTarget_.branchInformation(BranchInformation(0, this, 0, Void::instance()));
+            } else {
+                defaultTarget_.branchInformation(BranchInformation::getBranchInformation(*this, defaultTarget_.targetName(), Void::instance()));
+            }
+        }
 
         childrenTypes_.push_back(Int32::instance());
 

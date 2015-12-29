@@ -105,13 +105,13 @@ namespace wasmint {
             return functions_.at(index);
         }
 
-        std::size_t getIndex(const CompiledFunction& function) {
+        std::size_t getIndex(const std::string& module, const std::string& functionName) {
             for (std::size_t i = 0; i < functions_.size(); i++) {
-                if (&functions_[i] == &function) {
+                if (functions_[i].function().name() == functionName && functions_[i].function().module().name() == module) {
                     return i;
                 }
             }
-            throw std::domain_error("Function " + function.function().name() + " not compiled in this RegisterMachine");
+            throw std::domain_error("Function " + functionName + " in module " + module + " not compiled in this RegisterMachine");
         }
 
         uint32_t getNumberOfCompiledFunction() const {

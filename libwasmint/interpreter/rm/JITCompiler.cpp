@@ -377,6 +377,21 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             break;
 
         case InstructionId::CallIndirect:
+        {
+            for (std::size_t i = 0; i < instruction->children().size(); i++)
+                compileInstruction(instruction->children()[i]);
+
+            const wasm_module::CallIndirect* call = dynamic_cast<const wasm_module::CallIndirect*>(instruction);
+
+            code_.appendOpcode(ByteOpcodes::CallIndirect);
+            code_.append<uint16_t>(registerAllocator_(instruction));
+            code_.append<uint16_t>((uint16_t) call->functionType().index());
+            code_.append<uint16_t>((uint16_t) (call->childrenTypes().size() - 1));
+            // nop that will trigger when we return (just for the debugger)
+            code_.appendOpcode(ByteOpcodes::Nop);
+            code_.append<uint16_t>(0);
+            break;
+        }
         case InstructionId::CallImport:
         {
             for (std::size_t i = 0; i < instruction->children().size(); i++)
