@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <vector>
 #include "Heap.h"
+#include <stdexcept>
 
 namespace wasmint {
 

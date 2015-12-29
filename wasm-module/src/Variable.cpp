@@ -21,6 +21,7 @@
 #include <types/Float64.h>
 #include "Variable.h"
 #include "types/Type.h"
+#include <cstring>
 
 
 namespace wasm_module {
@@ -35,7 +36,7 @@ namespace wasm_module {
     void Variable::setValue(std::vector<uint8_t> newData) {
         if (newData.size() != type_->size())
             throw InvalidDataSize();
-        memcpy(value_, newData.data(), newData.size());
+        std::memcpy(value_, newData.data(), newData.size());
     }
 
     uint32_t Variable::uint32() const {
@@ -115,7 +116,7 @@ namespace wasm_module {
     std::vector<uint8_t> Variable::data() {
         std::vector<uint8_t> result;
         result.resize(type_->size());
-        memcpy(result.data(), value_, type_->size());
+        std::memcpy(result.data(), value_, type_->size());
         return result;
     }
 
@@ -149,7 +150,7 @@ namespace wasm_module {
     bool Variable::operator==(const Variable& variable) const {
         if (type_ != variable.type_)
             return false;
-        if (memcmp(value_, variable.value_, type().size()) != 0)
+        if (std::memcmp(value_, variable.value_, type().size()) != 0)
             return false;
         return true;
     }

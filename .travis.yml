@@ -7,9 +7,9 @@ compiler:
   - clang
 
 before_install:
-      - if [ ${CC} == "clang" ]; then
-        export CC=/usr/bin/clang-3.6 CXX=/usr/bin/clang++-3.6;
-        fi
+  - if [ ${CC} == "clang" ]; then
+    export CC=/usr/bin/clang-3.6 CXX=/usr/bin/clang++-3.6;
+    fi
 
 addons:
   apt:
