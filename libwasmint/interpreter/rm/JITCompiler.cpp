@@ -18,6 +18,7 @@
 #include <instructions/Instructions.h>
 #include "JITCompiler.h"
 #include "RegisterMachine.h"
+#include <stdexcept>
 
 #define Op2Case(Name) case InstructionId:: Name : \
         compileInstruction(instruction->children().at(0)); \
@@ -341,6 +342,20 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             code_.append(dynamic_cast<const wasm_module::Literal*>(instruction)->literalValue().float64());
             break;
 
+        case InstructionId::HasFeature:
+        {
+            code_.appendOpcode(ByteOpcodes::I32Const);
+            code_.append(registerAllocator_(instruction));
+
+            const std::string& feature = dynamic_cast<const wasm_module::HasFeature*>(instruction)->featureName();
+            if (feature == "wasm") {
+                code_.append(1);
+            } else {
+                code_.append(0);
+            }
+
+            break;
+        }
         case InstructionId::I32Wrap:
             compileInstruction(instruction->children().at(0));
             code_.appendOpcode(ByteOpcodes::I32Wrap);
@@ -351,7 +366,6 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         case InstructionId::F32ReinterpretI32:
         case InstructionId::I32ReinterpretF32:
         case InstructionId::Nop:
-        case InstructionId::HasFeature:
             for (std::size_t i = 0; i < instruction->children().size(); i++)
                 compileInstruction(instruction->children()[i]);
             code_.appendOpcode(ByteOpcodes::Nop);
@@ -400,6 +414,7 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
 
         case InstructionId::TableSwitch:
         {
+            compileInstruction(instruction->children().at(0));
             code_.appendOpcode(ByteOpcodes::TableSwitch);
             code_.append<uint16_t>(registerAllocator_(instruction));
 
@@ -408,14 +423,23 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
 
             for (const wasm_module::TableSwitchTarget& target : tableSwitch->targets()) {
                 if (target.isCase()) {
-                    addBranch(target.branchInformation().target(), registerAllocator_(instruction), true);
+                    addBranchAddress(target.branchInformation().target(), true);
                 } else if (target.isBranch()) {
-                    addBranch(target.branchInformation().target(), registerAllocator_(instruction), target.branchInformation().labelIndex() == 1);
+                    addBranchAddress(&target.branchInformation());
+                } else {
+                    throw std::domain_error("Only case and branch are supported by tableswitch");
                 }
             }
+            if (tableSwitch->defaultTarget().isCase()) {
+                addBranchAddress(tableSwitch->defaultTarget().branchInformation().target(), true);
+            } else if (tableSwitch->defaultTarget().isBranch()) {
+                addBranchAddress(&tableSwitch->defaultTarget().branchInformation());
+            } else {
+                throw std::domain_error("Only case and branch are supported by tableswitch");
+            }
 
-            for (const wasm_module::Instruction* child : tableSwitch->children()) {
-                compileInstruction(child);
+            for (uint32_t i = 1; i < instruction->children().size(); i++) {
+                compileInstruction(tableSwitch->children().at(i));
             }
 
             break;
@@ -431,13 +455,6 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             code_.append<uint16_t>(0);
             break;
         }
-        case InstructionId::BranchIf:
-        {
-            compileInstruction(instruction->children().at(0));
-            compileInstruction(instruction->children().at(1));
-            addBranchIf(instruction, registerAllocator_(instruction), false);
-            break;
-        }
         case InstructionId::If:
         {
             compileInstruction(instruction->children().at(0));
@@ -450,19 +467,43 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             compileInstruction(instruction->children().at(0));
             addBranchIfNot(instruction->children().at(2), registerAllocator_(instruction), true);
             compileInstruction(instruction->children().at(1));
-            addBranch(instruction, registerAllocator_(instruction), false);
+            addBranch(instruction, false);
             compileInstruction(instruction->children().at(2));
             break;
         }
         case InstructionId::Return:
         {
             compileInstruction(instruction->children().at(0));
-            addBranch(instruction->function()->mainInstruction(), registerAllocator_(instruction), false);
+            if (registerAllocator_.hasRegister(instruction->children().at(0)))
+                addBranchCopyReg(instruction->function()->mainInstruction(),
+                                 0, // target the first register which is our return register
+                                 registerAllocator_(instruction->children().at(0)));
+            else
+                addBranch(instruction->function()->mainInstruction(), false);
             break;
         }
         case InstructionId::Branch:
         {
-            addBranch(instruction->branchInformation(), registerAllocator_(instruction));
+            compileInstruction(instruction->children().at(0));
+            if (registerAllocator_.hasRegister(instruction->children().at(0)))
+                addBranchCopyReg(instruction->branchInformation(),
+                                 registerAllocator_(instruction->branchInformation()->target()),
+                                 registerAllocator_(instruction->children().at(0)));
+            else
+                addBranch(instruction->branchInformation());
+            break;
+        }
+        case InstructionId::BranchIf:
+        {
+            compileInstruction(instruction->children().at(0));
+            compileInstruction(instruction->children().at(1));
+            if (registerAllocator_.hasRegister(instruction->children().at(1)))
+                addBranchIfCopyReg(instruction->branchInformation(),
+                                   registerAllocator_(instruction->children().at(0)),
+                                   registerAllocator_(instruction->branchInformation()->target()),
+                                   registerAllocator_(instruction->children().at(1)));
+            else
+                addBranchIf(instruction->branchInformation(), registerAllocator_(instruction->children().at(0)));
             break;
         }
 
@@ -503,13 +544,6 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             break;
         }
 
-        case InstructionId::NativeInstruction:
-        {
-            code_.appendOpcode(ByteOpcodes::Native);
-            code_.append<uint16_t>(0);
-            break;
-        }
-
         default:
             throw std::domain_error("calculateNumberOfRegisters can't handle instruction " + instruction->name());
     }
@@ -518,41 +552,70 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
     instructionFinishedAddresses[code_.size()] = instruction;
 }
 
-void wasmint::JITCompiler::addBranch(const wasm_module::BranchInformation* information, uint16_t opcodeData) {
-    if (information->target()->id() == InstructionId::Loop) {
-        addBranch(information->target(), opcodeData, information->labelIndex() == 0);
-    } else {
-        addBranch(information->target(), opcodeData, false);
-    }
+void wasmint::JITCompiler::addBranch(const wasm_module::BranchInformation* information) {
+    code_.appendOpcode(ByteOpcodes::Branch);
+    addBranchAddress(information);
 }
 
-void wasmint::JITCompiler::addBranch(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before) {
+void wasmint::JITCompiler::addBranch(const wasm_module::Instruction* instruction, bool before) {
     code_.appendOpcode(ByteOpcodes::Branch);
     addBranchAddress(instruction, before);
-    if (instruction->returnType() != wasm_module::Void::instance() && registerAllocator_(instruction) != opcodeData)
-        addCopyRegister(registerAllocator_(instruction), opcodeData);
 }
 
 void wasmint::JITCompiler::addBranchIf(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before) {
     code_.appendOpcode(ByteOpcodes::BranchIf);
     code_.append(opcodeData);
     addBranchAddress(instruction, before);
-    if (instruction->returnType() != wasm_module::Void::instance() && registerAllocator_(instruction) != opcodeData)
-        addCopyRegister(registerAllocator_(instruction), opcodeData);
 }
 
 void wasmint::JITCompiler::addBranchIfNot(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before) {
     code_.appendOpcode(ByteOpcodes::BranchIfNot);
     code_.append(opcodeData);
     addBranchAddress(instruction, before);
-    if (instruction->returnType() != wasm_module::Void::instance() && registerAllocator_(instruction) != opcodeData)
-        addCopyRegister(registerAllocator_(instruction), opcodeData);
 }
 
-void wasmint::JITCompiler::addCopyRegister(uint16_t target, uint16_t source) {
-    code_.appendOpcode(ByteOpcodes::CopyReg);
-    code_.append(target);
-    code_.append(source);
+void wasmint::JITCompiler::addBranchCopyReg(const wasm_module::BranchInformation* information, uint16_t targetReg, uint16_t srcReg) {
+    if (targetReg == srcReg || information->targetsStart()) {
+        addBranch(information->target(), information->targetsStart());
+    } else {
+        code_.appendOpcode(ByteOpcodes::BranchCopyReg);
+        code_.append(targetReg);
+        code_.append(srcReg);
+        addBranchAddress(information->target(), false);
+    }
+}
+
+void wasmint::JITCompiler::addBranchIfCopyReg(const wasm_module::BranchInformation* information, uint16_t opcodeData, uint16_t targetReg, uint16_t srcReg) {
+    if (information->targetsStart()) {
+        addBranchIf(information, opcodeData);
+    } else {
+        code_.appendOpcode(ByteOpcodes::BranchIfCopyReg);
+        code_.append(opcodeData);
+        code_.append(targetReg);
+        code_.append(srcReg);
+        addBranchAddress(information);
+    }
+}
+
+void wasmint::JITCompiler::addBranchIf(const wasm_module::BranchInformation* information, uint16_t opcodeData) {
+    code_.appendOpcode(ByteOpcodes::BranchIf);
+    code_.append(opcodeData);
+    addBranchAddress(information);
+}
+
+void wasmint::JITCompiler::addBranchIfNot(const wasm_module::BranchInformation* information, uint16_t opcodeData) {
+    code_.appendOpcode(ByteOpcodes::BranchIfNot);
+    code_.append(opcodeData);
+    addBranchAddress(information);
+}
+
+void wasmint::JITCompiler::addBranchAddress(const wasm_module::BranchInformation* information) {
+    if (information->targetsStart()) {
+        needsInstructionStartAddress.push_back(std::make_pair(information->target(), code_.size()));
+    } else {
+        needsInstructionEndAddress.push_back(std::make_pair(information->target(), code_.size()));
+    }
+    code_.append<uint32_t>(0);
 }
 
 void wasmint::JITCompiler::addBranchAddress(const wasm_module::Instruction* instruction, bool before) {
@@ -563,6 +626,20 @@ void wasmint::JITCompiler::addBranchAddress(const wasm_module::Instruction* inst
     }
     code_.append<uint32_t>(0);
 }
+
+void wasmint::JITCompiler::addBranchCopyReg(const wasm_module::Instruction* instruction, uint16_t targetReg, uint16_t srcReg) {
+    code_.appendOpcode(ByteOpcodes::BranchCopyReg);
+    code_.append(targetReg);
+    code_.append(srcReg);
+    addBranchAddress(instruction, false);
+}
+
+void wasmint::JITCompiler::addCopyRegister(uint16_t target, uint16_t source) {
+    code_.appendOpcode(ByteOpcodes::CopyReg);
+    code_.append(target);
+    code_.append(source);
+}
+
 
 void wasmint::JITCompiler::linkGlobally(const RegisterMachine* registerMachine) {
     for (auto pair : needsFunctionIndex) {
@@ -602,16 +679,14 @@ void wasmint::JITCompiler::linkLocally() {
 }
 
 void wasmint::JITCompiler::compile(const wasm_module::Function* function) {
-    registerAllocator_ = RegisterAllocator();
-    if (function->isNative()) {
-        code_.append<uint16_t>(1); // one register for the result
-    } else {
+    if (!function->isNative()) {
+        registerAllocator_ = RegisterAllocator();
         registerAllocator_.allocateRegisters(function->mainInstruction());
         code_.append<uint16_t>(registerAllocator_.registersRequired());
+        code_.append<uint16_t>((uint16_t) function->locals().size());
+        compileInstruction(function->mainInstruction());
+        code_.appendOpcode(ByteOpcodes::End);
+        code_.append<uint16_t>(0);
+        linkLocally();
     }
-    code_.append<uint16_t>((uint16_t) function->locals().size());
-    compileInstruction(function->mainInstruction());
-    code_.appendOpcode(ByteOpcodes::End);
-    code_.append<uint16_t>(0);
-    linkLocally();
 }

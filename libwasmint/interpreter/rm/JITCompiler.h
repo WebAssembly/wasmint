@@ -43,10 +43,16 @@ namespace wasmint {
         void compileInstruction(const wasm_module::Instruction* instruction);
 
         void addBranchAddress(const wasm_module::Instruction* instruction, bool before);
-        void addBranch(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before);
-        void addBranch(const wasm_module::BranchInformation* information, uint16_t opcodeData);
+        void addBranchAddress(const wasm_module::BranchInformation* information);
+        void addBranch(const wasm_module::Instruction* instruction, bool before);
+        void addBranch(const wasm_module::BranchInformation* information);
+        void addBranchIf(const wasm_module::BranchInformation* information, uint16_t opcodeData);
+        void addBranchIfNot(const wasm_module::BranchInformation* information, uint16_t opcodeData);
         void addBranchIf(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before);
         void addBranchIfNot(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before);
+        void addBranchCopyReg(const wasm_module::BranchInformation* information, uint16_t targetReg, uint16_t srcReg);
+        void addBranchCopyReg(const wasm_module::Instruction* instruction, uint16_t targetReg, uint16_t srcReg);
+        void addBranchIfCopyReg(const wasm_module::BranchInformation* information, uint16_t opcodeData, uint16_t targetReg, uint16_t srcReg);
         void addCopyRegister(uint16_t target, uint16_t source);
 
         void linkLocally();

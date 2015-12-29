@@ -77,4 +77,7 @@ BranchInformation wasm_module::BranchInformation::getBranchInformation(const Ins
     return BranchInformation(labelIndex, target, label, valueType);
 }
 
+    bool BranchInformation::targetsStart() const {
+        return target()->id() == InstructionId::Loop && labelIndex() == 0;
+    }
 }

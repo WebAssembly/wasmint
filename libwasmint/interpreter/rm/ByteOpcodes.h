@@ -93,6 +93,9 @@ namespace wasmint {
         Branch,
         BranchIf,
         BranchIfNot,
+        BranchCopyReg,
+        BranchIfCopyReg,
+        BranchIfNotCopyReg,
 
         GetLocal,
         SetLocal,
@@ -271,6 +274,9 @@ namespace wasmint {
                 "Branch",
                 "BranchIf",
                 "BranchIfNot",
+                "BranchCopyReg",
+                "BranchIfCopyReg",
+                "BranchIfNotCopyReg",
 
                 "GetLocal",
                 "SetLocal",

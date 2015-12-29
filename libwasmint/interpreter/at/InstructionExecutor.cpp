@@ -1064,7 +1064,9 @@ namespace wasmint {
                             }
 
                             // TODO risky conversion
-                            thread.heap().grow((uint32_t) value);
+                            if (!thread.heap().grow((uint32_t) value)) {
+                                return thread.trapReason("Can't grow memory");
+                            }
 
                             return StepResult(Variable::Void());
                     }

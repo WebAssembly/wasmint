@@ -39,7 +39,7 @@ namespace wasmint {
     public:
         void allocateRegisters(const wasm_module::Instruction* instruction, std::size_t offset = 0);
 
-        uint16_t operator()(const wasm_module::Instruction* instr) {
+        uint16_t operator()(const wasm_module::Instruction* instr) const {
             auto iter = registers_.find(instr);
             if (iter != registers_.end()) {
                 return (uint16_t) iter->second;
@@ -48,7 +48,12 @@ namespace wasmint {
             }
         }
 
-        uint16_t registersRequired() {
+        bool hasRegister(const wasm_module::Instruction* instr) const {
+            auto iter = registers_.find(instr);
+            return (iter != registers_.end());
+        }
+
+        uint16_t registersRequired() const {
             return (uint16_t) registersRequired_;
         }
     };

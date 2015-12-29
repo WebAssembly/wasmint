@@ -58,6 +58,8 @@ namespace wasm_module {
             return valueType_;
         }
 
+        bool targetsStart() const;
+
         static BranchInformation getBranchInformation(const Instruction& start, const std::string& labelName, const Type* valueType);
 
         static BranchInformation getBranchInformation(const Instruction &start, uint32_t label,

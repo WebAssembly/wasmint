@@ -17,6 +17,7 @@
 
 #include <cmath>
 #include <limits>
+#include <instructions/Instructions.h>
 #include "VMThread.h"
 #include "RegisterMachine.h"
 
@@ -28,10 +29,30 @@ namespace wasmint {
     }
 
     void VMThread::enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset) {
-        pushFrame(FunctionFrame(machine().getCompiledFunction(functionId)));
+        const CompiledFunction& targetFunction = machine().getCompiledFunction(functionId);
 
-        for (uint32_t i = 0; i < parameterSize; i++) {
-            currentFrame().setVariable(i, frames_.at(frames_.size() - 2).getRegister<uint64_t>(parameterRegisterOffset + i));
+        if (targetFunction.function().mainInstruction()->id() == InstructionId::NativeInstruction) {
+            auto nativeInstruction = dynamic_cast<const wasm_module::NativeInstruction*>(targetFunction.function().mainInstruction());
+
+            std::vector<wasm_module::Variable> parameters;
+            parameters.reserve(nativeInstruction->childrenTypes().size());
+            uint16_t i = 0;
+            for (const wasm_module::Type* type : nativeInstruction->childrenTypes()) {
+                wasm_module::Variable parameter(type);
+                uint64_t value = currentFrame_->getRegister<uint64_t>(parameterRegisterOffset + i);
+                memcpy(parameter.value(), &value, type->size());
+                i++;
+            }
+
+            wasm_module::Variable result = nativeInstruction->call(parameters);
+
+            currentFrame_->passFunctionResult(result);
+        } else {
+            pushFrame(FunctionFrame(targetFunction));
+
+            for (uint32_t i = 0; i < parameterSize; i++) {
+                currentFrame().setVariable(i, frames_.at(frames_.size() - 2).getRegister<uint64_t>(parameterRegisterOffset + i));
+            }
         }
     }
 }

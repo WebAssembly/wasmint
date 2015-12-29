@@ -183,6 +183,7 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
         case InstructionId::I64Const:
         case InstructionId::F32Const:
         case InstructionId::F64Const:
+        case InstructionId::HasFeature:
         case InstructionId::PageSize:
         case InstructionId::MemorySize:
         case InstructionId::GetLocal:
@@ -193,7 +194,6 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
 
         case InstructionId::Nop:
         case InstructionId::Unreachable:
-        case InstructionId::HasFeature:
         {
             break;
         }
@@ -228,8 +228,8 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
         case InstructionId::F64Select:
         {
             allocateRegisters(instruction->children().at(0), offset);
-            allocateRegisters(instruction->children().at(1), offset);
-            allocateRegisters(instruction->children().at(2), offset);
+            allocateRegisters(instruction->children().at(1), offset + 1);
+            allocateRegisters(instruction->children().at(2), offset + 2);
             setRegister(instruction, offset);
             break;
         }

@@ -244,6 +244,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
                     break;
             }
             setRegister<uint32_t>(opcodeData, population);
+            break;
         }
 
 
@@ -332,15 +333,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             uint64_t resultInt = left >> right;
 
-            if (((int64_t) left) < 0) {
-                if ((left & (0x1ul << 63ul)) != 0) {
-                    uint64_t bitMask = 0;
-                    for (uint64_t i = 0; i < right; i++) {
-                        bitMask >>= 1u;
-                        bitMask |= (0x1u << 31u);
-                    }
-                    resultInt |= bitMask;
+            if ((left & (0x1ul << 63u)) != 0) {
+                uint64_t bitMask = 0;
+                for(uint64_t i = 0; i < right; i++) {
+                    bitMask >>= 1u;
+                    bitMask |= (0x1ul << 63u);
                 }
+                resultInt |= bitMask;
             }
 
             setRegister<uint64_t>(opcodeData, resultInt);
@@ -485,6 +484,37 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             break;
         }
 
+        case ByteOpcodes::BranchCopyReg:
+        {
+            uint16_t sourceRegister = popFromCode<uint16_t>();
+            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(sourceRegister));
+            instructionPointer_ = popFromCode<uint32_t>();
+            break;
+        }
+
+        case ByteOpcodes::BranchIfCopyReg:
+        {
+            uint16_t targetRegister = popFromCode<uint16_t>();
+            uint16_t sourceRegister = popFromCode<uint16_t>();
+            setRegister<uint64_t>(targetRegister, getRegister<uint64_t>(sourceRegister));
+            uint32_t jumpOffset = popFromCode<uint32_t>();
+            if (getRegister<uint32_t>(opcodeData)) {
+                instructionPointer_ = jumpOffset;
+            }
+            break;
+        }
+        case ByteOpcodes::BranchIfNotCopyReg:
+        {
+            uint16_t targetRegister = popFromCode<uint16_t>();
+            uint16_t sourceRegister = popFromCode<uint16_t>();
+            setRegister<uint64_t>(targetRegister, getRegister<uint64_t>(sourceRegister));
+            uint32_t jumpOffset = popFromCode<uint32_t>();
+            if (!getRegister<uint32_t>(opcodeData)) {
+                instructionPointer_ = jumpOffset;
+            }
+            break;
+        }
+
         case ByteOpcodes::Return:
         {
             runner.finishFrame(getRegister<uint64_t>(opcodeData));
@@ -495,13 +525,15 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             uint32_t tableSize = popFromCode<uint32_t>();
             uint32_t tableIndex = getRegister<uint32_t>(opcodeData);
-            uint32_t jumpTarget;
             if (tableIndex < tableSize) {
-                jumpTarget = peekFromCode<uint32_t>(tableIndex);
+                // multiply tableIndex with 4 as each address in the jump table is 4 bytes long
+                instructionPointer_ = peekFromCode<uint32_t>(tableIndex * 4u);
             } else {
-                jumpTarget = peekFromCode<uint32_t>(tableSize);
+                // multiply tableSize with 4 as each address in the jump table is 4 bytes long
+                // tableSize because the address behind the table is the default jump target
+                instructionPointer_ = peekFromCode<uint32_t>(tableSize * 4u);
             }
-            instructionPointer_ = jumpTarget;
+            break;
         }
 
         case ByteOpcodes::CallImport:
@@ -549,7 +581,9 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             }
 
             // TODO risky conversion
-            heap.grow((uint32_t) value);
+            if (!heap.grow((uint32_t) value)) {
+                return runner.trap("Can't grow memory");
+            }
         }
 
         case ByteOpcodes::PageSize:
@@ -790,8 +824,8 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F32Sub: {
             float left = getRegister<float>(opcodeData);
             float right = getRegister<float>(opcodeData + 1);
-            if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && std::signbit(right)) {
-                setRegister<float>(opcodeData, std::numeric_limits<float>::infinity());
+            if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && !std::signbit(right)) {
+                setRegister<float>(opcodeData, std::numeric_limits<float>::quiet_NaN());
             } else {
                 setRegister<float>(opcodeData, getRegister<float>(opcodeData) - getRegister<float>(opcodeData + 1));
             }
@@ -801,7 +835,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F32Mul: {
             float left = getRegister<float>(opcodeData);
             float right = getRegister<float>(opcodeData + 1);
-            if (std::isinf(left) && right == 0 && !std::signbit(left) && std::signbit(right)) {
+            if (std::isinf(left) && right == 0 && !std::signbit(left) && !std::signbit(right)) {
                 setRegister<float>(opcodeData, std::numeric_limits<float>::quiet_NaN());
             } else {
                 setRegister<float>(opcodeData, getRegister<float>(opcodeData) * getRegister<float>(opcodeData + 1));
@@ -813,7 +847,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F32Div: {
             float left = getRegister<float>(opcodeData);
             float right = getRegister<float>(opcodeData + 1);
-            if (left == 0 && right == 0 && !std::signbit(left) && std::signbit(right)) {
+            if (left == 0 && right == 0 && !std::signbit(left) && !std::signbit(right)) {
                 setRegister<float>(opcodeData, std::numeric_limits<float>::quiet_NaN());
             } else {
                 setRegister<float>(opcodeData, getRegister<float>(opcodeData) / getRegister<float>(opcodeData + 1));
@@ -973,8 +1007,8 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F64Sub: {
             double left = getRegister<double>(opcodeData);
             double right = getRegister<double>(opcodeData + 1);
-            if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && std::signbit(right)) {
-                setRegister<double>(opcodeData, std::numeric_limits<double>::infinity());
+            if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && !std::signbit(right)) {
+                setRegister<double>(opcodeData, std::numeric_limits<double>::quiet_NaN());
             } else {
                 setRegister<double>(opcodeData, getRegister<double>(opcodeData) - getRegister<double>(opcodeData + 1));
             }
@@ -984,7 +1018,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F64Mul: {
             double left = getRegister<double>(opcodeData);
             double right = getRegister<double>(opcodeData + 1);
-            if (std::isinf(left) && right == 0 && !std::signbit(left) && std::signbit(right)) {
+            if (std::isinf(left) && right == 0 && !std::signbit(left) && !std::signbit(right)) {
                 setRegister<double>(opcodeData, std::numeric_limits<double>::quiet_NaN());
             } else {
                 setRegister<double>(opcodeData, getRegister<double>(opcodeData) * getRegister<double>(opcodeData + 1));
@@ -996,7 +1030,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F64Div: {
             double left = getRegister<double>(opcodeData);
             double right = getRegister<double>(opcodeData + 1);
-            if (left == 0 && right == 0 && !std::signbit(left) && std::signbit(right)) {
+            if (left == 0 && right == 0 && !std::signbit(left) && !std::signbit(right)) {
                 setRegister<double>(opcodeData, std::numeric_limits<double>::quiet_NaN());
             } else {
                 setRegister<double>(opcodeData, getRegister<double>(opcodeData) / getRegister<double>(opcodeData + 1));
@@ -1068,11 +1102,11 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             double value = getRegister<double>(opcodeData);
             if (std::isnan(value)) {
                 uint64_t asInt = getRegister<uint64_t>(opcodeData);
-                asInt |= 0x400000;
+                asInt |= 0x8000000000000;
                 setRegister<uint64_t>(opcodeData, asInt);
             }
-            else if (value == -0.0f && std::signbit(value)) {
-                setRegister<double>(opcodeData, -0.0f);
+            else if (value == -0.0 && std::signbit(value)) {
+                setRegister<double>(opcodeData, -0.0);
             } else if (std::signbit(value)) {
                 setRegister<double>(opcodeData, std::numeric_limits<double>::quiet_NaN());
             } else {
@@ -1087,11 +1121,11 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             if (std::isnan(left)) {
                 uint64_t asInt = getRegister<uint64_t>(opcodeData);
-                asInt |= 0x400000;
+                asInt |= 0x8000000000000;
                 setRegister<uint64_t>(opcodeData, asInt);
             } else if (std::isnan(right)) {
                 uint64_t asInt = getRegister<uint64_t>(opcodeData + 1);
-                asInt |= 0x400000;
+                asInt |= 0x8000000000000;
                 setRegister<uint64_t>(opcodeData, asInt);
             } else if (left == right) {
                 auto leftSign = std::signbit(left);
@@ -1114,11 +1148,11 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             if (std::isnan(left)) {
                 uint64_t asInt = getRegister<uint64_t>(opcodeData);
-                asInt |= 0x400000;
+                asInt |= 0x8000000000000;
                 setRegister<uint64_t>(opcodeData, asInt);
             } else if (std::isnan(right)) {
                 uint64_t asInt = getRegister<uint64_t>(opcodeData + 1);
-                asInt |= 0x400000;
+                asInt |= 0x8000000000000;
                 setRegister<uint64_t>(opcodeData, asInt);
             } else if (left == right) {
                 auto leftSign = std::signbit(left);

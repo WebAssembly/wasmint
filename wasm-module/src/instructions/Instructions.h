@@ -986,7 +986,7 @@ namespace wasm_module {
         std::string featureName_;
 
     public:
-        std::string featureName() const {
+        const std::string& featureName() const {
             return featureName_;
         }
 

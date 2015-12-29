@@ -79,19 +79,20 @@ namespace wasmint {
             return data_.at(pos) = value;
         }
 
-        void grow(std::size_t size) {
+        bool grow(std::size_t size) {
             std::size_t oldSize = data_.size();
             std::size_t newSize;
 
             if (safeSizeTAddition(oldSize, size, &newSize)) {
-                throw CantChangeHeapSize("Can't grow heap with size " + std::to_string(oldSize) + " by " + std::to_string(size) + " as this would cause a integer overflow");
+                return false;
             }
 
             if (newSize > maxSize_)
-                throw CantChangeHeapSize("New heap size of " + std::to_string(newSize) + " is bigger than the allowed max size of " + std::to_string(maxSize_));
+                return false;
 
             data_.resize(newSize);
             std::fill(data_.begin() + oldSize, data_.end(), 0);
+            return true;
         }
 
         void grow(std::size_t size, HeapPatch& patch);
