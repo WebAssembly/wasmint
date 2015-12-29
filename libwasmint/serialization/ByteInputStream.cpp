@@ -20,6 +20,7 @@
 #include <types/Int64.h>
 #include <types/Float32.h>
 #include <types/Float64.h>
+#include <cstring>
 #include "ByteInputStream.h"
 
 wasm_module::Variable wasmint::ByteInputStream::getVariable() {
@@ -51,7 +52,7 @@ wasm_module::Variable wasmint::ByteInputStream::getVariable() {
     }
 
     wasm_module::Variable result(type);
-    memcpy(result.value(), data, type->size());
+    std::memcpy(result.value(), data, type->size());
 
     return result;
 }
