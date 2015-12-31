@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cmake . wasm-module
+ctest . wasm-module
 bash runTestsuite.sh --no-memcheck
 
 lcov --rc lcov_branch_coverage=1 -c -i -d ${CMAKE_CURRENT_BINARY_DIR} -o ${CMAKE_CURRENT_BINARY_DIR}/coverage_init.info
