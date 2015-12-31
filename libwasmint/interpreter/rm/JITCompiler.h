@@ -25,7 +25,7 @@
 #include <stdexcept>
 
 namespace wasmint {
-    class RegisterMachine;
+    class WasmintVM;
 
     class JITCompiler {
 
@@ -67,7 +67,7 @@ namespace wasmint {
             return code_;
         }
 
-        void linkGlobally(const RegisterMachine* registerMachine);
+        void linkGlobally(const WasmintVM* registerMachine);
 
         const wasm_module::Instruction* getInstruction(uint32_t address) const {
             auto iter = instructionFinishedAddresses.find(address);

@@ -23,29 +23,28 @@
 #include <sexpr_parsing/SExprParser.h>
 #include <sexpr_parsing/ModuleParser.h>
 #include <assert.h>
-#include <interpreter/rm/RegisterMachine.h>
 #include <iostream>
+#include <interpreter/rm/WasmintVM.h>
 
 using namespace wasm_module;
 using namespace wasm_module::sexpr;
 using namespace wasmint;
 
 int main() {
-    RegisterMachine registerMachine;
+
+    WasmintVM vm;
 
     Module* module = ModuleParser::parse("module "
                                                  "(func $add (param $a i32) (param $b i32) (i32.add (get_local $a) (get_local $b)))"
                                                  "(func main (if_else (i32.const 0) (unreachable) (call $add (i32.const 1) (i32.const 2))))");
 
-    registerMachine.useModule(*module, true);
+    vm.useModule(*module, true);
+    vm.startAtFunction(*module->functions().back());
+    vm.stepUntilFinished();
 
-    VMThread& thread = registerMachine.startAtFunction(*module->functions().back());
-
-    registerMachine.stepUntilFinished();
-
-    if (thread.gotTrap()) {
-        std::cerr << "Got trap: " << thread.trapReason() << std::endl;
+    if (vm.gotTrap()) {
+        std::cerr << "Got trap: " << vm.trapReason() << std::endl;
     }
 
-    assert(!thread.gotTrap());
+    assert(!vm.gotTrap());
 }

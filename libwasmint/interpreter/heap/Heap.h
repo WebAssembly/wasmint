@@ -26,12 +26,15 @@
 #include <serialization/ByteInputStream.h>
 #include <serialization/ByteOutputStream.h>
 #include "../SafeAddition.h"
+#include "Interval.h"
+#include "HeapObserver.h"
 #include <cstring>
 
 namespace wasmint {
 
     ExceptionMessage(OverFlowInHeapAccess)
     ExceptionMessage(OutOfBounds)
+    ExceptionMessage(OnlyOneObserverSupported)
 
     class HeapPatch;
 
@@ -41,6 +44,8 @@ namespace wasmint {
         std::vector<uint8_t> data_;
 
         const static std::size_t pageSize_ = 1024;
+
+        HeapObserver* observer_ = nullptr;
 
     public:
         Heap() {
@@ -70,12 +75,12 @@ namespace wasmint {
 
         void setState(ByteInputStream& stream);
 
-        uint8_t getByte(std::size_t pos) {
-            return data_.at(pos);
+        uint8_t getByte(std::size_t pos) const {
+            return data_[pos];
         }
 
-        uint8_t setByte(std::size_t pos, uint8_t value) {
-            return data_.at(pos) = value;
+        void setByte(std::size_t position, uint8_t value) {
+            data_.at(position) = value;
         }
 
         bool grow(std::size_t size) {
@@ -93,8 +98,6 @@ namespace wasmint {
             std::fill(data_.begin() + oldSize, data_.end(), 0);
             return true;
         }
-
-        void grow(std::size_t size, HeapPatch& patch);
 
         bool shrink(std::size_t size) {
             if (size > data_.size())
@@ -161,12 +164,12 @@ namespace wasmint {
                 return false;
             }
 
+            if (observer_)
+                observer_->preChanged(*this, Interval::withEnd(offset, offset + sizeof(T)));
             std::memcpy(data_.data() + offset, &value, sizeof(T));
 
             return true;
         }
-
-        void setBytes(uint32_t offset, const std::vector<uint8_t>& bytes, HeapPatch& patch);
 
         template<typename T>
         bool get(std::size_t offset, T* value) {
@@ -205,7 +208,7 @@ namespace wasmint {
             return true;
         }
 
-        std::vector<uint8_t> getBytes(std::size_t offset, std::size_t size) {
+        std::vector<uint8_t> getBytes(std::size_t offset, std::size_t size) const {
 
             std::size_t end;
 
@@ -228,25 +231,6 @@ namespace wasmint {
             return result;
         }
 
-        std::string getString(uint32_t offset) {
-            uint32_t endOffset = 0;
-            bool foundOffset = false;
-            for(uint32_t i = offset; i < data_.size(); i++) {
-                if (data_[i] == '\0') {
-                    endOffset = i;
-                    foundOffset = true;
-                }
-            }
-
-            std::string result;
-            result.reserve(endOffset - offset);
-
-            for(uint32_t i = offset; i < endOffset; i++) {
-                result[i - offset] = data_[i];
-            }
-            return result;
-        }
-
         std::size_t size() const {
             return data_.size();
         }
@@ -257,6 +241,18 @@ namespace wasmint {
 
         bool operator!=(const Heap& other) const {
             return !this->operator==(other);
+        }
+
+        void removeObserver() {
+            observer_ = nullptr;
+        }
+
+        void attachObserver(HeapObserver& newObserver) {
+            if (observer_) {
+                throw OnlyOneObserverSupported("Spanier");
+            } else {
+                observer_ = &newObserver;
+            }
         }
     };
 

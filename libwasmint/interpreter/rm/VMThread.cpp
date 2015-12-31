@@ -19,7 +19,7 @@
 #include <limits>
 #include <instructions/Instructions.h>
 #include "VMThread.h"
-#include "RegisterMachine.h"
+#include "WasmintVM.h"
 
 namespace wasmint {
 
@@ -34,19 +34,30 @@ namespace wasmint {
         if (targetFunction.function().mainInstruction()->id() == InstructionId::NativeInstruction) {
             auto nativeInstruction = dynamic_cast<const wasm_module::NativeInstruction*>(targetFunction.function().mainInstruction());
 
-            std::vector<wasm_module::Variable> parameters;
-            parameters.reserve(nativeInstruction->childrenTypes().size());
-            uint16_t i = 0;
-            for (const wasm_module::Type* type : nativeInstruction->childrenTypes()) {
-                wasm_module::Variable parameter(type);
-                uint64_t value = currentFrame_->getRegister<uint64_t>(parameterRegisterOffset + i);
-                memcpy(parameter.value(), &value, type->size());
-                i++;
+            if (machine().reconstructing()) {
+                if (nativeInstruction->returnType() != wasm_module::Void::instance()) {
+                    currentFrame_->passFunctionResult(machine().history().getNativeFunctionReturnValue(machine().instructionCounter()));
+                }
+            } else {
+                std::vector<wasm_module::Variable> parameters;
+                parameters.reserve(nativeInstruction->childrenTypes().size());
+                uint16_t i = 0;
+                for (const wasm_module::Type* type : nativeInstruction->childrenTypes()) {
+                    wasm_module::Variable parameter(type);
+                    uint64_t value = currentFrame_->getRegister<uint64_t>(parameterRegisterOffset + i);
+                    memcpy(parameter.value(), &value, type->size());
+                    i++;
+                }
+
+                wasm_module::Variable result = nativeInstruction->call(parameters);
+
+                if (nativeInstruction->returnType() != wasm_module::Void::instance()) {
+                    machine().history().addNativeFunctionReturnValue(machine().instructionCounter(),
+                                                                     result.primtiveValue());
+                }
+
+                currentFrame_->passFunctionResult(result);
             }
-
-            wasm_module::Variable result = nativeInstruction->call(parameters);
-
-            currentFrame_->passFunctionResult(result);
         } else {
             pushFrame(FunctionFrame(targetFunction));
 

@@ -23,18 +23,23 @@
 #include <interpreter/heap/Heap.h>
 #include "ByteCode.h"
 #include "FunctionFrame.h"
+#include "InstructionCounter.h"
 #include <stdexcept>
 
 namespace wasmint {
 
-    class RegisterMachine;
+
+    class WasmintVM;
+    class ThreadPatch;
 
     class VMThread {
+
+        friend class ThreadPatch;
 
         FunctionFrame* currentFrame_ = nullptr;
         std::vector<FunctionFrame> frames_;
         std::string trapReason_;
-        RegisterMachine* machine_ = nullptr;
+        WasmintVM* machine_ = nullptr;
 
         bool finished_ = false;
         uint32_t stackLimit = 10000;
@@ -43,7 +48,7 @@ namespace wasmint {
         VMThread() {
         }
 
-        VMThread(RegisterMachine* machine) : machine_(machine) {
+        VMThread(WasmintVM* machine) : machine_(machine) {
         }
 
         void finishFrame(uint64_t result) {
@@ -91,7 +96,7 @@ namespace wasmint {
             currentFrame_->step(*this, heap);
         }
 
-        RegisterMachine& machine() {
+        WasmintVM& machine() {
             return *machine_;
         }
 

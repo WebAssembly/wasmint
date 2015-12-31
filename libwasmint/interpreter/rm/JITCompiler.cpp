@@ -17,7 +17,7 @@
 
 #include <instructions/Instructions.h>
 #include "JITCompiler.h"
-#include "RegisterMachine.h"
+#include "WasmintVM.h"
 #include <stdexcept>
 
 #define Op2Case(Name) case InstructionId:: Name : \
@@ -656,7 +656,7 @@ void wasmint::JITCompiler::addCopyRegister(uint16_t target, uint16_t source) {
 }
 
 
-void wasmint::JITCompiler::linkGlobally(const RegisterMachine* registerMachine) {
+void wasmint::JITCompiler::linkGlobally(const WasmintVM * registerMachine) {
     for (auto pair : needsFunctionIndex) {
         auto& signature = pair.first;
 

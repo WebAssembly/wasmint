@@ -16,31 +16,40 @@
 
 
 #include <cstdint>
-#include <interpreter/heap/HeapMultiPatch.h>
 #include <cassert>
+#include <interpreter/heap/patch/HeapPatch.h>
 
 using namespace wasmint;
 
+class DummyObserver : public HeapObserver {
+public:
+    HeapPatch* patch;
+    virtual void preChanged(const Heap& heap, const Interval& changedInterval) {
+        patch->preHeapChanged(heap, changedInterval);
+    }
+
+};
+
+DummyObserver observer;
+
 int main() {
-    Heap heap(100);
+    Heap heap;
+    heap.resize(100);
+    heap.set<uint64_t>(15, 13424556);
     Heap heapBackup = heap;
 
+    HeapPatch heapPatch1(heap);
+    observer.patch = &heapPatch1;
+
+    heap.attachObserver(observer);
+
+    assert(heap == heapBackup);
+    heap.set<uint64_t>(3, 13424556);
+    assert(heap != heapBackup);
+    heap.set<uint64_t>(44, 153453459);
+    assert(heap != heapBackup);
+
+    heapPatch1.applyPatch(heap);
     assert(heap == heapBackup);
 
-    HeapMultiPatch patch(heap.size());
-
-    patch.rescueBytes(heap, 4, 4);
-    heap.setBytes(4, {1, 2, 3, 4});
-    assert(heap != heapBackup);
-
-    patch.rescueBytes(heap, 23, 4);
-    heap.setBytes(23, {1, 2, 3, 4});
-    assert(heap != heapBackup);
-
-    patch.rescueBytes(heap, 6, 4);
-    heap.setBytes(6, {1, 2, 3, 4});
-    assert(heap != heapBackup);
-
-    patch.applyPatch(heap);
-    assert(heap == heapBackup);
 }

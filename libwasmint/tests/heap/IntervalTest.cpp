@@ -15,33 +15,15 @@
  */
 
 
-#include <cstdint>
-#include <interpreter/heap/HeapMultiPatchPart.h>
 #include <cassert>
+#include <interpreter/heap/Interval.h>
 
 using namespace wasmint;
 
-
 int main() {
-    {
-        HeapMultiPatchPart part1(1, {1, 2});
-        HeapMultiPatchPart part2(2, {2, 3});
-        HeapMultiPatchPart result(1, {1, 2, 3});
-
-        assert(part1.merge(part2));
-        assert(part1 == result);
-        assert(part1.merge(part2));
-        assert(part1 == result);
-    }
-    {
-        HeapMultiPatchPart part1(1, {1, 2});
-        HeapMultiPatchPart part2(2, {2, 3});
-        HeapMultiPatchPart result(1, {1, 2, 3});
-
-        assert(part2.merge(part1));
-        assert(part2 == result);
-        assert(part2.merge(part1));
-        assert(part2 == result);
-    }
-
+    assert(Interval::withEnd(0, 3).overlaps(Interval::withEnd(0, 3)));
+    assert(!Interval::withEnd(4, 5).overlaps(Interval::withEnd(5, 6)));
+    assert(!Interval::withEnd(4, 5).overlaps(Interval::withEnd(6, 7)));
+    assert(!Interval::withEnd(4, 5).overlaps(Interval::withEnd(1, 2)));
+    assert(!Interval::withEnd(4, 5).overlaps(Interval::withEnd(1, 4)));
 }
