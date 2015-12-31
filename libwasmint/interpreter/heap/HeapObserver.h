@@ -15,4 +15,22 @@
  */
 
 
-#include "HeapMultiPatch.h"
+#ifndef WASMINT_HEAPOBSERVER_H
+#define WASMINT_HEAPOBSERVER_H
+
+#include <cstdint>
+#include "Interval.h"
+
+
+namespace wasmint {
+    class Heap;
+
+    class HeapObserver {
+    public:
+        virtual void preChanged(const Heap& heap, const Interval& changedInterval) = 0;
+    };
+}
+
+
+
+#endif //WASMINT_HEAPOBSERVER_H

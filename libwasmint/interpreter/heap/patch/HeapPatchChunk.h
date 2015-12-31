@@ -15,23 +15,35 @@
  */
 
 
+#ifndef WASMINT_HEAPPATCHCHUNK_H
+#define WASMINT_HEAPPATCHCHUNK_H
 
-#include "Heap.h"
+#include <cstdint>
+#include <vector>
+#include <interpreter/heap/Interval.h>
 
 namespace wasmint {
+    class HeapPatchChunk : public Interval {
+        std::vector<uint8_t> data_;
 
-    void Heap::serialize(ByteOutputStream& stream) const {
-        stream.writeBytes(data_);
-    }
+    public:
+        HeapPatchChunk() {
+        }
+        HeapPatchChunk(Interval interval) : Interval(interval) {
+            data_.resize(interval.size());
+        }
 
-    void Heap::setState(ByteInputStream& stream) {
-        data_ = stream.getBytes();
-    }
+        void setByte(std::size_t pos, uint8_t value) {
+            data_[pos - start()] = value;
+        }
 
+        const std::vector<uint8_t> data() const {
+            return data_;
+        }
 
-    bool Heap::operator==(const Heap& other) const {
-        if (other.size() != size())
-            return false;
-        return memcmp(other.data_.data(), data_.data(), size()) == 0;
-    }
+    };
 }
+
+
+
+#endif //WASMINT_HEAPPATCHCHUNK_H

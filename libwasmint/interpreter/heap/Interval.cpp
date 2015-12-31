@@ -15,23 +15,4 @@
  */
 
 
-
-#include "Heap.h"
-
-namespace wasmint {
-
-    void Heap::serialize(ByteOutputStream& stream) const {
-        stream.writeBytes(data_);
-    }
-
-    void Heap::setState(ByteInputStream& stream) {
-        data_ = stream.getBytes();
-    }
-
-
-    bool Heap::operator==(const Heap& other) const {
-        if (other.size() != size())
-            return false;
-        return memcmp(other.data_.data(), data_.data(), size()) == 0;
-    }
-}
+#include "Interval.h"

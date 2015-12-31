@@ -19,49 +19,59 @@
 #define WASMINT_INSTRUCTIONCOUNTER_H
 
 #include <cstdint>
+#include <limits>
+#include <string>
 
-class InstructionCounter {
+namespace wasmint {
 
-    uint64_t counter_;
+    class InstructionCounter {
 
-public:
-    InstructionCounter(uint64_t value = 0) : counter_(value) {
-    }
+        uint64_t counter_;
 
-    InstructionCounter& operator=(const InstructionCounter& other) {
-        this->counter_ = other.counter_;
-        return *this;
-    }
+    public:
+        InstructionCounter(uint64_t value = 0) : counter_(value) {
+        }
 
-    void operator++() {
-        counter_++;
-    }
+        InstructionCounter& operator=(const InstructionCounter& other) {
+            this->counter_ = other.counter_;
+            return *this;
+        }
 
-    bool operator==(const InstructionCounter& other) const {
-        return counter_ == other.counter_;
-    }
+        InstructionCounter& operator++() {
+            counter_++;
+            return *this;
+        }
 
-    bool operator!=(const InstructionCounter& other) const {
-        return counter_ != other.counter_;
-    }
+        bool operator==(const InstructionCounter& other) const {
+            return counter_ == other.counter_;
+        }
 
-    bool operator<(const InstructionCounter& other) const {
-        return counter_ < other.counter_;
-    }
+        bool operator!=(const InstructionCounter& other) const {
+            return counter_ != other.counter_;
+        }
 
-    bool operator<=(const InstructionCounter& other) const {
-        return counter_ <= other.counter_;
-    }
+        bool operator<(const InstructionCounter& other) const {
+            return counter_ < other.counter_;
+        }
 
-    bool operator>(const InstructionCounter& other) const {
-        return counter_ > other.counter_;
-    }
+        bool operator<=(const InstructionCounter& other) const {
+            return counter_ <= other.counter_;
+        }
 
-    bool operator>=(const InstructionCounter& other) const {
-        return counter_ >= other.counter_;
-    }
+        bool operator>(const InstructionCounter& other) const {
+            return counter_ > other.counter_;
+        }
 
-};
+        bool operator>=(const InstructionCounter& other) const {
+            return counter_ >= other.counter_;
+        }
+
+        std::string toString() const {
+            return std::to_string(counter_);
+        }
+    };
+}
+
 
 
 #endif //WASMINT_INSTRUCTIONCOUNTER_H

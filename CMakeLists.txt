@@ -45,10 +45,9 @@ add_library(libwasmint
     libwasmint/interpreter/at/InstructionExecutor.cpp
 
     libwasmint/interpreter/heap/Heap.cpp
-    libwasmint/interpreter/heap/HeapPatch.cpp
-    libwasmint/interpreter/heap/HeapMultiPatch.cpp
-    libwasmint/interpreter/heap/HeapMultiPatchPart.cpp
-    libwasmint/interpreter/heap/judy/JudyArray.cpp
+    libwasmint/interpreter/heap/patch/HeapPatch.cpp
+    libwasmint/interpreter/heap/HeapObserver.cpp
+    libwasmint/interpreter/heap/Interval.cpp
 
     libwasmint/serialization/ByteOutputStream.cpp
     libwasmint/serialization/ByteInputStream.cpp
@@ -59,10 +58,15 @@ add_library(libwasmint
     libwasmint/interpreter/rm/ByteCode.cpp
     libwasmint/interpreter/rm/VMThread.cpp
     libwasmint/interpreter/rm/FunctionFrame.cpp
-    libwasmint/interpreter/rm/RegisterMachine.cpp
+    libwasmint/interpreter/rm/VMState.cpp
     libwasmint/interpreter/rm/ProgramCache.cpp
     libwasmint/interpreter/rm/CompiledFunction.cpp
     libwasmint/interpreter/rm/InstructionCounter.cpp
+    libwasmint/interpreter/rm/History.cpp
+    libwasmint/interpreter/rm/MachinePatch.cpp
+    libwasmint/interpreter/rm/WasmintVM.cpp
+    libwasmint/interpreter/rm/ThreadPatch.cpp
+    libwasmint/interpreter/heap/patch/HeapPatchChunk.cpp
 )
 
 
@@ -82,6 +86,13 @@ endif()
 #        Tests            #
 ###########################
 enable_testing()
+
+option(wasmintCoverage "Enable coverage analysis with lcov" OFF)
+
+if(wasmintCoverage)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs")
+    configure_file(generateCoverage.template.sh generateCoverage.sh NEWLINE_STYLE UNIX)
+endif()
 
 
 ####################
@@ -115,9 +126,9 @@ endforeach()
 ####################
 
 add_library(fuzzing_common
-        libwasmint/tests/fuzzing/common/SExprExecutor.cpp
-        libwasmint/tests/fuzzing/common/DataRescuer.cpp
-        libwasmint/tests/fuzzing/generation_based/SmartSExprGenerator.cpp
+    libwasmint/tests/fuzzing/common/SExprExecutor.cpp
+    libwasmint/tests/fuzzing/common/DataRescuer.cpp
+    libwasmint/tests/fuzzing/generation_based/SmartSExprGenerator.cpp
 )
 
 
@@ -133,8 +144,8 @@ add_test(NAME mutation_fuzzing COMMAND ./mutation_fuzzer)
 # Test suite       #
 ####################
 
-configure_file(runTestsuite.sh runTestsuite.sh)
-configure_file(testValgrind.sh testValgrind.sh COPYONLY)
+configure_file(runTestsuite.template.sh runTestsuite.sh)
+configure_file(testValgrind.template.sh testValgrind.sh)
 
 
 ####################
@@ -177,6 +188,12 @@ target_link_libraries(wasm2c wasm-module)
 ###########################
 #    Performance tests    #
 ###########################
+
+option(wasmintProfile "Enable profiling with gperf" OFF)
+
+if(wasmintProfile)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
+endif()
 
 add_executable(printQuicksortSource libwasmint/tests/performance/printProgram.cpp)
 

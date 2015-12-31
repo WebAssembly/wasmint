@@ -23,7 +23,7 @@
 #include <sexpr_parsing/SExprParser.h>
 #include <sexpr_parsing/ModuleParser.h>
 #include <assert.h>
-#include <interpreter/rm/RegisterMachine.h>
+#include <interpreter/rm/WasmintVM.h>
 #include <iostream>
 
 using namespace wasm_module;
@@ -32,26 +32,28 @@ using namespace wasmint;
 
 int main() {
     {
-        RegisterMachine registerMachine;
+        WasmintVM vm;
+
         Module* module = ModuleParser::parse("module (func main (if_else (i32.const 0) (unreachable) (nop)))");
-        registerMachine.useModule(*module, true);
-        VMThread& thread = registerMachine.startAtFunction(*module->functions().front());
-        registerMachine.stepUntilFinished();
-        if (thread.gotTrap()) {
-            std::cerr << "Got trap: " << thread.trapReason() << std::endl;
+        vm.useModule(*module, true);
+        vm.startAtFunction(*module->functions().front());
+
+        if (vm.gotTrap()) {
+            std::cerr << "Got trap: " << vm.trapReason() << std::endl;
         }
-        assert(!thread.gotTrap());
+        assert(!vm.gotTrap());
     }
     {
-        RegisterMachine registerMachine;
+        WasmintVM vm;
+
         Module* module = ModuleParser::parse("module (func main (if_else (i32.const 1) (unreachable) (nop)))");
-        registerMachine.useModule(*module, true);
-        VMThread& thread = registerMachine.startAtFunction(*module->functions().front());
-        registerMachine.stepUntilFinished();
-        if (!thread.gotTrap()) {
+        vm.useModule(*module, true);
+        vm.startAtFunction(*module->functions().front());
+        vm.stepUntilFinished();
+        if (!vm.gotTrap()) {
             std::cerr << "Got no trap but shouldn't trap " << std::endl;
         }
-        assert(thread.gotTrap());
+        assert(vm.gotTrap());
     }
 
 }

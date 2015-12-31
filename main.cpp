@@ -10,7 +10,7 @@
 #include <sexpr_parsing/SExprParser.h>
 #include <builtins/StdioModule.h>
 #include <builtins/SDLModule.h>
-#include <interpreter/rm/RegisterMachine.h>
+#include <interpreter/rm/WasmintVM.h>
 
 using namespace wasm_module;
 using namespace wasmint;
@@ -31,12 +31,12 @@ int main(int argc, char** argv) {
 
     Module* mainModule = nullptr;
 
-    RegisterMachine registerMachine;
+    WasmintVM vm;
 
 #ifdef WASMINT_HAS_SDL
-    registerMachine.useModule(*SDLModule::create(), true);
+    vm.useModule(*SDLModule::create(), true);
 #endif
-    registerMachine.useModule(*StdioModule::create(), true);
+    vm.useModule(*StdioModule::create(), true);
 
     for(int i = 1; i < argc; i++) {
         std::string arg = argv[i];
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
         }
 
         try {
-            registerMachine.useModule(*m, true);
+            vm.useModule(*m, true);
 
             if (runMain) {
                 try {
@@ -137,10 +137,10 @@ int main(int argc, char** argv) {
     }
 
     try {
-        VMThread& thread = registerMachine.startAtFunction(*mainModule->function("main"));
-        registerMachine.stepUntilFinished();
-        if (thread.gotTrap()) {
-            std::cerr << "Got trap while executing program: " << thread.trapReason() << std::endl;
+        vm.startAtFunction(*mainModule->function("main"));
+        vm.stepUntilFinished();
+        if (vm.gotTrap()) {
+            std::cerr << "Got trap while executing program: " << vm.trapReason() << std::endl;
             return 2;
         }
     } catch(const wasm_module::NoFunctionWithName& e) {

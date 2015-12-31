@@ -22,7 +22,7 @@
 #include <instructions/Instructions.h>
 #include "VMThread.h"
 #include <Module.h>
-#include "RegisterMachine.h"
+#include "WasmintVM.h"
 
 namespace wasmint {
 

@@ -26,7 +26,7 @@
 #include "QuickSortSource.h"
 #include <chrono>
 #include <iostream>
-#include <interpreter/rm/RegisterMachine.h>
+#include <interpreter/rm/WasmintVM.h>
 
 using namespace std;
 using namespace std::chrono;
@@ -80,19 +80,19 @@ void runRMCore() {
     std::cout.setf( std::ios::fixed, std:: ios::floatfield );
     std::cout.precision(4);
 
-    RegisterMachine registerMachine;
+    WasmintVM vm;
 
     Module* positiveModule = ModuleParser::parse(quickSortSource);
 
-    registerMachine.useModule(*positiveModule, true);
+    vm.useModule(*positiveModule, true);
 
-    VMThread& thread = registerMachine.startAtFunction(*positiveModule->functions().back());
+    vm.startAtFunction(*positiveModule->functions().back());
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
-    registerMachine.stepUntilFinished();
+    vm.stepUntilFinished();
 
-    if (thread.gotTrap()) {
-        std::cerr << "thread got trap: " << thread.trapReason() << std::endl;
+    if (vm.gotTrap()) {
+        std::cerr << "thread got trap: " << vm.trapReason() << std::endl;
         abort();
     }
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
@@ -101,7 +101,7 @@ void runRMCore() {
     std::cout << "RM core took " << duration << " microseconds (" << (duration / 1000000.0) << " seconds)" << std::endl;
 
 
-    Heap& heap = registerMachine.heap();
+    Heap& heap = vm.heap();
 
     assertHeapSorted(heap);
 }
