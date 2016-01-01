@@ -27,8 +27,6 @@ namespace wasmint {
         VMState state_;
         History history_;
 
-        bool reconstructing_ = false;
-
         std::vector<CompiledFunction> functions_;
         std::vector<wasm_module::Module*> modulesToDelete_;
 
@@ -98,18 +96,18 @@ namespace wasmint {
 
         void step() {
             state_.step();
+            history_.latestStateCounter(state_.instructionCounter());
         }
 
         void stepUntilFinished(bool stopAtBreakpoints = false) {
             state_.stepUntilFinished(stopAtBreakpoints);
+            history_.latestStateCounter(state_.instructionCounter());
         }
 
         void stepBack() {
             InstructionCounter targetCounter = state_.instructionCounter();
             --targetCounter;
-            reconstructing_ = true;
             history_.setToState(targetCounter, state_);
-            reconstructing_ = false;
         }
 
         bool gotTrap() const {
@@ -130,7 +128,7 @@ namespace wasmint {
         }
 
         bool reconstructing() const {
-            return reconstructing_;
+            return history_.reconstructing();
         }
 
         History& history() {

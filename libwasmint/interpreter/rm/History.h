@@ -24,6 +24,7 @@
 namespace wasmint {
 
     ExceptionMessage(TargetStateNotInHistory)
+    ExceptionMessage(TargetStateInTheFuture)
     ExceptionMessage(HistoryNotEnabled)
 
     class History : public HeapObserver {
@@ -43,7 +44,10 @@ namespace wasmint {
         std::map<InverseSortedInstructionCounter, MachinePatch*> patches_;
         std::map<InverseSortedInstructionCounter, uint64_t> nativeFunctionReturnValues_;
 
+        bool reconstructing_ = false;
         bool enabled_ = false;
+
+        InstructionCounter latestStateCounter_;
 
     public:
         History() {
@@ -56,6 +60,7 @@ namespace wasmint {
             patches_.clear();
             nativeFunctionReturnValues_.clear();
             enabled_ = false;
+            latestStateCounter_ = 0;
         }
 
         virtual ~History() {
@@ -86,12 +91,15 @@ namespace wasmint {
                 nativeFunctionReturnValues_[counter] = value;
         }
 
-        void setToState(const InstructionCounter& targetCounter, VMState& state) const {
+        void setToState(const InstructionCounter& targetCounter, VMState& state) {
             if (!enabled_)
                 throw HistoryNotEnabled("History recording was not enabled. Can't use setToState()");
             if (targetCounter == state.instructionCounter()) {
                 // nothing to do here
                 return;
+            }
+            if (targetCounter > latestStateCounter_) {
+                throw TargetStateInTheFuture("Target state is behind the last recorded state");
             }
             if (targetCounter < state.instructionCounter()) {
                 auto targetIter = patches_.lower_bound(targetCounter);
@@ -110,6 +118,7 @@ namespace wasmint {
                 }
             }
 
+            reconstructing_ = true;
             while (state.instructionCounter() < targetCounter) {
                 if (!state.step()) {
                     if (state.instructionCounter() != targetCounter) {
@@ -117,11 +126,20 @@ namespace wasmint {
                     }
                 }
             }
+            reconstructing_ = false;
         }
 
         void threadStackShrinked(VMThread& thread) {
             if (enabled_)
                 getLastCheckpoint().preThreadShrinked(thread);
+        }
+
+        bool reconstructing() const {
+            return reconstructing_;
+        }
+
+        void latestStateCounter(const InstructionCounter& newCounter) {
+            latestStateCounter_ = newCounter;
         }
     };
 }
