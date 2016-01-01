@@ -1424,4 +1424,9 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         } /**/
 
     }
+
+    bool FunctionFrame::stepDebug(VMThread &runner, Heap &heap) {
+        stepInternal(runner, heap);
+        function_->triggerBreakpoints(instructionPointer_);
+    }
 }

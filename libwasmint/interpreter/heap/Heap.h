@@ -147,7 +147,12 @@ namespace wasmint {
                 return false;
             }
 
-            std::memcpy(data_.data() + offset + staticOffset, &value, sizeof(T));
+            std::size_t start = offset + staticOffset;
+
+            if (observer_)
+                observer_->preChanged(*this, Interval::withEnd(start, start + sizeof(T)));
+
+            std::memcpy(data_.data() + start, &value, sizeof(T));
 
             return true;
         }

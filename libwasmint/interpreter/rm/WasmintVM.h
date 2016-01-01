@@ -28,7 +28,6 @@ namespace wasmint {
         History history_;
 
         bool reconstructing_ = false;
-        bool historyEnabled_ = true;
 
         std::vector<CompiledFunction> functions_;
         std::vector<wasm_module::Module*> modulesToDelete_;
@@ -57,8 +56,12 @@ namespace wasmint {
             linkModules();
             for (std::size_t i = 0; i < functions_.size(); i++) {
                 if (&functions_[i].function() == &function) {
+                    state_.heap().removeObserver();
+                    state_.heap().attachObserver(history_);
                     state_.startAtFunction(this, i);
-                    startHistoryRecording();
+                    if (enableHistory) {
+                        startHistoryRecording();
+                    }
                     return;
                 }
             }
@@ -76,7 +79,7 @@ namespace wasmint {
             }
         }
 
-        const CompiledFunction& getCompiledFunction(std::size_t index) const {
+        CompiledFunction& getCompiledFunction(std::size_t index) {
             return functions_.at(index);
         }
 
@@ -97,19 +100,15 @@ namespace wasmint {
             state_.step();
         }
 
-        void stepUntilFinished() {
-            while (!state_.thread().finished()) {
-                state_.step();
-            }
+        void stepUntilFinished(bool stopAtBreakpoints = false) {
+            state_.stepUntilFinished(stopAtBreakpoints);
         }
 
         void stepBack() {
             InstructionCounter targetCounter = state_.instructionCounter();
-            history_.getLastCheckpoint().apply(state_);
+            --targetCounter;
             reconstructing_ = true;
-            while (state_.instructionCounter() != targetCounter) {
-                state_.step();
-            }
+            history_.setToState(targetCounter, state_);
             reconstructing_ = false;
         }
 
@@ -140,6 +139,20 @@ namespace wasmint {
 
         const InstructionCounter& instructionCounter() const {
             return state_.instructionCounter();
+        }
+
+        const VMState& state() const {
+            return state_;
+        }
+
+        bool finished() const {
+            return state().thread().finished();
+        }
+
+        void addBreakpoint(const wasm_module::Instruction* instruction, BreakpointHandler* handler = nullptr) {
+            for (CompiledFunction& function : functions_) {
+                function.addBreakpoint(instruction, handler);
+            }
         }
     };
 

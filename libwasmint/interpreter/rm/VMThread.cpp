@@ -29,7 +29,7 @@ namespace wasmint {
     }
 
     void VMThread::enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset) {
-        const CompiledFunction& targetFunction = machine().getCompiledFunction(functionId);
+        CompiledFunction& targetFunction = machine().getCompiledFunction(functionId);
 
         if (targetFunction.function().mainInstruction()->id() == InstructionId::NativeInstruction) {
             auto nativeInstruction = dynamic_cast<const wasm_module::NativeInstruction*>(targetFunction.function().mainInstruction());
@@ -65,5 +65,20 @@ namespace wasmint {
                 currentFrame().setVariable(i, frames_.at(frames_.size() - 2).getRegister<uint64_t>(parameterRegisterOffset + i));
             }
         }
+    }
+
+    void VMThread::finishFrame(uint64_t result) {
+        if (frames_.empty())
+            throw std::domain_error("Can't call finishFrame(): frame stack is empty!");
+
+        machine().history().threadStackShrinked(*this);
+
+        frames_.resize(frames_.size() - 1);
+        if (!frames_.empty()) {
+            currentFrame_ = &frames_.back();
+            currentFrame_->passFunctionResult(result);
+        }
+        else
+            finished_ = true;
     }
 }

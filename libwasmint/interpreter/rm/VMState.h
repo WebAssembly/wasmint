@@ -61,10 +61,28 @@ namespace wasmint {
             return false;
         }
 
-        void stepUntilFinished() {
-            while (!thread_.finished()) {
-                ++instructionCounter_;
-                thread_.step(heap_);
+        bool stepDebug() {
+            ++instructionCounter_;
+            if (!thread_.finished()) {
+                thread_.stepDebug(heap_);
+                return true;
+            }
+            return false;
+        }
+
+        void stepUntilFinished(bool checkBreakpoints = true) {
+            if (checkBreakpoints) {
+                while (!thread_.finished()) {
+                    ++instructionCounter_;
+                    if (thread_.stepDebug(heap_)) {
+                        break;
+                    }
+                }
+            } else {
+                while (!thread_.finished()) {
+                    ++instructionCounter_;
+                    thread_.step(heap_);
+                }
             }
         }
 
@@ -73,6 +91,10 @@ namespace wasmint {
         }
 
         VMThread& thread() {
+            return thread_;
+        }
+
+        const VMThread& thread() const {
             return thread_;
         }
 
@@ -90,6 +112,15 @@ namespace wasmint {
 
         const std::string& trapReason() const {
             return thread_.trapReason();
+        }
+
+        bool operator==(const VMState& other) const {
+            return instructionCounter_ == other.instructionCounter()
+                    && thread_ == other.thread_
+                    && heap_ == other.heap_;
+        }
+        bool operator!=(const VMState& other) const {
+            return !(*this == other);
         }
     };
 };

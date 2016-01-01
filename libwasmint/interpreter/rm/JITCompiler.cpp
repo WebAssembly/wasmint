@@ -656,7 +656,7 @@ void wasmint::JITCompiler::addCopyRegister(uint16_t target, uint16_t source) {
 }
 
 
-void wasmint::JITCompiler::linkGlobally(const WasmintVM * registerMachine) {
+void wasmint::JITCompiler::linkGlobally(WasmintVM* registerMachine) {
     for (auto pair : needsFunctionIndex) {
         auto& signature = pair.first;
 

@@ -40,17 +40,16 @@ add_library(libwasmint
     libwasmint/interpreter/at/thread/InstructionState.cpp
     libwasmint/interpreter/at/thread/ThreadMultiPatch.cpp
     libwasmint/interpreter/at/thread/StepResult.cpp
-
     libwasmint/interpreter/at/MachineState.cpp
     libwasmint/interpreter/at/InstructionExecutor.cpp
+
+    libwasmint/interpreter/debugging/BreakpointEnvironment.cpp
+    libwasmint/interpreter/debugging/Breakpoint.cpp
 
     libwasmint/interpreter/heap/Heap.cpp
     libwasmint/interpreter/heap/patch/HeapPatch.cpp
     libwasmint/interpreter/heap/HeapObserver.cpp
     libwasmint/interpreter/heap/Interval.cpp
-
-    libwasmint/serialization/ByteOutputStream.cpp
-    libwasmint/serialization/ByteInputStream.cpp
 
     libwasmint/interpreter/rm/RegisterAllocator.cpp
     libwasmint/interpreter/rm/ByteOpcodes.h
@@ -67,7 +66,10 @@ add_library(libwasmint
     libwasmint/interpreter/rm/WasmintVM.cpp
     libwasmint/interpreter/rm/ThreadPatch.cpp
     libwasmint/interpreter/heap/patch/HeapPatchChunk.cpp
-)
+
+    libwasmint/serialization/ByteOutputStream.cpp
+    libwasmint/serialization/ByteInputStream.cpp
+        libwasmint/interpreter/debugging/BreakpointHandler.cpp libwasmint/interpreter/debugging/BreakpointHandler.h)
 
 
 ###########################

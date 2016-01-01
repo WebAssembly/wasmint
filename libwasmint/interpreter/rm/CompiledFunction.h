@@ -19,23 +19,25 @@
 #define WASMINT_COMPILEDFUNCTION_H
 
 #include <Function.h>
+#include <interpreter/debugging/Breakpoint.h>
 #include "ByteCode.h"
 #include "JITCompiler.h"
 
 namespace wasmint {
     class CompiledFunction {
         const wasm_module::Function* function_;
-        JITCompiler compiler_;
+        JITCompiler debugCompiler_;
+        std::unordered_map<uint32_t, Breakpoint> breakpointsByInstructionAddress_;
 
     public:
         CompiledFunction() {
         }
         CompiledFunction(const wasm_module::Function* function) : function_(function) {
-            compiler_.compile(function);
+            debugCompiler_.compile(function);
         }
 
         const ByteCode& code() const {
-            return compiler_.code();
+            return debugCompiler_.code();
         }
 
         const wasm_module::Function& function() const {
@@ -43,11 +45,26 @@ namespace wasmint {
         }
 
         const JITCompiler& jitCompiler() const {
-            return compiler_;
+            return debugCompiler_;
         }
 
         JITCompiler& jitCompiler() {
-            return compiler_;
+            return debugCompiler_;
+        }
+
+        void addBreakpoint(const wasm_module::Instruction* instruction, BreakpointHandler* handler = nullptr) {
+            uint32_t address = debugCompiler_.getInstructionEndAddress(instruction);
+            breakpointsByInstructionAddress_[address] = Breakpoint(instruction, handler);
+        }
+
+        bool triggerBreakpoints(uint32_t instructionPointer) {
+            auto iter = breakpointsByInstructionAddress_.find(instructionPointer);
+            if (iter != breakpointsByInstructionAddress_.end()) {
+                iter->second.trigger();
+                return true;
+            } else {
+                return false;
+            }
         }
     };
 

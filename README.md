@@ -16,6 +16,8 @@ A embeddable WebAssembly (**wasm**) **int**erpreter and debugger licensed under 
 
 * `wasm-to-c` compiles wasm modules to C source code.
 
+* [Test coverage report](https://teemperor.de/wasmint_coverage/)
+
 ## Building
 
 libwasmint, wasmint and wasm-module require a C++11 compiler (including STL) and CMake as build dependencies.

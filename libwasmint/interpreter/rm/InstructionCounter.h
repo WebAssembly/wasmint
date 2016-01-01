@@ -42,6 +42,11 @@ namespace wasmint {
             return *this;
         }
 
+        InstructionCounter& operator--() {
+            counter_--;
+            return *this;
+        }
+
         bool operator==(const InstructionCounter& other) const {
             return counter_ == other.counter_;
         }

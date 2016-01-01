@@ -28,15 +28,18 @@
 namespace wasmint {
     class MachinePatch {
 
-        InstructionCounter startCounter_;
-
         HeapPatch heapPatch_;
         ThreadPatch threadPatch_;
+        InstructionCounter startCounter_;
 
     public:
         MachinePatch() {
         }
-        virtual ~MachinePatch() {
+
+        MachinePatch(VMState& machine)
+                : heapPatch_(machine.heap()),
+                  threadPatch_(machine.thread()),
+                  startCounter_(machine.instructionCounter()) {
         }
 
         void apply(VMState & machine) const {
@@ -53,18 +56,10 @@ namespace wasmint {
             return startCounter_;
         }
 
-    };
-
-    class ReverseMachinePatchPtr {
-    public:
-        MachinePatch* ptr;
-
-        ReverseMachinePatchPtr(MachinePatch* patch = nullptr) : ptr(patch) {
+        void preThreadShrinked(const VMThread& thread) {
+            threadPatch_.backupPreShrink(thread);
         }
-        // Reverse < operator that will sort Machine patches in reverse order
-        bool operator<(const ReverseMachinePatchPtr& other) const {
-            return other.ptr->startCounter() < ptr->startCounter();
-        }
+
     };
 }
 

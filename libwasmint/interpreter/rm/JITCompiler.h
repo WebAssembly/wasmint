@@ -27,6 +27,8 @@
 namespace wasmint {
     class WasmintVM;
 
+    ExceptionMessage(CompilerHasNotCompiledInstruction)
+
     class JITCompiler {
 
         RegisterAllocator registerAllocator_;
@@ -67,7 +69,7 @@ namespace wasmint {
             return code_;
         }
 
-        void linkGlobally(const WasmintVM* registerMachine);
+        void linkGlobally(WasmintVM* registerMachine);
 
         const wasm_module::Instruction* getInstruction(uint32_t address) const {
             auto iter = instructionFinishedAddresses.find(address);
@@ -78,6 +80,13 @@ namespace wasmint {
             }
         }
 
+        uint32_t getInstructionEndAddress(const wasm_module::Instruction* instruction) const {
+            auto iter = instructionEndAddresses.find(instruction);
+            if (iter != instructionEndAddresses.end()) {
+                return iter->second;
+            }
+            throw CompilerHasNotCompiledInstruction(instruction->dataString());
+        }
     };
 }
 

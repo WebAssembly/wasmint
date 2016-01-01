@@ -35,7 +35,7 @@ namespace wasmint {
         uint16_t functionTargetRegister_ = 0;
 
         uint32_t instructionPointer_ = 0;
-        const CompiledFunction* function_ = nullptr;
+        CompiledFunction* function_ = nullptr;
 
         void dumpStatus(ByteOpcodes::Values opcode, uint16_t opcodeData);
 
@@ -45,7 +45,7 @@ namespace wasmint {
         FunctionFrame() {
         }
 
-        FunctionFrame(const CompiledFunction& function) : function_(&function) {
+        FunctionFrame(CompiledFunction& function) : function_(&function) {
             code_ = &function.code();
             uint16_t numberOfRegisters = popFromCode<uint16_t>();
             registers_.resize(numberOfRegisters, 0);
@@ -106,7 +106,36 @@ namespace wasmint {
         }
 
         void step(VMThread &runner, Heap &heap);
+        bool stepDebug(VMThread &runner, Heap &heap);
 
+        bool operator==(const FunctionFrame& other) const {
+            if (code_ != other.code_)
+                return false;
+
+            if (registers_.size() != other.registers_.size())
+                return false;
+
+            if (variables_.size() != other.variables_.size())
+                return false;
+
+            for (std::size_t i = 0; i < registers_.size(); i++) {
+                if (registers_[i] != other.registers_[i])
+                    return false;
+            }
+
+            for (std::size_t i = 0; i < variables_.size(); i++) {
+                if (variables_[i] != other.variables_[i])
+                    return false;
+            }
+
+            return functionTargetRegister_ == other.functionTargetRegister_
+                    && instructionPointer_ == other.instructionPointer_
+                    && function_ == other.function_;
+        }
+
+        bool operator!=(const FunctionFrame& other) const {
+            return !(*this == other);
+        }
     };
 }
 

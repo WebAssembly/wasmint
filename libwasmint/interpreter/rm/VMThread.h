@@ -42,7 +42,7 @@ namespace wasmint {
         WasmintVM* machine_ = nullptr;
 
         bool finished_ = false;
-        uint32_t stackLimit = 10000;
+        static const uint32_t stackLimit = 10000;
 
     public:
         VMThread() {
@@ -51,17 +51,7 @@ namespace wasmint {
         VMThread(WasmintVM* machine) : machine_(machine) {
         }
 
-        void finishFrame(uint64_t result) {
-            if (frames_.empty())
-                throw std::domain_error("Can't call finishFrame(): frame stack is empty!");
-            frames_.resize(frames_.size() - 1);
-            if (!frames_.empty()) {
-                currentFrame_ = &frames_.back();
-                currentFrame_->passFunctionResult(result);
-            }
-            else
-                finished_ = true;
-        }
+        void finishFrame(uint64_t result);
 
         FunctionFrame& currentFrame() {
             return *currentFrame_;
@@ -80,7 +70,7 @@ namespace wasmint {
             trapReason_ = reason;
         }
 
-        bool finished() {
+        bool finished() const {
             return finished_;
         }
 
@@ -96,6 +86,10 @@ namespace wasmint {
             currentFrame_->step(*this, heap);
         }
 
+        bool stepDebug(Heap& heap) {
+            return currentFrame_->stepDebug(*this, heap);
+        }
+
         WasmintVM& machine() {
             return *machine_;
         }
@@ -103,6 +97,26 @@ namespace wasmint {
         void enterFunction(std::size_t functionId);
 
         void enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset);
+
+        bool operator==(const VMThread& other) const {
+
+            if (frames_.size() != other.frames_.size()) {
+                return false;
+            }
+
+            for (std::size_t i = 0; i < frames_.size(); i++) {
+                if (frames_[i] != other.frames_[i]) {
+                    return false;
+                }
+            }
+
+            return finished_ == other.finished_
+                    && trapReason_ == other.trapReason_;
+        }
+
+        bool operator!=(const VMThread& other) const {
+            return !(*this == other);
+        }
     };
 }
 

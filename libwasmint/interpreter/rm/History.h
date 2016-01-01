@@ -24,11 +24,26 @@
 namespace wasmint {
 
     ExceptionMessage(TargetStateNotInHistory)
+    ExceptionMessage(HistoryNotEnabled)
 
     class History : public HeapObserver {
 
-        std::map<InstructionCounter, ReverseMachinePatchPtr> patches_;
-        std::map<InstructionCounter, uint64_t> nativeFunctionReturnValues_;
+        class InverseSortedInstructionCounter {
+        public:
+            InstructionCounter counter;
+            InverseSortedInstructionCounter() {
+            }
+            InverseSortedInstructionCounter(const InstructionCounter& counter) : counter(counter) {
+            }
+            bool operator<(const InverseSortedInstructionCounter& other) const {
+                return counter > other.counter;
+            }
+        };
+
+        std::map<InverseSortedInstructionCounter, MachinePatch*> patches_;
+        std::map<InverseSortedInstructionCounter, uint64_t> nativeFunctionReturnValues_;
+
+        bool enabled_ = false;
 
     public:
         History() {
@@ -36,28 +51,30 @@ namespace wasmint {
 
         void clear() {
             for (auto& pair : patches_) {
-                delete pair.second.ptr;
+                delete pair.second;
             }
             patches_.clear();
             nativeFunctionReturnValues_.clear();
+            enabled_ = false;
         }
 
         virtual ~History() {
-            for (auto& pair : patches_) {
-                delete pair.second.ptr;
-            }
+            clear();
         }
 
         void addCheckpoint(VMState & machine) {
-            patches_[machine.instructionCounter()] = ReverseMachinePatchPtr(new MachinePatch());
+            enabled_ = true;
+            patches_[machine.instructionCounter()] = new MachinePatch(machine);
         }
 
         MachinePatch& getLastCheckpoint() {
-            return *patches_.rbegin()->second.ptr;
+            return *patches_.rbegin()->second;
         }
 
         virtual void preChanged(const Heap& heap, const Interval& changedInterval) override {
-            getLastCheckpoint().preHeapChanged(heap, changedInterval);
+            if (enabled_) {
+                getLastCheckpoint().preHeapChanged(heap, changedInterval);
+            }
         }
 
         uint64_t getNativeFunctionReturnValue(const InstructionCounter& counter) {
@@ -65,25 +82,46 @@ namespace wasmint {
         }
 
         void addNativeFunctionReturnValue(const InstructionCounter& counter, uint64_t value) {
-            nativeFunctionReturnValues_[counter] = value;
+            if (enabled_)
+                nativeFunctionReturnValues_[counter] = value;
         }
 
         void setToState(const InstructionCounter& targetCounter, VMState& state) const {
+            if (!enabled_)
+                throw HistoryNotEnabled("History recording was not enabled. Can't use setToState()");
             if (targetCounter == state.instructionCounter()) {
                 // nothing to do here
                 return;
             }
-            auto targetIter = patches_.lower_bound(targetCounter);
-            if (targetIter == patches_.end()) {
-                throw TargetStateNotInHistory("Can't rollback behind state with counter " + targetCounter.toString());
-            } else {
-                auto startIter = patches_.lower_bound(state.instructionCounter());
-                if (startIter == patches_.end()) {
-
+            if (targetCounter < state.instructionCounter()) {
+                auto targetIter = patches_.lower_bound(targetCounter);
+                if (targetIter == patches_.end()) {
+                    throw TargetStateNotInHistory("Can't rollback behind state with counter " + targetCounter.toString());
                 } else {
-
+                    auto startIter = patches_.lower_bound(state.instructionCounter());
+                    if (startIter == patches_.end()) {
+                        throw TargetStateNotInHistory("Can't rollback behind state with counter " + targetCounter.toString());
+                    } else {
+                        for (;startIter != targetIter; --startIter) {
+                            startIter->second->apply(state);
+                        }
+                        targetIter->second->apply(state);
+                    }
                 }
             }
+
+            while (state.instructionCounter() < targetCounter) {
+                if (!state.step()) {
+                    if (state.instructionCounter() != targetCounter) {
+                        throw TargetStateNotInHistory("Target state can't be reached (thread has finished)");
+                    }
+                }
+            }
+        }
+
+        void threadStackShrinked(VMThread& thread) {
+            if (enabled_)
+                getLastCheckpoint().preThreadShrinked(thread);
         }
     };
 }

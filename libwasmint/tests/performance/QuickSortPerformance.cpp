@@ -77,8 +77,6 @@ void runATCore() {
 }
 
 void runRMCore() {
-    std::cout.setf( std::ios::fixed, std:: ios::floatfield );
-    std::cout.precision(4);
 
     WasmintVM vm;
 
@@ -87,7 +85,6 @@ void runRMCore() {
     vm.useModule(*positiveModule, true);
 
     vm.startAtFunction(*positiveModule->functions().back());
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
 
     vm.stepUntilFinished();
 
@@ -95,18 +92,27 @@ void runRMCore() {
         std::cerr << "thread got trap: " << vm.trapReason() << std::endl;
         abort();
     }
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-
-    int64_t duration = duration_cast<microseconds>( t2 - t1 ).count();
-    std::cout << "RM core took " << duration << " microseconds (" << (duration / 1000000.0) << " seconds)" << std::endl;
-
 
     Heap& heap = vm.heap();
 
     assertHeapSorted(heap);
 }
 
+void profile(void (*functionPtr)(), const std::string& prefix) {
+    std::cout.setf(std::ios::fixed, std::ios::floatfield);
+    std::cout.precision(4);
+
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
+    (*functionPtr)();
+
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+
+    int64_t duration = duration_cast<microseconds>( t2 - t1 ).count();
+    std::cout << prefix << " took " <<  (duration / 1000000.0) << " seconds" << std::endl;
+}
+
 int main() {
     //runATCore();
-    runRMCore();
+    profile(&runRMCore, "RM core");
 }
