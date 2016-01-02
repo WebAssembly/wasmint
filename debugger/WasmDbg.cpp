@@ -15,22 +15,7 @@
  */
 
 
-#include <stdlib.h>
-#include <curses.h>
-#include <interpreter/heap/Heap.h>
-#include <Module.h>
-#include <sexpr_parsing/ModuleParser.h>
-#include "MemoryViewer.h"
-#include "InstructionViewer.h"
 #include "WasmDbg.h"
 
-int main(void) {
 
-    WasmDbg::initCurses();
-
-    WasmDbg debugger;
-    debugger.run();
-
-    WasmDbg::deinitCurses();
-
-}
+WINDOW* WasmDbg::mainwin;
