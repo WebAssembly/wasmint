@@ -18,7 +18,7 @@
 #include "BreakpointEnvironment.h"
 
 #include "Breakpoint.h"
-#include <interpreter/rm/VMState.h>
+#include <interpreter/VMState.h>
 
 namespace wasmint {
     std::string BreakpointEnvironment::returnValue() {

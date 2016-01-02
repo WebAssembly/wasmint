@@ -45,31 +45,31 @@ add_library(libwasmint
 
     libwasmint/interpreter/debugging/BreakpointEnvironment.cpp
     libwasmint/interpreter/debugging/Breakpoint.cpp
+    libwasmint/interpreter/debugging/BreakpointHandler.cpp
 
     libwasmint/interpreter/heap/Heap.cpp
     libwasmint/interpreter/heap/patch/HeapPatch.cpp
     libwasmint/interpreter/heap/HeapObserver.cpp
     libwasmint/interpreter/heap/Interval.cpp
-
-    libwasmint/interpreter/rm/RegisterAllocator.cpp
-    libwasmint/interpreter/rm/ByteOpcodes.h
-    libwasmint/interpreter/rm/JITCompiler.cpp
-    libwasmint/interpreter/rm/ByteCode.cpp
-    libwasmint/interpreter/rm/VMThread.cpp
-    libwasmint/interpreter/rm/FunctionFrame.cpp
-    libwasmint/interpreter/rm/VMState.cpp
-    libwasmint/interpreter/rm/ProgramCache.cpp
-    libwasmint/interpreter/rm/CompiledFunction.cpp
-    libwasmint/interpreter/rm/InstructionCounter.cpp
-    libwasmint/interpreter/rm/History.cpp
-    libwasmint/interpreter/rm/MachinePatch.cpp
-    libwasmint/interpreter/rm/WasmintVM.cpp
-    libwasmint/interpreter/rm/ThreadPatch.cpp
     libwasmint/interpreter/heap/patch/HeapPatchChunk.cpp
+
+    libwasmint/interpreter/RegisterAllocator.cpp
+    libwasmint/interpreter/ByteOpcodes.h
+    libwasmint/interpreter/JITCompiler.cpp
+    libwasmint/interpreter/ByteCode.cpp
+    libwasmint/interpreter/VMThread.cpp
+    libwasmint/interpreter/FunctionFrame.cpp
+    libwasmint/interpreter/VMState.cpp
+    libwasmint/interpreter/CompiledFunction.cpp
+    libwasmint/interpreter/InstructionCounter.cpp
+    libwasmint/interpreter/History.cpp
+    libwasmint/interpreter/MachinePatch.cpp
+    libwasmint/interpreter/WasmintVM.cpp
+    libwasmint/interpreter/ThreadPatch.cpp
 
     libwasmint/serialization/ByteOutputStream.cpp
     libwasmint/serialization/ByteInputStream.cpp
-        libwasmint/interpreter/debugging/BreakpointHandler.cpp libwasmint/interpreter/debugging/BreakpointHandler.h)
+)
 
 
 ###########################

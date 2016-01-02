@@ -19,7 +19,6 @@
 #define WASMINT_BREAKPOINTENVIRONMENT_H
 
 #include <string>
-#include <interpreter/rm/VMState.h>
 
 namespace wasmint {
     class VMState;

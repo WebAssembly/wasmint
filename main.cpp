@@ -10,7 +10,7 @@
 #include <sexpr_parsing/SExprParser.h>
 #include <builtins/StdioModule.h>
 #include <builtins/SDLModule.h>
-#include <interpreter/rm/WasmintVM.h>
+#include <interpreter/WasmintVM.h>
 
 using namespace wasm_module;
 using namespace wasmint;

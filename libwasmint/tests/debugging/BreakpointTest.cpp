@@ -23,7 +23,7 @@
 #include <sexpr_parsing/SExprParser.h>
 #include <sexpr_parsing/ModuleParser.h>
 #include <assert.h>
-#include <interpreter/rm/WasmintVM.h>
+#include <interpreter/WasmintVM.h>
 #include <interpreter/debugging/BreakpointHandler.h>
 #include <iostream>
 

@@ -26,7 +26,7 @@
 #include "QuickSortSource.h"
 #include <chrono>
 #include <iostream>
-#include <interpreter/rm/WasmintVM.h>
+#include <interpreter/WasmintVM.h>
 
 using namespace std;
 using namespace std::chrono;

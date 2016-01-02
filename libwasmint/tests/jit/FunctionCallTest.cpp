@@ -24,7 +24,7 @@
 #include <sexpr_parsing/ModuleParser.h>
 #include <assert.h>
 #include <iostream>
-#include <interpreter/rm/WasmintVM.h>
+#include <interpreter/WasmintVM.h>
 
 using namespace wasm_module;
 using namespace wasm_module::sexpr;
