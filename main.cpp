@@ -29,14 +29,14 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    Module* mainModule = nullptr;
+    const Module* mainModule = nullptr;
 
     WasmintVM vm;
 
 #ifdef WASMINT_HAS_SDL
-    vm.useModule(*SDLModule::create(), true);
+    vm.loadModule(*SDLModule::create(), true);
 #endif
-    vm.useModule(*StdioModule::create(), true);
+    vm.loadModule(*StdioModule::create(), true);
 
     for(int i = 1; i < argc; i++) {
         std::string arg = argv[i];
@@ -53,106 +53,58 @@ int main(int argc, char** argv) {
 
         const std::string& modulePath = argv[i];
 
-        Module* m;
-
-        bool binary = !ends_with(modulePath, ".wasm");
-
-        if (binary) {
-            std::streampos size;
-            std::vector<uint8_t> data;
-
-            std::ifstream file(modulePath.c_str(), std::ios::in | std::ios::binary | std::ios::ate);
-            if (file.is_open()) {
-                size = file.tellg();
-                data.resize(size);
-                file.seekg(0, std::ios::beg);
-                file.read((char *) data.data(), size);
-                file.close();
-            }
-            else std::cerr << "Unable to open module " << modulePath;
-
-            binary::ByteStream stream(std::deque<uint8_t>(data.begin(), data.end()));
+        try {
+            vm.loadModule(modulePath);
+        } catch (const std::exception& e) {
+            std::cerr << "Got exception while parsing sexpr module "
+            << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
+            << std::endl;
+            return 1;
+        }
+    }
 
 
+    if (runMain) {
+
+        for (const wasm_module::Module *module : vm.modules()) {
             try {
-                m = binary::ModuleParser::parse(stream);
-                m->name(modulePath);
-            } catch (const std::exception& e) {
-                std::cerr << "Got exception while parsing binary module "
-                << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
-                << std::endl;
-                return 1;
+                module->getFunction("main");
+                if (mainModule != nullptr) {
+                    std::cerr << "Multiple modules with a main function! Aborting..." << std::endl;
+                    std::cerr << "Module 1 was " << module->name() << ", Module 2 was " << mainModule->name() <<
+                    std::endl;
+                    return 1;
+                }
+                mainModule = module;
+            } catch (const wasm_module::NoFunctionWithName &ex) {
+                // has no main function
             }
+        }
 
-        } else {
-
-            std::ifstream moduleFile(modulePath);
-            std::string moduleData((std::istreambuf_iterator<char>(moduleFile)),
-                            std::istreambuf_iterator<char>());
-            sexpr::CharacterStream stream(moduleData);
-
-
-            try {
-                sexpr::SExpr expr = sexpr::SExprParser(stream).parse(true);
-                m = sexpr::ModuleParser::parse(expr[0]);
-            } catch (const std::exception& e) {
-                std::cerr << "Got exception while parsing sexpr module "
-                << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
-                << std::endl;
-                return 1;
-            }
+        if (mainModule == nullptr) {
+            std::cerr << "No module loaded with a main function! Aborting..." << std::endl;
+            return 1;
         }
 
         try {
-            vm.useModule(*m, true);
-
-            if (runMain) {
-                try {
-                    m->getFunction("main");
-
-                    if (mainModule != nullptr) {
-                        std::cerr << "Multiple modules with a main function! Aborting..." << std::endl;
-                        std::cerr << "Module 1 was " << m->name() << ", Module 2 was " << mainModule->name() << std::endl;
-                        return 1;
-                    }
-                    mainModule = m;
-                } catch (const std::exception& ex) {
-                    // has no main function
-                }
+            vm.startAtFunction(*mainModule->function("main"), false);
+            vm.stepUntilFinished();
+            if (vm.gotTrap()) {
+                std::cerr << "Got trap while executing program: " << vm.trapReason() << std::endl;
+                return 2;
             }
-
-
-        } catch (const std::exception& e) {
-            std::cerr << "Got exception while parsing module " << modulePath << ": " << e.what() << std::endl;
+        } catch(const wasm_module::NoFunctionWithName& e) {
+            if (std::string(e.what()) == "main") {
+                std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;
+            } else {
+                std::cerr << "Exiting because we can't find function with name: " << e.what() << std::endl;
+            }
+            return 3;
+        } catch(const std::exception& ex) {
+            std::cerr << "Got exception while executing: " << ex.what() << " (typeid name " << typeid(ex).name() << ")"
+            << std::endl;
+            return 1;
         }
-    }
 
-    if (!runMain) {
-        return 0;
-    }
-
-    if (mainModule == nullptr) {
-        std::cerr << "No module loaded with a main function! Aborting..." << std::endl;
-        return 1;
-    }
-
-    try {
-        vm.startAtFunction(*mainModule->function("main"));
-        vm.stepUntilFinished();
-        if (vm.gotTrap()) {
-            std::cerr << "Got trap while executing program: " << vm.trapReason() << std::endl;
-            return 2;
-        }
-    } catch(const wasm_module::NoFunctionWithName& e) {
-        if (std::string(e.what()) == "main") {
-            std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;
-        } else {
-            std::cerr << "Exiting because we can't find function with name: " << e.what() << std::endl;
-        }
-        return 3;
-    } catch(const std::exception& ex) {
-        std::cerr << "Got exception while executing: " << ex.what() << " (typeid name " << typeid(ex).name() << ")"
-        << std::endl;
-        return 1;
     }
 }

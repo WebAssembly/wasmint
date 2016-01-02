@@ -58,7 +58,7 @@ int main() {
     const Instruction* breakpointInstruction1 = module->functions().front()->mainInstruction()->children().at(0);
     const Instruction* breakpointInstruction2 = module->functions().front()->mainInstruction()->children().at(2);
 
-    vm.useModule(*module, true);
+    vm.loadModule(*module, true);
     vm.startAtFunction(*module->functions().front());
     vm.addBreakpoint(breakpointInstruction1, &handler);
     vm.addBreakpoint(breakpointInstruction2, &handler);

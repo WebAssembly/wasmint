@@ -44,14 +44,14 @@ namespace wasmint {
     }
 
 
-    wasm_module::Instruction*InterpreterThread::callFunction(
+    const wasm_module::Instruction* InterpreterThread::callFunction(
             const std::string& moduleName, const std::string& functionName,
             std::vector<wasm_module::Variable> parameters) {
 
         if (functionStack_.size() >= functionStackLimit)
             throw StackLimitReached(std::to_string(functionStack_.size()));
 
-        wasm_module::Function* func = nullptr;
+        const wasm_module::Function* func = nullptr;
 
         wasm_module::Module& module = env_.getModule(moduleName);
 

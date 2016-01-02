@@ -81,7 +81,7 @@ namespace wasmint {
             }
         }
 
-        wasm_module::Function& getFunction(const std::string& moduleName, const std::string& functionName) {
+        const wasm_module::Function& getFunction(const std::string& moduleName, const std::string& functionName) {
             return getModule(moduleName).getFunction(functionName);
         }
 

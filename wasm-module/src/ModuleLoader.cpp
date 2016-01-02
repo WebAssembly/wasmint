@@ -15,15 +15,4 @@
  */
 
 
-#include <ModuleLoader.h>
-#include "WasmintVM.h"
-
-void wasmint::WasmintVM::loadModule(const std::string &path) {
-    wasm_module::Module* module = wasm_module::ModuleLoader::loadFromFile(path);
-    loadModule(*module, true);
-}
-
-void wasmint::WasmintVM::loadModuleFromData(const std::string &moduleContent) {
-    wasm_module::Module* module = wasm_module::sexpr::ModuleParser::parse(moduleContent);
-    loadModule(*module, true);
-}
+#include "ModuleLoader.h"

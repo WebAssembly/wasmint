@@ -60,7 +60,7 @@ namespace wasmint {
 
     const wasm_module::Instruction *MachineState::getInstruction(const wasm_module::InstructionAddress& address) {
         wasm_module::Module& module = getModule(address.moduleName());
-        wasm_module::Function& function = module.getFunction(address.functionName());
+        const wasm_module::Function& function = module.getFunction(address.functionName());
         return function.instruction(address);
     }
 }

@@ -79,7 +79,7 @@ namespace wasm_module {
                 functionsToDelete_.push_back(function);
         }
 
-        const Function* function(const std::string& functionName) {
+        const Function* function(const std::string& functionName) const {
             for (const Function* function : functions_) {
                 if (function->name() == functionName) {
                     return function;
@@ -117,7 +117,7 @@ namespace wasm_module {
             return sections_;
         }
 
-        Function& getFunction(const std::string& functionName) {
+        const Function& getFunction(const std::string& functionName) const {
             for (Function* function : functions_) {
                 if (function->name() == functionName) {
                     return *function;

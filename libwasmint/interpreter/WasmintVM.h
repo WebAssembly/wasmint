@@ -28,6 +28,7 @@ namespace wasmint {
         History history_;
 
         std::vector<CompiledFunction> functions_;
+        std::vector<wasm_module::Module*> modules_;
         std::vector<wasm_module::Module*> modulesToDelete_;
 
         void linkModules() {
@@ -66,7 +67,11 @@ namespace wasmint {
             throw std::domain_error("Can't find compiled function with name " + function.name());
         }
 
-        void useModule(wasm_module::Module &module, bool takeMemoryOwnership) {
+        void loadModule(const std::string& path);
+
+        void loadModuleFromData(const std::string &moduleContent);
+
+        void loadModule(wasm_module::Module &module, bool takeMemoryOwnership) {
             state_.useModule(module);
             for (auto function :  module.functions()) {
                 compileFunction(function);
@@ -75,6 +80,10 @@ namespace wasmint {
             if (takeMemoryOwnership) {
                 modulesToDelete_.push_back(&module);
             }
+        }
+
+        const std::vector<wasm_module::Module*> modules() const {
+            return modules_;
         }
 
         CompiledFunction& getCompiledFunction(std::size_t index) {
@@ -155,6 +164,8 @@ namespace wasmint {
                 function.addBreakpoint(instruction, handler);
             }
         }
+
+
     };
 
 }

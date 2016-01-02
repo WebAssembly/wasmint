@@ -82,7 +82,7 @@ void runRMCore() {
 
     Module* positiveModule = ModuleParser::parse(quickSortSource);
 
-    vm.useModule(*positiveModule, true);
+    vm.loadModule(*positiveModule, true);
 
     vm.startAtFunction(*positiveModule->functions().back());
 

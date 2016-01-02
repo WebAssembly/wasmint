@@ -40,9 +40,9 @@ namespace wasmint {
         FunctionState() {
         }
 
-        FunctionState(wasm_module::Function &function);
+        FunctionState(const wasm_module::Function &function);
 
-        FunctionState(wasm_module::Function &function, std::vector<const wasm_module::Type*>& variadicParameters);
+        FunctionState(const wasm_module::Function &function, std::vector<const wasm_module::Type*>& variadicParameters);
 
         void setState(ByteInputStream& stream);
 
