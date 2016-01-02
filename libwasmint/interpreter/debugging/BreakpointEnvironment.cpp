@@ -16,3 +16,21 @@
 
 
 #include "BreakpointEnvironment.h"
+
+#include "Breakpoint.h"
+#include <interpreter/rm/VMState.h>
+
+namespace wasmint {
+    std::string BreakpointEnvironment::returnValue() {
+        if (breakpoint_->instruction()->returnType() == wasm_module::Void::instance()) {
+            return "";
+        } else {
+            uint16_t registerIndex = state_->thread().currentFrame().function().jitCompiler().getRegisterIndex(breakpoint_->instruction());
+
+            wasm_module::Variable variable(breakpoint_->instruction()->returnType());
+            variable.setFromPrimitiveValue(state_->thread().currentFrame().getRegister<uint64_t>(registerIndex));
+
+            return variable.toString();
+        }
+    }
+}

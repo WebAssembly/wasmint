@@ -19,7 +19,8 @@
 #include "BreakpointHandler.h"
 
 namespace wasmint {
-    void Breakpoint::trigger() {
-        handler_->reachedBreakpoint(*this);
+    void Breakpoint::trigger(VMState& state) {
+        BreakpointEnvironment environment(state, *this);
+        handler_->reachedBreakpoint(*this, environment);
     }
 }

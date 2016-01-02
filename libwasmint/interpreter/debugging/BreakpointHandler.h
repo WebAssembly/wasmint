@@ -18,12 +18,14 @@
 #ifndef WASMINT_BREAKPOINTHANDLER_H
 #define WASMINT_BREAKPOINTHANDLER_H
 
+#include "BreakpointEnvironment.h"
+
 namespace wasmint {
     class Breakpoint;
 
     class BreakpointHandler {
     public:
-        virtual void reachedBreakpoint(const Breakpoint& breakpoint) = 0;
+        virtual void reachedBreakpoint(const Breakpoint& breakpoint, BreakpointEnvironment& environment) = 0;
     };
 }
 

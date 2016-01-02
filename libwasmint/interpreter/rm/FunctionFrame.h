@@ -136,6 +136,10 @@ namespace wasmint {
         bool operator!=(const FunctionFrame& other) const {
             return !(*this == other);
         }
+
+        const CompiledFunction& function() const {
+            return *function_;
+        }
     };
 }
 

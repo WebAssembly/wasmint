@@ -143,6 +143,9 @@ namespace wasmint {
             return state_;
         }
 
+        VMState& state() {
+            return state_;
+        }
         bool finished() const {
             return state().thread().finished();
         }

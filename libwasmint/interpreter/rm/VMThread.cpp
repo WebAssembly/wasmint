@@ -53,7 +53,7 @@ namespace wasmint {
 
                 if (nativeInstruction->returnType() != wasm_module::Void::instance()) {
                     machine().history().addNativeFunctionReturnValue(machine().instructionCounter(),
-                                                                     result.primtiveValue());
+                                                                     result.primitiveValue());
                 }
 
                 currentFrame_->passFunctionResult(result);

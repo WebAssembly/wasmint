@@ -31,18 +31,28 @@ using namespace wasm_module;
 using namespace wasm_module::sexpr;
 using namespace wasmint;
 
-const Instruction* instruction = nullptr;
 
 class DummyBreakpointHandler : public BreakpointHandler {
+
+    std::string& value_;
+
 public:
+    DummyBreakpointHandler(std::string& value) : value_(value) {
+
+    }
+
+
     virtual void reachedBreakpoint(const Breakpoint& breakpoint, BreakpointEnvironment& environment) {
-        instruction = breakpoint.instruction();
+        value_ = environment.returnValue();
     }
 };
 
-DummyBreakpointHandler handler;
 
 int main() {
+    std::string returnValue = "INVALID";
+
+    DummyBreakpointHandler handler(returnValue);
+
     WasmintVM vm;
 
     Module* module = ModuleParser::parse("module (func main (if_else (i32.const 0) (unreachable) (nop)))");
@@ -57,13 +67,13 @@ int main() {
 
     vm.stepUntilFinished(true);
 
-    assert(breakpointInstruction1 == instruction);
+    assert(returnValue == "0");
     assert(!vm.gotTrap());
     assert(!vm.finished());
 
     vm.stepUntilFinished(true);
 
-    assert(breakpointInstruction2 == instruction);
+    assert(returnValue == "");
     assert(!vm.gotTrap());
     assert(!vm.finished());
 

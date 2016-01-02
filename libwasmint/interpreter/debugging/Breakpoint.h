@@ -24,6 +24,7 @@
 namespace wasmint {
 
     class BreakpointHandler;
+    class VMState;
 
     class Breakpoint {
 
@@ -46,7 +47,7 @@ namespace wasmint {
             return handler_;
         }
 
-        void trigger();
+        void trigger(VMState& state);
 
     };
 

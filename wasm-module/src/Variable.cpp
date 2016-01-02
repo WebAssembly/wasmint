@@ -134,9 +134,15 @@ namespace wasm_module {
             return "void";
         }
         if (type_ == Int32::instance()) {
+            if (int32() == 0) {
+                return "0";
+            }
             return std::to_string(int32()) + " (" + std::to_string(uint32()) + "u)";
         }
         if (type_ == Int64::instance()) {
+            if (int64() == 0) {
+                return "0";
+            }
             return std::to_string(int64()) + " (" + std::to_string(uint64()) + "u)";
         }
         if (type_ == Float32::instance()) {

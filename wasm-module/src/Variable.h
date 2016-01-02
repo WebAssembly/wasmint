@@ -90,8 +90,12 @@ namespace wasm_module {
             return (const void *) value_;
         }
 
-        uint64_t primtiveValue() const {
+        uint64_t primitiveValue() const {
             return *((uint64_t*)value_);
+        }
+
+        void setFromPrimitiveValue(uint64_t value) {
+            *((uint64_t*)value_) = value;
         }
 
         std::vector<uint8_t> data();

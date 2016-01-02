@@ -18,10 +18,24 @@
 #ifndef WASMINT_BREAKPOINTENVIRONMENT_H
 #define WASMINT_BREAKPOINTENVIRONMENT_H
 
+#include <string>
+#include <interpreter/rm/VMState.h>
 
 namespace wasmint {
-    class BreakpointEnvironment {
+    class VMState;
+    class Breakpoint;
 
+    class BreakpointEnvironment {
+        VMState* state_ = nullptr;
+        Breakpoint* breakpoint_ = nullptr;
+
+    public:
+        BreakpointEnvironment() {
+        }
+        BreakpointEnvironment(VMState& state, Breakpoint& breakpoint) : state_(&state), breakpoint_(&breakpoint) {
+        }
+
+        std::string returnValue();
     };
 }
 

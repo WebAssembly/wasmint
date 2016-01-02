@@ -87,6 +87,10 @@ namespace wasmint {
             }
             throw CompilerHasNotCompiledInstruction(instruction->dataString());
         }
+
+        uint16_t getRegisterIndex(const wasm_module::Instruction* instruction) const {
+            return registerAllocator_(instruction);
+        }
     };
 }
 

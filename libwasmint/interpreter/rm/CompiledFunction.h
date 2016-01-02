@@ -24,6 +24,8 @@
 #include "JITCompiler.h"
 
 namespace wasmint {
+    class VMState;
+
     class CompiledFunction {
         const wasm_module::Function* function_;
         JITCompiler debugCompiler_;
@@ -57,10 +59,10 @@ namespace wasmint {
             breakpointsByInstructionAddress_[address] = Breakpoint(instruction, handler);
         }
 
-        bool triggerBreakpoints(uint32_t instructionPointer) {
+        bool triggerBreakpoints(VMState& runner, uint32_t instructionPointer) {
             auto iter = breakpointsByInstructionAddress_.find(instructionPointer);
             if (iter != breakpointsByInstructionAddress_.end()) {
-                iter->second.trigger();
+                iter->second.trigger(runner);
                 return true;
             } else {
                 return false;
