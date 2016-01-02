@@ -73,6 +73,7 @@ namespace wasmint {
 
         void loadModule(wasm_module::Module &module, bool takeMemoryOwnership) {
             state_.useModule(module);
+            modules_.push_back(&module);
             for (auto function :  module.functions()) {
                 compileFunction(function);
             }

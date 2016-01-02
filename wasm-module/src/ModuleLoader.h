@@ -34,7 +34,7 @@ namespace wasm_module {
             sexpr::CharacterStream stream(moduleData);
 
             sexpr::SExpr expr = sexpr::SExprParser(stream).parse(true);
-            Module* result = sexpr::ModuleParser::parse(expr);
+            Module* result = sexpr::ModuleParser::parse(expr[0]);
             return result;
         }
     };
