@@ -141,7 +141,6 @@ public:
                 break;
             }
         }
-        refresh();
     }
 
     virtual bool handleCharacter(int c) override {

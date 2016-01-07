@@ -23,32 +23,21 @@
 #include <interpreter/heap/Heap.h>
 #include <Module.h>
 #include <sexpr_parsing/ModuleParser.h>
+#include <interpreter/WasmintVM.h>
 #include "MemoryViewer.h"
 #include "InstructionViewer.h"
+#include "VMViewer.h"
 
 class WasmDbg {
 
     static WINDOW* mainwin;
-    wasmint::Heap heap;
-    MemoryViewer memoryViewer;
-    InstructionViewer instructionViewer;
 
+    wasmint::WasmintVM vm_;
+
+    VMViewer vmViewer;
 
 public:
     WasmDbg() {
-        heap.grow(1000);
-        heap.setByte(0, 0xFA);
-
-        memoryViewer.setHeap(&heap);
-
-        wasm_module::Module* positiveModule = wasm_module::sexpr::ModuleParser::parse(
-                "module (func main "
-                        "(if_else (i32.const 0) (unreachable) ())"
-                        "(if_else (i32.const 1) (unreachable) ())"
-                        "(if_else (i32.const 2) (unreachable) ())"
-                        ")");
-
-        instructionViewer.setInstruction(positiveModule->functions().front()->mainInstruction());
     }
 
 
@@ -75,22 +64,19 @@ public:
 
     }
 
+    wasmint::WasmintVM& vm() const {
+
+    }
+
     void run() {
         int ch = 0;
 
         do {
-            clear();
+            erase();
 
-            memoryViewer.handleCharacter(ch);
-
-            memoryViewer.render();
-            memoryViewer.display();
-
-            instructionViewer.handleCharacter(ch);
-            instructionViewer.render();
-            instructionViewer.display();
-
-            refresh();
+            vmViewer.handleCharacter(ch);
+            vmViewer.draw();
+            doupdate();
         } while ( (ch = getch()) != 'q' );
     }
 };

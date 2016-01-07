@@ -48,18 +48,17 @@ int main(int argc, char** argv) {
                 std::cerr << "Unknown argument " << arg << std::endl;
                 return 2;
             }
-        }
+        } else {
+            const std::string& modulePath = argv[i];
 
-
-        const std::string& modulePath = argv[i];
-
-        try {
-            vm.loadModule(modulePath);
-        } catch (const std::exception& e) {
-            std::cerr << "Got exception while parsing sexpr module "
-            << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
-            << std::endl;
-            return 1;
+            try {
+                vm.loadModule(modulePath);
+            } catch (const std::exception& e) {
+                std::cerr << "Got exception while parsing sexpr module "
+                << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
+                << std::endl;
+                return 1;
+            }
         }
     }
 

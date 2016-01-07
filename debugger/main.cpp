@@ -15,20 +15,37 @@
  */
 
 
-#include <stdlib.h>
-#include <curses.h>
 #include <interpreter/heap/Heap.h>
 #include <Module.h>
-#include <sexpr_parsing/ModuleParser.h>
-#include "MemoryViewer.h"
-#include "InstructionViewer.h"
 #include "WasmDbg.h"
 
-int main(void) {
+int main(int argc, char** argv) {
 
     WasmDbg::initCurses();
 
     WasmDbg debugger;
+
+
+    for(int i = 1; i < argc; i++) {
+        std::string arg = argv[i];
+
+        if (arg.find("--") == 0) {
+            std::cerr << "Unknown argument " << arg << std::endl;
+            return 2;
+        } else {
+            const std::string& modulePath = argv[i];
+
+            try {
+                debugger.vm().loadModule(modulePath);
+            } catch (const std::exception& e) {
+                std::cerr << "Got exception while parsing sexpr module "
+                << modulePath << ": " << e.what() << " (typeid name " << typeid(e).name() << ")"
+                << std::endl;
+                return 1;
+            }
+        }
+    }
+
     debugger.run();
 
     WasmDbg::deinitCurses();

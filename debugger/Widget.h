@@ -19,6 +19,7 @@
 #define WASMINT_WIDGET_H
 
 #include <curses.h>
+#include <vector>
 
 class Widget {
 
@@ -26,6 +27,8 @@ class Widget {
     int x_, y_, w_, h_;
     int border_;
     std::string name_;
+
+    std::vector<Widget*> children_;
 
 public:
     Widget(int x, int y, int w, int h) : x_(x), y_(y), w_(w), h_(h) {
@@ -68,8 +71,28 @@ public:
         h_ = h;
     }
 
-    virtual void render() {
+    void addChild(Widget* child) {
+        children_.push_back(child);
+    }
 
+    void clearChildren() {
+        children_.clear();
+    }
+
+    void draw() {
+        if (border_ != 0) {
+            box(win, 0, 0);
+            mvwprintw(win, 0, getWidth() / 2 - name_.size() / 2, name_.c_str());
+        }
+        render();
+        display();
+        for (Widget* child : children_) {
+            child->draw();
+        }
+        refresh();
+    }
+
+    virtual void render() {
     }
 
     virtual bool handleCharacter(int c) {
@@ -111,11 +134,7 @@ public:
     }
 
     void display() {
-        if (border_ != 0) {
-            box(win, 0, 0);
-            mvwprintw(win, 0, getWidth() / 2 - name_.size() / 2, name_.c_str());
-        }
-        wrefresh(win);
+        wnoutrefresh(win);
     }
 };
 

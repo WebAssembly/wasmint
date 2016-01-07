@@ -96,6 +96,8 @@ void runRMCore() {
     Heap& heap = vm.heap();
 
     assertHeapSorted(heap);
+
+    std::cout << vm.state().instructionCounter().toString() << std::endl;
 }
 
 void profile(void (*functionPtr)(), const std::string& prefix) {

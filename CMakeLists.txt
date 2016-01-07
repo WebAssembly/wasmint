@@ -124,23 +124,15 @@ foreach(TEST_WAST_FILE ${TEST_WAST_FILES})
 endforeach()
 
 ####################
-#   Fuzzing libs   #
+#     fuzzer       #
 ####################
 
-add_library(fuzzing_common
-    libwasmint/tests/fuzzing/common/SExprExecutor.cpp
-    libwasmint/tests/fuzzing/common/DataRescuer.cpp
-    libwasmint/tests/fuzzing/generation_based/SmartSExprGenerator.cpp
+add_executable(wasmint_fuzzer
+        libwasmint/tests/fuzzing/FuzzerMain.cpp
+        libwasmint/tests/fuzzing/SExprExecutor.cpp
+        libwasmint/tests/fuzzing/DataRescuer.cpp
 )
-
-
-####################
-# Mutation fuzzer  #
-####################
-
-add_executable(mutation_fuzzer libwasmint/tests/fuzzing/mutation_based/mutation_fuzzer.cpp)
-target_link_libraries(mutation_fuzzer libwasmint wasm-module fuzzing_common)
-add_test(NAME mutation_fuzzing COMMAND ./mutation_fuzzer)
+target_link_libraries(wasmint_fuzzer libwasmint wasm-module)
 
 ####################
 # Test suite       #
@@ -171,7 +163,7 @@ find_package(Curses)
 if(${Boost_FOUND})
     include_directories(${CURSES_INCLUDE_DIR})
 
-    add_executable(wasmdbg debugger/main.cpp debugger/WasmDbg.cpp debugger/WasmDbg.h)
+    add_executable(wasmdbg debugger/main.cpp debugger/WasmDbg.cpp debugger/WasmDbg.h debugger/VMViewer.cpp debugger/VMViewer.h)
 
     target_link_libraries(wasmdbg libwasmint wasm-module ${CURSES_LIBRARIES})
 endif()

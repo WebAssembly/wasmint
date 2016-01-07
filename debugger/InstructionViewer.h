@@ -89,7 +89,6 @@ public:
 
     virtual void render() override {
         renderInstruction(instruction_, 0, 0);
-        refresh();
     }
 
     virtual bool handleCharacter(int c) override {
