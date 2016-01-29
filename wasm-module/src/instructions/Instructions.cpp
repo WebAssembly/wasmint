@@ -16,6 +16,7 @@
 
 #include <sexpr_parsing/Types.h>
 #include <branching/BranchTypeValidator.h>
+#include <limits>
 #include "Instructions.h"
 #include "UnreachableValidator.h"
 
@@ -38,7 +39,11 @@ namespace wasm_module {
             if (child.hasValue()) {
                 if(child.value().find("offset=") == 0) {
                     std::string value = child.value().substr(std::string("offset=").size());
-                    offset_ = (uint32_t) std::atol(value.c_str());
+                    std::size_t parsedValue = Utils::strToSizeT(value);
+                    if (parsedValue > std::numeric_limits<uint32_t>::max()) {
+                        throw OverflowInOffsetAttribute(child.value());
+                    }
+                    offset_ = (uint32_t) parsedValue;
                 }
             }
         }

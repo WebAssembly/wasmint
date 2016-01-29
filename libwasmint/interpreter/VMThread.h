@@ -29,6 +29,8 @@
 namespace wasmint {
 
 
+    ExceptionMessage(CantStepEmptyThread)
+
     class WasmintVM;
     class ThreadPatch;
 
@@ -83,10 +85,14 @@ namespace wasmint {
         }
 
         void step(Heap& heap) {
+            if (!currentFrame_)
+                throw CantStepEmptyThread("Thread is empty");
             currentFrame_->step(*this, heap);
         }
 
         bool stepDebug(Heap& heap) {
+            if (!currentFrame_)
+                throw CantStepEmptyThread("Thread is empty");
             return currentFrame_->stepDebug(*this, heap);
         }
 

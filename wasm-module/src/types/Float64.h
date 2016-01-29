@@ -40,7 +40,7 @@ namespace wasm_module {
 
 
         virtual std::string name() const {
-            return "float64";
+            return "f64";
         }
 
         virtual void parse(const std::string& literal, void *data) const;

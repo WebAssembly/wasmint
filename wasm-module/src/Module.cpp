@@ -20,15 +20,8 @@
 namespace wasm_module {
 
 
-    Module::Module(ModuleContext &context, std::vector<Section *> sections,
-                   std::vector<std::string> requiredModules)
-            : sections_(sections), context_(context), requiredModules_(requiredModules) {
-        for (Section *section : sections_) {
-            std::vector<Function *> sectionFunctions = section->functions();
-            for (Function *function : sectionFunctions) {
-                functions_.push_back(function);
-            }
-        }
+    Module::Module(ModuleContext &context, std::vector<std::string> requiredModules)
+            : context_(context), requiredModules_(requiredModules) {
     }
 
     void Module::addFunction(std::string functionName, const Type* returnType, std::vector<const Type*> parameterTypes,

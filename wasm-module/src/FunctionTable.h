@@ -22,6 +22,7 @@
 #include <map>
 #include "FunctionSignature.h"
 #include "ExceptionWithMessage.h"
+#include "Utils.h"
 
 namespace wasm_module {
 
@@ -71,6 +72,11 @@ namespace wasm_module {
 
         std::size_t size() const {
             return functions_.size();
+        }
+
+        bool operator==(const FunctionTable& other) const {
+            return  Utils::compareVector(functions_, other.functions_) &&
+                    Utils::compareMaps(functionsByAlias_, other.functionsByAlias_);
         }
     };
 

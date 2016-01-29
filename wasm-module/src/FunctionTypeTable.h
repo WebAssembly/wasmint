@@ -9,6 +9,7 @@
 #include <map>
 #include "ExceptionWithMessage.h"
 #include "FunctionType.h"
+#include "FunctionTable.h"
 
 namespace wasm_module {
 
@@ -53,6 +54,11 @@ namespace wasm_module {
 
         FunctionType getType(size_t index) const {
             return types_.at(index);
+        }
+
+        bool operator==(const FunctionTypeTable& other) const {
+            return  Utils::compareVector(types_, other.types_) &&
+                    Utils::compareMaps(namesToIndizes_, other.namesToIndizes_);
         }
     };
 }

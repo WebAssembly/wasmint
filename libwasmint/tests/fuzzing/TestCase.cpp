@@ -15,13 +15,4 @@
  */
 
 
-#ifndef WASMINT_GENERATIONFUZZERMAIN_H
-#define WASMINT_GENERATIONFUZZERMAIN_H
-
-
-class FuzzerMain {
-
-};
-
-
-#endif //WASMINT_GENERATIONFUZZERMAIN_H
+#include "TestCase.h"

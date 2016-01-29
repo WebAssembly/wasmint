@@ -34,6 +34,8 @@
 
 namespace wasm_module {
 
+    ExceptionMessage(OverflowInOffsetAttribute)
+
     #define DeclInstComma ,
 
     #define DeclInstruction(CLASS_NAME, STR, CHILDREN, RETURN_TYPE) class CLASS_NAME : public Instruction { \

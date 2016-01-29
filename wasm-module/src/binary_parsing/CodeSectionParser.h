@@ -21,7 +21,6 @@
 #include <Function.h>
 #include <ModuleContext.h>
 #include "ByteStream.h"
-#include "../Section.h"
 #include "FunctionParser.h"
 
 namespace wasm_module { namespace binary {
@@ -67,16 +66,8 @@ namespace wasm_module { namespace binary {
 
         }
 
-        Section *get(uint32_t offset) {
-            return new Section(offset, SectionType::CODE, functions);
-        }
 
     public:
-        static Section *parse(uint32_t offset, ModuleContext &context, ByteStream &stream) {
-            CodeSectionParser parser(context, stream);
-            parser.parseFunctions();
-            return parser.get(offset);
-        }
     };
 
 }}

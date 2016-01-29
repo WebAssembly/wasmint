@@ -94,6 +94,13 @@ namespace wasm_module {
                 throw UnknownVariableIndex(std::to_string(variableIndex));
             }
         }
+
+        bool operator==(const FunctionContext& other) const {
+            return Utils::compareMaps(namesToIndizes_, other.namesToIndizes_)
+                    && Utils::compareMaps(indizesToNames_, other.indizesToNames_)
+                    && Utils::compareVector(locals_, other.locals_)
+                    && FunctionSignature::operator==(other);
+        }
     };
 
 }

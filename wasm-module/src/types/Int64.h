@@ -40,7 +40,7 @@ namespace wasm_module {
         }
 
         virtual std::string name() const {
-            return "int64";
+            return "i64";
         }
 
         virtual void parse(binary::ByteStream &stream, void *data) const {

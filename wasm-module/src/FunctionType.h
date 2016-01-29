@@ -20,6 +20,7 @@
 #include <types/Type.h>
 #include <vector>
 #include <stdexcept>
+#include "Utils.h"
 
 namespace wasm_module {
 
@@ -90,6 +91,15 @@ namespace wasm_module {
         }
 
         std::string toString() const;
+
+
+        bool operator==(const FunctionType& other) const {
+            return returnType_ == other.returnType_
+                    && Utils::compareVector(parameters_, other.parameters_)
+                    && variadic_ == other.variadic_
+                    && index_ == other.index_
+                    && hasIndex_ == other.hasIndex_;
+        }
     };
 
 }

@@ -29,7 +29,7 @@ using namespace wasm_module::sexpr;
 int main() {
     std::string str = ";This is a comment\n"
             " (; this is a silly comment in brackets ;)"
-            "(module (memory \"langes wort\" 0 1))\n"
+            "(module (memory \"langes wort\" 0 1) (has_feature wasm))\n"
             ";This is another comment\n"
             "\t(module)"
             "\n(module)"
@@ -43,13 +43,16 @@ int main() {
 
     assert(expr.children().size() == 4);
 
-    assert(expr.children()[0].children().size() == 2);
+    assert(expr.children()[0].children().size() == 3);
     assert(expr.children()[0][0] == "module");
     assert(expr.children()[0][1].children().size() == 4);
     assert(expr.children()[0][1][0] == "memory");
     assert(expr.children()[0][1][1] == "langes wort");
     assert(expr.children()[0][1][2] == "0");
     assert(expr.children()[0][1][3] == "1");
+    assert(expr.children()[0][2].children().size() == 2);
+    assert(expr.children()[0][2][0] == "has_feature");
+    assert(expr.children()[0][2][1] == "wasm");
 
     assert(expr.children()[1][0] == "module");
     assert(expr.children()[2][0] == "module");

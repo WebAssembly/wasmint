@@ -22,6 +22,7 @@
 #include <map>
 #include "types/Type.h"
 #include "ExceptionWithMessage.h"
+#include "Utils.h"
 
 
 namespace wasm_module {
@@ -49,6 +50,10 @@ namespace wasm_module {
             } else {
                 return result->second;
             }
+        }
+
+        bool operator==(const TypeTable& other) const {
+            return Utils::compareMaps(typesByLocalTypeCode, other.typesByLocalTypeCode);
         }
     };
 }

@@ -36,22 +36,9 @@ namespace wasm_module { namespace binary {
     class ModuleParser {
 
         ByteStream &stream;
-        std::map<uint32_t, SectionType> sectionTypes;
         std::vector<std::string> requiredModules;
 
-        std::vector<Section *> sections;
-
         ModuleContext context;
-
-        SectionType getSectionTypeFromOffset(uint32_t offset) {
-            auto result = sectionTypes.find(offset);
-
-            if (result == sectionTypes.end()) {
-                throw NoSectionWithOffset(std::to_string(offset));
-            } else {
-                return result->second;
-            }
-        }
 
     protected:
         ModuleParser(ByteStream &stream) : stream(stream) {
@@ -78,50 +65,16 @@ namespace wasm_module { namespace binary {
 
             // Put everything into the context
             context = ModuleContext(opcodeTable, typeTable, functionTable);
-
-            // Section header
-            uint32_t numberOfSections = stream.popULEB128();
-
-            uint32_t lastOffset = 0;
-
-            for (uint32_t i = 0; i < numberOfSections; i++) {
-                uint32_t typeData = stream.popULEB128();
-
-                SectionType type;
-                switch (typeData) {
-                    case 1:
-                        type = SectionType::CODE;
-                        break;
-                    default:
-                        throw std::domain_error("Unknown section type");
-                }
-                uint32_t offset = stream.popULEB128();
-
-                sectionTypes[offset] = type;
-
-                if (offset <= lastOffset)
-                    throw SectionTableNotOrdered(
-                            std::string("Offset of section ") + std::to_string(i) + " smaller than previous offset");
-                lastOffset = offset;
-            }
-        }
-
-
-        void parseSections() {
-            SectionType sectionType = getSectionTypeFromOffset(stream.position());
-            Section *section = CodeSectionParser::parse(stream.position(), context, stream);
-            sections.push_back(section);
         }
 
         Module *getParsedModule() {
-            return new Module(context, sections, requiredModules);
+            return new Module(context, requiredModules);
         }
 
     public:
         static Module *parse(ByteStream &stream) {
             ModuleParser parser(stream);
             parser.parseHeader();
-            parser.parseSections();
             return parser.getParsedModule();
         }
     };

@@ -65,6 +65,11 @@ namespace wasm_module {
             return false;
         }
 
+        bool operator==(const FunctionSignature& other) const {
+            return name_ == other.name_
+            && moduleName_ == other.moduleName_
+            && other.FunctionType::operator==(other);
+        }
     };
 
 }

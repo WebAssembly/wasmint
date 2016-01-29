@@ -12,7 +12,6 @@ include_directories (src)
 add_library(wasm-module
         src/ExceptionWithMessage.cpp
         src/Module.cpp
-        src/Section.cpp
         src/FunctionContext.cpp
         src/FunctionSignature.cpp
         src/FunctionTable.cpp
@@ -58,7 +57,7 @@ add_library(wasm-module
         src/sexpr_parsing/FunctionParser.cpp
         src/sexpr_parsing/Types.cpp
         src/sexpr_parsing/InstructionParser.cpp
-        src/branching/BranchTypeValidator.cpp src/branching/BranchTypeValidator.h src/ModuleLoader.cpp src/ModuleLoader.h)
+        src/branching/BranchTypeValidator.cpp src/branching/BranchTypeValidator.h src/ModuleLoader.cpp src/ModuleLoader.h src/sexpr_serializing/ModuleSerializer.cpp src/sexpr_serializing/ModuleSerializer.h)
 
 
 ####################

@@ -15,8 +15,4 @@
  */
 
 
-#include "FuzzerMain.h"
-
-int main() {
-
-}
+#include "ModuleSerializer.h"

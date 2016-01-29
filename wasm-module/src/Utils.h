@@ -19,6 +19,8 @@ namespace wasm_module {
         }
 
         static std::size_t strToSizeT(const std::string& str) {
+            // TODO check for overflow
+
             if (!isDecNumber(str, false)) {
                 throw InvalidNumberLiteral(str);
             }
@@ -114,6 +116,50 @@ namespace wasm_module {
             }
             return true;
         }
+
+        template <class vector>
+        static bool comparePtrVector(const vector& a, const vector& b) {
+            if (a.size() != b.size())
+                return false;
+            for (auto& element : a) {
+                bool found = false;
+                for (auto& otherElement : b) {
+                    if ((*element) == (*otherElement)) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    return false;
+            }
+            return true;
+        }
+
+        template <class vector>
+        static bool compareVector(const vector& a, const vector& b) {
+            if (a.size() != b.size())
+                return false;
+            for (auto& element : a) {
+                bool found = false;
+                for (auto& otherElement : b) {
+                    if (element == otherElement) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                    return false;
+            }
+            return true;
+        }
+
+        template <class map>
+        static bool compareMaps(const map& a, const map& b) {
+            return a.size() == b.size()
+                   && std::equal(a.begin(), a.end(),
+                                 b.begin());
+        }
+
     };
 }
 

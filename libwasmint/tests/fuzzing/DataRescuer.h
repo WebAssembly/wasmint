@@ -10,16 +10,16 @@ namespace wasmint {
 
     class DataRescuer;
 
-    DataRescuer* rescuer = nullptr;
+    extern DataRescuer* rescuer;
 
     void sig_handler(int signo);
 
     class DataRescuer {
 
     public:
-        unsigned long seed_;
+        long long seed_;
 
-        DataRescuer(unsigned long seed) : seed_(seed) {
+        DataRescuer() {
             if (rescuer != nullptr) {
                 std::cerr << "Multiple DataRescuer exist at the same time! Aborting...." << std::endl;
                 abort();
@@ -30,29 +30,32 @@ namespace wasmint {
             rescuer = nullptr;
         }
 
+        void setSeed(long long seed) {
+            seed_ = seed;
+        }
+
         static void attachHandler() {
-            if (signal(SIGINT, sig_handler) == SIG_ERR)
-                std::cerr << "can't catch SIGINT\n";
             if (signal(SIGSEGV, sig_handler) == SIG_ERR)
                 std::cerr << "can't catch SIGSEGV\n";
             if (signal(SIGILL, sig_handler) == SIG_ERR)
                 std::cerr << "can't catch SIGILL\n";
+            // TODO more signals
         }
 
     };
 
-
-    void sig_handler(int signo)
+    inline void sig_handler(int signo)
     {
         std::cerr << "received ";
-        if (signo == SIGINT)
-            std::cerr << "SIGINT";
         if (signo == SIGSEGV)
             std::cerr << "SIGSEGV";
+        else if (signo == SIGILL)
+            std::cerr << "SIGILL";
+        else
+            std::cerr << "Unknown signal with number " << signo;
         std::cerr << " with seed:" << rescuer->seed_ << std::endl;
         exit(1);
     }
-
 
 }
 

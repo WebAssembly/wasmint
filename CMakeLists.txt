@@ -128,9 +128,11 @@ endforeach()
 ####################
 
 add_executable(wasmint_fuzzer
-        libwasmint/tests/fuzzing/FuzzerMain.cpp
+        libwasmint/tests/fuzzing/Fuzzer.cpp
         libwasmint/tests/fuzzing/SExprExecutor.cpp
         libwasmint/tests/fuzzing/DataRescuer.cpp
+        libwasmint/tests/fuzzing/TestCaseGenerator.cpp
+        libwasmint/tests/fuzzing/TestCase.cpp
 )
 target_link_libraries(wasmint_fuzzer libwasmint wasm-module)
 

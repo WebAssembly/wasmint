@@ -49,7 +49,7 @@ namespace wasm_module { namespace sexpr {
 
         void parseMemory(const SExpr&memoryExpr);
 
-        ModuleParser(const SExpr& moduleExpr);
+        ModuleParser(const SExpr& moduleExpr, const std::string& nameHint);
 
         Module* getParsedModule() {
             return module_;
@@ -58,11 +58,11 @@ namespace wasm_module { namespace sexpr {
     public:
 
         static Module* parse(const SExpr& expr) {
-            ModuleParser parser(expr);
+            ModuleParser parser(expr, "unnamedModule");
             return parser.getParsedModule();
         }
 
-        static Module* parse(const std::string& str);
+        static Module* parse(const std::string& str, const std::string& nameHint = "unnamedModule");
     };
 
 }}

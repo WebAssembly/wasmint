@@ -22,7 +22,8 @@
 
 
 namespace wasm_module { namespace sexpr {
-    ModuleParser::ModuleParser(const SExpr& moduleExpr) {
+    ModuleParser::ModuleParser(const SExpr& moduleExpr, const std::string& nameHint) {
+        module_->context().name(nameHint);
         if (moduleExpr[0].value() != "module") {
             throw std::domain_error("First child of a module expression needs to be \"module\"");
         }
@@ -279,14 +280,16 @@ namespace wasm_module { namespace sexpr {
         throw InvalidHexEncoding("No hexadecimal character: " + std::to_string(character));
     }
 
-        Module *ModuleParser::parse(const std::string& str) {
+        Module *ModuleParser::parse(const std::string& str, const std::string& nameHint) {
             CharacterStream stream(str);
 
             SExprParser parser(stream);
 
             SExpr expr = parser.parse();
 
-            ModuleParser moduleParser(expr);
-            return moduleParser.getParsedModule();
+            ModuleParser moduleParser(expr, nameHint);
+            Module* result = moduleParser.getParsedModule();
+
+            return result;
         }
     }}

@@ -19,7 +19,6 @@
 
 #include <string>
 #include "binary_parsing/ByteStream.h"
-#include "Section.h"
 #include "OpcodeTable.h"
 #include "TypeTable.h"
 #include "ModuleContext.h"
@@ -36,25 +35,19 @@ namespace wasm_module {
 
     class Module {
 
-        std::vector<Section *> sections_;
         ModuleContext context_;
         std::vector<std::string> requiredModules_;
         std::vector<Function*> functions_;
         std::vector<Function*> functionsToDelete_;
 
-
         HeapData heapData_;
 
     public:
-        Module(ModuleContext &context, std::vector<Section *> sections,
-                       std::vector<std::string> requiredModules);
+        Module(ModuleContext &context, std::vector<std::string> requiredModules);
         Module() {
         }
 
         virtual ~Module() {
-            for (Section* section : sections_) {
-                delete section;
-            }
             for (Function* function : functionsToDelete_) {
                 delete function;
             }
@@ -113,10 +106,6 @@ namespace wasm_module {
         void addVariadicFunction(std::string functionName, const Type *returnType,
                                  std::function<Variable(std::vector<Variable>)> givenFunction);
 
-        std::vector<Section *> sections() {
-            return sections_;
-        }
-
         const Function& getFunction(const std::string& functionName) const {
             for (Function* function : functions_) {
                 if (function->name() == functionName) {
@@ -144,6 +133,13 @@ namespace wasm_module {
 
         std::vector<std::string> requiredModules() {
             return requiredModules_;
+        }
+
+        bool operator==(const Module& other) const {
+            return context_ == other.context_
+                    && Utils::compareVector(requiredModules_, other.requiredModules_)
+                    && Utils::comparePtrVector(functions_, other.functions_)
+                    && Utils::comparePtrVector(functionsToDelete_, other.functionsToDelete_);
         }
 
     };

@@ -75,6 +75,11 @@ namespace wasm_module {
 
         bool isNative() const;
 
+        bool operator==(const Function& other) const {
+            return (*mainInstruction_) == (*other.mainInstruction_)
+                   && FunctionContext::operator==(other);
+        }
+
     };
 
 }

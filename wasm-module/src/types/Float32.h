@@ -39,7 +39,7 @@ namespace wasm_module {
         }
 
         virtual std::string name() const {
-            return "float32";
+            return "f32";
         }
 
 

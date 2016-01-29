@@ -40,7 +40,7 @@ namespace wasm_module {
         }
 
         virtual std::string name() const {
-            return "int32";
+            return "i32";
         }
 
         static int32_t getFromStream(binary::ByteStream &stream) {

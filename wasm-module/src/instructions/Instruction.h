@@ -182,6 +182,10 @@ namespace wasm_module {
         virtual const BranchInformation* branchInformation() const {
             return nullptr;
         }
+
+        virtual bool operator==(const Instruction& other) const {
+            return id() == other.id();
+        }
     };
 }
 

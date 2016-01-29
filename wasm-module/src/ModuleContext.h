@@ -87,6 +87,15 @@ namespace wasm_module {
             return functionTypeTable_;
         }
 
+        bool operator==(const ModuleContext& other) const {
+            return name_ == other.name_
+                    && opcodeTable_ == other.opcodeTable_
+                    && typeTable_ == other.typeTable_
+                    && mainFunctionTable_ == other.mainFunctionTable_
+                    && importedFunctionTable_ == other.importedFunctionTable_
+                    && indirectCallTable_ == other.indirectCallTable_
+                    && functionTypeTable_ == other.functionTypeTable_;
+        }
     };
 
 }

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <iostream>
 #include "SExpr.h"
 
 namespace wasm_module { namespace sexpr {
