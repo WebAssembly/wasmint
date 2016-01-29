@@ -143,6 +143,9 @@ namespace wasm_module { namespace sexpr {
             if (hasMaxValue) {
                 maxMem = (uint32_t) std::atoll(memoryExpr[2].value().c_str());
             }
+            if (maxMem < startMem) {
+                throw MalformedMemoryStatement("Max size smaller than start size " + memoryExpr.toString());
+            }
             HeapData data(startMem, maxMem);
 
             for(uint32_t childNum = hasMaxValue ? 3 : 2; childNum < memoryExpr.children().size(); childNum++) {

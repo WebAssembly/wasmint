@@ -47,6 +47,24 @@ namespace wasm_module {
                 }
             }
         }
+        for (const sexpr::SExpr& child : expr.children()) {
+            if (child.hasValue()) {
+                if(child.value().find("align=") == 0) {
+                    std::string value = child.value().substr(std::string("align=").size());
+                    std::size_t parsedValue = Utils::strToSizeT(value);
+                    if (parsedValue > std::numeric_limits<uint32_t>::max()) {
+                        throw OverflowInAlignAttribute(child.value());
+                    }
+                    align_ = (uint32_t) parsedValue;
+                    // doesn't work for align_ == zero, see
+                    // http://www.graphics.stanford.edu/~seander/bithacks.html#DetermineIfPowerOf2
+                    bool isPowerOfTwo = (align_ & (align_ - 1)) == 0;
+                    if (align_ == 0 || !isPowerOfTwo) {
+                        throw AlignNotPowerOfTwo("Align is not power of 2: " + expr.toString());
+                    }
+                }
+            }
+        }
     }
 
     void Loop::secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) {

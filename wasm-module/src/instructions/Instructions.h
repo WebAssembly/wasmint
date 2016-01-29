@@ -35,6 +35,8 @@
 namespace wasm_module {
 
     ExceptionMessage(OverflowInOffsetAttribute)
+    ExceptionMessage(OverflowInAlignAttribute)
+    ExceptionMessage(AlignNotPowerOfTwo)
 
     #define DeclInstComma ,
 
@@ -117,6 +119,7 @@ namespace wasm_module {
     class LoadStoreInstruction : public Instruction {
 
         uint32_t offset_ = 0;
+        uint32_t align_ = 0;
 
     public:
         LoadStoreInstruction(const wasm_module::sexpr::SExpr& expr);
