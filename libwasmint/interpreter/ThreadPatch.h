@@ -37,7 +37,8 @@ namespace wasmint {
     public:
         ThreadPatch() {
         }
-        ThreadPatch(const VMThread& thread) : stackSize(thread.frames_.size()), trapReason_(thread.trapReason_) {
+        ThreadPatch(const VMThread& thread)
+                : stackSize(thread.frames_.size()), trapReason_(thread.trapReason_) {
             if (!thread.frames_.empty()) {
                 savedFrames_.push_back(thread.frames_.back());
             }
@@ -47,7 +48,7 @@ namespace wasmint {
         }
 
         void backupPreShrink(const VMThread& thread) {
-            if (thread.frames_.size() <= smallestSavedFrameIndex()) {
+            if (thread.frames_.size() - 1 <= smallestSavedFrameIndex() && smallestSavedFrameIndex() > 0) {
                 savedFrames_.push_back(thread.frames_.at(smallestSavedFrameIndex() - 1));
             }
         }

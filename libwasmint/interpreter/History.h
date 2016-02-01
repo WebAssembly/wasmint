@@ -74,7 +74,7 @@ namespace wasmint {
         }
 
         MachinePatch& getLastCheckpoint() {
-            return *patches_.rbegin()->second;
+            return *patches_.begin()->second;
         }
 
         virtual void preChanged(const Heap& heap, const Interval& changedInterval) override {
@@ -107,11 +107,11 @@ namespace wasmint {
                 if (targetIter == patches_.end()) {
                     throw TargetStateNotInHistory("Can't rollback back to state with counter " + targetCounter.toString());
                 } else {
-                    auto startIter = patches_.lower_bound(state.instructionCounter());
+                    auto startIter = patches_.upper_bound(state.instructionCounter());
                     if (startIter == patches_.end()) {
                         throw TargetStateNotInHistory("Can't rollback back to state with counter " + targetCounter.toString());
                     } else {
-                        for (;startIter != targetIter; --startIter) {
+                        for (;startIter != targetIter; ++startIter) {
                             startIter->second->apply(state);
                         }
                         targetIter->second->apply(state);
