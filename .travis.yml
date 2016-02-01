@@ -24,7 +24,6 @@ addons:
 script:
   - cmake .
   - make -j4
-  - make testsuite_converter
   - ctest
   - bash testValgrind.sh
   - bash runTestsuite.sh
