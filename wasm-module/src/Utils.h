@@ -5,6 +5,7 @@
 #include <sstream>
 #include "ExceptionWithMessage.h"
 #include <cassert>
+#include <stdexcept>
 
 namespace wasm_module {
 
