@@ -20,6 +20,7 @@
 
 #include <interpreter/heap/Heap.h>
 #include "Widget.h"
+#include <stdexcept>
 
 class MemoryViewer : public Widget {
 
