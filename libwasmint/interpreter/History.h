@@ -59,6 +59,7 @@ namespace wasmint {
             }
             patches_.clear();
             nativeFunctionReturnValues_.clear();
+            reconstructing_ = false;
             enabled_ = false;
             latestStateCounter_ = 0;
         }
@@ -77,7 +78,7 @@ namespace wasmint {
         }
 
         virtual void preChanged(const Heap& heap, const Interval& changedInterval) override {
-            if (enabled_) {
+            if (enabled_ && !reconstructing_) {
                 getLastCheckpoint().preHeapChanged(heap, changedInterval);
             }
         }
@@ -104,11 +105,11 @@ namespace wasmint {
             if (targetCounter < state.instructionCounter()) {
                 auto targetIter = patches_.lower_bound(targetCounter);
                 if (targetIter == patches_.end()) {
-                    throw TargetStateNotInHistory("Can't rollback behind state with counter " + targetCounter.toString());
+                    throw TargetStateNotInHistory("Can't rollback back to state with counter " + targetCounter.toString());
                 } else {
                     auto startIter = patches_.lower_bound(state.instructionCounter());
                     if (startIter == patches_.end()) {
-                        throw TargetStateNotInHistory("Can't rollback behind state with counter " + targetCounter.toString());
+                        throw TargetStateNotInHistory("Can't rollback back to state with counter " + targetCounter.toString());
                     } else {
                         for (;startIter != targetIter; --startIter) {
                             startIter->second->apply(state);

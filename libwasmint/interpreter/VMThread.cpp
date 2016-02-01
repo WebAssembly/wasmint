@@ -56,6 +56,11 @@ namespace wasmint {
             auto nativeInstruction = dynamic_cast<const wasm_module::NativeInstruction*>(targetFunction.function().mainInstruction());
 
             if (machine().reconstructing()) {
+                if (targetFunction.function().variadic()) {
+                    for (uint16_t i = 0; i < parameterSize; i++) {
+                        frames_.back().popFromCode<uint8_t>();
+                    }
+                }
                 if (nativeInstruction->returnType() != wasm_module::Void::instance()) {
                     currentFrame_->passFunctionResult(machine().history().getNativeFunctionReturnValue(machine().instructionCounter()));
                 }

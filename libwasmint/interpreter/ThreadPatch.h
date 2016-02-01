@@ -27,6 +27,7 @@ namespace wasmint {
         std::size_t stackSize;
         std::vector<FunctionFrame> savedFrames_;
         std::string trapReason_;
+        wasm_module::Variable result_;
         bool finished_;
 
         std::size_t smallestSavedFrameIndex() const {
@@ -40,7 +41,9 @@ namespace wasmint {
             if (!thread.frames_.empty()) {
                 savedFrames_.push_back(thread.frames_.back());
             }
+            trapReason_ = thread.trapReason_;
             finished_ = thread.finished_;
+            result_ = thread.result_;
         }
 
         void backupPreShrink(const VMThread& thread) {
@@ -58,7 +61,9 @@ namespace wasmint {
                     j--;
                 }
             }
+            thread.trapReason_ = trapReason_;
             thread.finished_ = finished_;
+            thread.result_ = result_;
         }
     };
 }

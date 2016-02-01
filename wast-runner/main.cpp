@@ -81,6 +81,8 @@ int main(int argc, char** argv) {
     wasm_module::sexpr::SExpr expr = wasm_module::sexpr::SExprParser::parseString(moduleContent);
 
     std::cout << std::left << std::setw(73) << argv[1] << std::setw(0) << " ";
+    std::cout.flush();
+
     TestRunner testRunner;
     if (!testRunner.run(expr)) {
         std::cout << "[" << Color::FG_RED << "  FAIL  " << Color::FG_DEFAULT << "]" << std::endl;

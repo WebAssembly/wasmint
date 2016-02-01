@@ -66,6 +66,7 @@ add_library(libwasmint
     libwasmint/interpreter/History.cpp
     libwasmint/interpreter/MachinePatch.cpp
     libwasmint/interpreter/WasmintVM.cpp
+    libwasmint/interpreter/WasmintVMTester.cpp
     libwasmint/interpreter/ThreadPatch.cpp
 
     libwasmint/serialization/ByteOutputStream.cpp

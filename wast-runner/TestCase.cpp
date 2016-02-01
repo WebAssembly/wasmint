@@ -22,6 +22,7 @@
 #include <types/Float32.h>
 #include <types/Float64.h>
 #include <cmath>
+#include <interpreter/WasmintVMTester.h>
 #include "TestCase.h"
 
 bool TestCase::run(wasmint::WasmintVM& vm) {
@@ -32,7 +33,10 @@ bool TestCase::run(wasmint::WasmintVM& vm) {
         wasmint::VMState stateCopy = vm.state();
         const wasm_module::Function* function = getExportedFunction(vm);
         vm.startAtFunction(*function, parameters_, false);
-        vm.stepUntilFinished(false);
+
+        wasmint::WasmintVMTester tester(vm);
+        tester.stepUntilFinished();
+
         if (!vm.gotTrap()) {
             std::cerr << "Didn't got a trap during test:\n" << testCaseExpr_.toString(4) << std::endl;
             vm.state() = stateCopy;
@@ -50,7 +54,10 @@ bool TestCase::run(wasmint::WasmintVM& vm) {
         if (function == nullptr)
             return false;
         vm.startAtFunction(*function, parameters_, false);
-        vm.stepUntilFinished(false);
+
+        wasmint::WasmintVMTester tester(vm);
+        tester.stepUntilFinished();
+
         if (vm.gotTrap()) {
             std::cerr << "Failed test due to unexpected trap: " << vm.trapReason() << "\n" << testCaseExpr_.toString(4) << std::endl;
             return false;
@@ -59,7 +66,10 @@ bool TestCase::run(wasmint::WasmintVM& vm) {
     } else if (type_ == Type::AssertReturn) {
         const wasm_module::Function* function = getExportedFunction(vm);
         vm.startAtFunction(*function, parameters_, false);
-        vm.stepUntilFinished(false);
+
+        wasmint::WasmintVMTester tester(vm);
+        tester.stepUntilFinished();
+
         if (vm.gotTrap()) {
             std::cerr << "Failed test due to unexpected trap: " << vm.trapReason() << "\n" << testCaseExpr_.toString(4) << std::endl;
             return false;
@@ -73,7 +83,10 @@ bool TestCase::run(wasmint::WasmintVM& vm) {
     } else if (type_ == Type::AssertReturnNan) {
         const wasm_module::Function* function = getExportedFunction(vm);
         vm.startAtFunction(*function, parameters_, false);
-        vm.stepUntilFinished(false);
+
+        wasmint::WasmintVMTester tester(vm);
+        tester.stepUntilFinished();
+
         if (vm.gotTrap()) {
             std::cerr << "Failed test due to unexpected trap: " << vm.trapReason() << "\n" << testCaseExpr_.toString(4) << std::endl;
             return false;

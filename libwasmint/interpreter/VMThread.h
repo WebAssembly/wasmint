@@ -54,6 +54,21 @@ namespace wasmint {
         VMThread(WasmintVM* machine) : machine_(machine) {
         }
 
+        VMThread& operator=(const VMThread& other) {
+            frames_ = other.frames_;
+            trapReason_ = other.trapReason_;
+            machine_ = other.machine_;
+            finished_ = other.finished_;
+            result_ = other.result_;
+            currentFrame_ = &frames_.back();
+            return *this;
+        }
+
+        VMThread(const VMThread& other) {
+            (*this) = other;
+        }
+
+
         void finishFrame(uint64_t result);
 
         FunctionFrame& currentFrame() {

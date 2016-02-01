@@ -59,7 +59,8 @@ namespace wasmint {
         }
 
         void passFunctionResult(const wasm_module::Variable& value) {
-            setRegisterFromVariable(functionTargetRegister_, value);
+            if (&value.type() != wasm_module::Void::instance())
+                setRegisterFromVariable(functionTargetRegister_, value);
         }
         template<typename T>
         T popFromCode() {

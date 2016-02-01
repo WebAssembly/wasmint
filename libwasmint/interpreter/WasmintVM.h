@@ -108,6 +108,10 @@ namespace wasmint {
             history_.setToState(targetCounter, state_);
         }
 
+        void stepBackTo(InstructionCounter targetCounter) {
+            history_.setToState(targetCounter, state_);
+        }
+
         bool gotTrap() const {
             return state_.gotTrap();
         }
