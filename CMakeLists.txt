@@ -32,6 +32,7 @@ include_directories(wasm-module/src)
 include_directories (libwasmint)
 
 add_library(libwasmint
+    libwasmint/builtins/SpectestModule.cpp
     libwasmint/builtins/StdioModule.cpp
     libwasmint/builtins/SDLModule.cpp
 

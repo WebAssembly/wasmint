@@ -25,6 +25,7 @@ namespace wasm_module { namespace sexpr {
 
     class UnknownDataAtEndOfStream : public std::exception {
     };
+    ExceptionMessage(InvalidEscapeSequence)
 
     class SExprParser {
 

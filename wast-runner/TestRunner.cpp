@@ -17,39 +17,38 @@
 
 #include <assert.h>
 #include <ModuleLoader.h>
+#include <builtins/SpectestModule.h>
 #include "TestRunner.h"
 
-TestRunner::TestRunner(const wasm_module::sexpr::SExpr& expr) {
+bool TestRunner::run(const wasm_module::sexpr::SExpr& expr) {
     using namespace wasm_module::sexpr;
-
 
     for (const SExpr& child : expr.children()) {
         if (child.hasChildren()) {
             std::string firstChild = child[0].value();
             if (firstChild == "module") {
                 wasm_module::Module* module = wasm_module::sexpr::ModuleParser::parse(child);
-                wasmint::WasmintVM* vm;
-                vms.push_back(vm = new wasmint::WasmintVM());
-                vm->loadModule(*wasmint::StdioModule::create(), true);
+                vm.reset(new wasmint::WasmintVM());
+                vm->loadModule(*wasmint::SpectestModule::create(), true);
                 vm->loadModule(*module, true);
             } else {
                 TestCase testCase(child);
-                testCases_.push_back(testCase);
+                if (testCase.needsVM()) {
+                    if (!testCase.run(*vm)) {
+                        return false;
+                    }
+                } else {
+                    if (!testCase.run()) {
+                        return false;
+                    }
+                }
             }
         } else {
             assert(false);
         }
     }
-}
-
-void TestRunner::run() {
-    for (TestCase& testCase : testCases_) {
-        testCase.run(vms);
-    }
+    return true;
 }
 
 TestRunner::~TestRunner() {
-    for (wasmint::WasmintVM* vm : vms) {
-        delete vm;
-    }
 }

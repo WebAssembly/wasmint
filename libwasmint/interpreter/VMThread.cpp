@@ -52,7 +52,6 @@ namespace wasmint {
 
     void VMThread::enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset) {
         CompiledFunction& targetFunction = machine().getCompiledFunction(functionId);
-
         if (targetFunction.function().mainInstruction()->id() == InstructionId::NativeInstruction) {
             auto nativeInstruction = dynamic_cast<const wasm_module::NativeInstruction*>(targetFunction.function().mainInstruction());
 
@@ -63,12 +62,33 @@ namespace wasmint {
             } else {
                 std::vector<wasm_module::Variable> parameters;
                 parameters.reserve(nativeInstruction->childrenTypes().size());
-                uint16_t i = 0;
-                for (const wasm_module::Type* type : nativeInstruction->childrenTypes()) {
+                for (uint16_t i = 0; i < parameterSize; i++) {
+                    const wasm_module::Type* type = nullptr;
+                    if (targetFunction.function().variadic()) {
+                        uint8_t typeId = frames_.back().popFromCode<uint8_t>();
+                        switch(typeId) {
+                            case 0:
+                                type = wasm_module::Int32::instance();
+                                break;
+                            case 1:
+                                type = wasm_module::Int64::instance();
+                                break;
+                            case 2:
+                                type = wasm_module::Float32::instance();
+                                break;
+                            case 3:
+                                type = wasm_module::Float64::instance();
+                                break;
+                            default:
+                                assert(false);
+                        }
+                    } else {
+                        type = targetFunction.function().parameters().at(i);
+                    }
                     wasm_module::Variable parameter(type);
                     uint64_t value = currentFrame_->getRegister<uint64_t>(parameterRegisterOffset + i);
                     memcpy(parameter.value(), &value, type->size());
-                    i++;
+                    parameters.push_back(parameter);
                 }
 
                 wasm_module::Variable result = nativeInstruction->call(parameters);

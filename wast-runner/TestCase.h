@@ -58,9 +58,13 @@ class TestCase {
 public:
     TestCase(const wasm_module::sexpr::SExpr& expr);
 
-    bool run(wasmint::WasmintVM& vm);
+    bool needsVM() {
+        return type_ != Type::Invalid;
+    }
 
-    bool run(std::vector<wasmint::WasmintVM*> vms);
+    bool run();
+
+    bool run(wasmint::WasmintVM& vm);
 
 
 };

@@ -548,21 +548,29 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             break;
         }
         case ByteOpcodes::CallIndirect:
+        {
+            int16_t signedLocalFunctionId = getRegister<int16_t>(opcodeData);
+            if (signedLocalFunctionId < 0) {
+                runner.trap("undefined table index " + std::to_string(signedLocalFunctionId));
+                break;
+            }
+            uint16_t localFunctionId = (uint16_t) signedLocalFunctionId;
+            uint16_t neededIndex = popFromCode<uint16_t>();
             try {
-                const wasm_module::FunctionSignature& signature = function_->function().module().context().indirectCallTable().getFunctionSignature(getRegister<uint16_t>(opcodeData));
+                const wasm_module::FunctionSignature& signature = function_->function().module().context().indirectCallTable().getFunctionSignature(localFunctionId);
                 std::size_t index = signature.index();
-                uint16_t neededIndex = popFromCode<uint16_t>();
                 if (index == neededIndex) {
                     uint32_t functionId = (uint32_t) runner.machine().getIndex(signature.moduleName(), signature.name());
                     uint16_t parameterSize = popFromCode<uint16_t>();
                     runner.enterFunction(functionId, parameterSize, opcodeData);
                 } else {
-                    runner.trap("Indirct call signature doesn't match target");
+                    runner.trap("indirect call signature mismatch");
                 }
             } catch (const wasm_module::UnknownLocalFunctionId& ex) {
-                runner.trap("Unknown function id");
+                runner.trap("undefined table index " + std::to_string(localFunctionId));
             }
             break;
+        }
         case ByteOpcodes::SetLocal:
             setVariable(popFromCode<uint16_t>(), getRegister<uint64_t>(opcodeData));
             break;
@@ -617,7 +625,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             int8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<int32_t>(opcodeData, value);
             break;
         }
@@ -626,7 +634,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             uint8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint32_t>(opcodeData, value);
             break;
         }
@@ -635,7 +643,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             int16_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<int32_t>(opcodeData, value);
             break;
         }
@@ -652,7 +660,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             uint32_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint32_t>(opcodeData, value);
             break;
         }
@@ -661,7 +669,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             int8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<int64_t>(opcodeData, value);
             break;
         }
@@ -669,7 +677,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load8Unsigned: {
             uint8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, value);
             break;
         }
@@ -677,7 +685,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load16Signed: {
             int16_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<int64_t>(opcodeData, value);
             break;
         }
@@ -685,7 +693,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load16Unsigned: {
             uint16_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, value);
             break;
         }
@@ -693,7 +701,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load32Signed: {
             int32_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<int64_t>(opcodeData, value);
             break;
         }
@@ -701,7 +709,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load32Unsigned: {
             uint32_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, value);
             break;
         }
@@ -709,7 +717,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load: {
             uint64_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, value);
             break;
         }
@@ -717,7 +725,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F32Load: {
             float value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<float>(opcodeData, value);
             break;
         }
@@ -725,14 +733,14 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F64Load: {
             double value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<double>(opcodeData, value);
             break;
         }
         case ByteOpcodes::I32Store8: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint8_t>(opcodeData + 1)))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -740,7 +748,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I32Store16: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint16_t>(opcodeData + 1)))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -748,7 +756,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Store8: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint8_t>(opcodeData + 1)))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -756,7 +764,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Store16: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint16_t>(opcodeData + 1)))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -764,7 +772,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Store32: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint32_t>(opcodeData + 1)))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -772,28 +780,28 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F32Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<float>(opcodeData + 1)))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::F64Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<double>(opcodeData + 1)))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::I32Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint32_t>(opcodeData + 1)))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::I64Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint64_t>(opcodeData + 1)))
-                runner.trap("out of bounds memory access");
+                return runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }

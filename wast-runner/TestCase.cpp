@@ -26,18 +26,11 @@
 
 bool TestCase::run(wasmint::WasmintVM& vm) {
     if (type_ == Type::Invalid) {
-        try {
-            wasm_module::sexpr::ModuleParser::parse(invalidModuleExpr_);
-            return false;
-        } catch (const std::exception& ex) {
-            // pass
-            return true;
-        }
+        // handles in the run method without vm parameter
+        assert(false);
     } else if (type_ == Type::AssertTrap) {
         wasmint::VMState stateCopy = vm.state();
         const wasm_module::Function* function = getExportedFunction(vm);
-        if (function == nullptr)
-            return false;
         vm.startAtFunction(*function, parameters_, false);
         vm.stepUntilFinished(false);
         if (!vm.gotTrap()) {
@@ -65,8 +58,6 @@ bool TestCase::run(wasmint::WasmintVM& vm) {
         return true;
     } else if (type_ == Type::AssertReturn) {
         const wasm_module::Function* function = getExportedFunction(vm);
-        if (function == nullptr)
-            return false;
         vm.startAtFunction(*function, parameters_, false);
         vm.stepUntilFinished(false);
         if (vm.gotTrap()) {
@@ -76,13 +67,11 @@ bool TestCase::run(wasmint::WasmintVM& vm) {
         if (vm.state().thread().result() == expectedResult_) {
             return true;
         } else {
-            std::cerr << "Expected " << expectedResult_.toString() << "but got " <<
+            std::cerr << "Expected " << expectedResult_.toString() << " but got " <<
                     vm.state().thread().result().toString() << "\n" << testCaseExpr_.toString(4) << std::endl;
         }
     } else if (type_ == Type::AssertReturnNan) {
         const wasm_module::Function* function = getExportedFunction(vm);
-        if (function == nullptr)
-            return false;
         vm.startAtFunction(*function, parameters_, false);
         vm.stepUntilFinished(false);
         if (vm.gotTrap()) {
@@ -186,20 +175,20 @@ const wasm_module::Function *TestCase::getExportedFunction(wasmint::WasmintVM& v
             // pass
         }
     }
-    return nullptr;
+    throw CouldntFindExportedFunction();
 }
 
-bool TestCase::run(std::vector<wasmint::WasmintVM*> vms) {
-    assert(!vms.empty());
-    if (type_ == Type::Invalid)
-        return run(*vms.front());
-    for (wasmint::WasmintVM* vm : vms) {
-        try {
-            return run(*vm);
-        } catch (const CouldntFindExportedFunction& ex) {
-
-        }
+bool TestCase::run() {
+    if (type_ != Type::Invalid) {
+        // we only handle assert invalid here. Everything else is handles in the run method with the vm parameter
+        assert(false);
     }
-    std::cerr << "Test case failed as we couldn't find a module with the exported function: \n" << testCaseExpr_.toString(4);
-    return false;
+    try {
+        wasm_module::sexpr::ModuleParser::parse(invalidModuleExpr_);
+        std::cerr << "Failed to find parse error in:\n" << invalidModuleExpr_.toString(4) << std::endl;
+        return false;
+    } catch (const std::exception& ex) {
+        // pass
+        return true;
+    }
 }

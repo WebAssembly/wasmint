@@ -15,25 +15,6 @@
  */
 
 
-#ifndef WASMINT_TESTRUNNER_H
-#define WASMINT_TESTRUNNER_H
+#include "SpectestModule.h"
 
-
-#include <sexpr_parsing/SExpr.h>
-#include <interpreter/WasmintVM.h>
-#include <builtins/StdioModule.h>
-#include "TestCase.h"
-
-class TestRunner {
-
-    std::unique_ptr<wasmint::WasmintVM> vm;
-
-public:
-    virtual ~TestRunner();
-
-    bool run(const wasm_module::sexpr::SExpr& expr);
-
-};
-
-
-#endif //WASMINT_TESTRUNNER_H
+std::stringstream wasmint::SpectestModule::stdout_;

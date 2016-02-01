@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include "ExceptionWithMessage.h"
+#include <cassert>
 
 namespace wasm_module {
 
@@ -98,6 +99,22 @@ namespace wasm_module {
                 }
             }
             return true;
+        }
+
+        static char parseHexDigit(char c) {
+            if (isHexChar(c)) {
+                if (c >= 'a' && c <= 'f') {
+                    return c - 'a' + ((char) 10);
+                } else if (c >= 'A' && c <= 'F') {
+                    return c - 'A' + ((char) 10);
+                } else if (c >= '0' && c <= '9') {
+                    return c - '0';
+                } else {
+                    assert(false);
+                }
+            } else {
+                throw std::domain_error(std::string("No hex character: ") + c);
+            }
         }
 
         static bool isDecNumber(const std::string& str, bool allowSigned = true) {

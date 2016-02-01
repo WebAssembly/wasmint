@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <Utils.h>
 #include "SExprParser.h"
 
 namespace wasm_module { namespace sexpr {
@@ -85,14 +86,38 @@ namespace wasm_module { namespace sexpr {
                 stream_.popChar();
 
                 std::string word;
+                bool escape = false;
 
                 while (true) {
                     char c = stream_.popChar();
-                    if (c != '"') {
-                        word.push_back(c);
+                    if (escape) {
+                        if (c == '"') {
+                            word.push_back('"');
+                        } else if (c == '\\') {
+                            word.push_back('\\');
+                        } else if (Utils::isHexChar(c)) {
+                            uint8_t byte = 0;
+                            char secondChar = stream_.popChar();
+
+                            if (!Utils::isHexChar(secondChar)) {
+                                throw InvalidEscapeSequence((std::string("\\") + c) + secondChar);
+                            }
+                            byte |= Utils::parseHexDigit(c) << 4;
+                            byte |= Utils::parseHexDigit(secondChar);
+                            word.push_back(byte);
+                        } else {
+                            throw InvalidEscapeSequence(std::string("\\") + c);
+                        }
+                        escape = false;
                     } else {
-                        parent.addChild(word);
-                        break;
+                        if (c == '\\') {
+                            escape = true;
+                        } else if (c == '"') {
+                            parent.addChild(word);
+                            break;
+                        } else {
+                            word.push_back(c);
+                        }
                     }
                 }
 

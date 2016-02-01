@@ -19,18 +19,13 @@ if [ "$#" -eq 1 ]; then
 
 fi
 
-echo "######################################"
-echo "###    Running positive tests      ###"
-echo "######################################"
+failedTests="0"
 
 for i in ${CMAKE_SOURCE_DIR}/testsuite/*.wast ; do
     $memCheckCmd ./wasmint_wast $i
 
     if [ $? -ne 0 ]; then
         failedTests=$((failedTests+1))
-        printf "[FAIL %50s] " "`basename $i`"
-    else
-        printf "[OK       %50s]\n" "`basename $i`"
     fi
 
     totalTests=$((totalTests+1))
