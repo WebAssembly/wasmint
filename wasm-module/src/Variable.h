@@ -124,6 +124,10 @@ namespace wasm_module {
 
         bool isVoid() const;
 
+        uint32_t uint32Reinterpret() const;
+
+        uint64_t uint64Reinterpret() const;
+
         std::string toString() const;
 
         bool operator==(const Variable& variable) const;

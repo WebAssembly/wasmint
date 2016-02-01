@@ -29,6 +29,9 @@
 #include <stdexcept>
 
 namespace wasmint {
+
+    ExceptionMessage(InvalidCallParameters)
+
     class VMState {
 
         Heap heap_;
@@ -49,6 +52,12 @@ namespace wasmint {
         VMThread& startAtFunction(WasmintVM* vm, std::size_t index) {
             thread_ = VMThread(vm);
             thread_.enterFunction(index);
+            return thread_;
+        }
+
+        VMThread& startAtFunction(WasmintVM* vm, std::size_t index, const std::vector<wasm_module::Variable>& parameters) {
+            thread_ = VMThread(vm);
+            thread_.enterFunction(index, parameters);
             return thread_;
         }
 

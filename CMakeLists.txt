@@ -141,20 +141,16 @@ target_link_libraries(wasmint_fuzzer libwasmint wasm-module)
 ####################
 
 configure_file(runTestsuite.template.sh runTestsuite.sh)
+configure_file(wasm-to-c/runTestsuiteWasm2c.template.sh runTestsuiteWasm2c.sh)
 configure_file(testValgrind.template.sh testValgrind.sh)
 
 
 ####################
-# testsuite conv   #
+# testsuite runner #
 ####################
 
-find_package(Boost COMPONENTS system filesystem)
-
-if(${Boost_FOUND})
-    INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
-    add_executable(testsuite_converter wast-converter/main.cpp)
-    target_link_libraries(testsuite_converter wasm-module ${Boost_LIBRARIES})
-endif()
+add_executable(wasmint_wast wast-runner/main.cpp wast-runner/TestCase.cpp wast-runner/TestRunner.cpp)
+target_link_libraries(wasmint_wast libwasmint wasm-module)
 
 ###########################
 #    Ncurses debugger     #

@@ -60,8 +60,8 @@ namespace wasm_module {
             }
         }
 
-        static uint64_t getUnsignedValue(Variable variable) {
-            if (variable.type() == *instance()) {
+        static uint64_t getUnsignedValue(Variable variable, bool ignoreType = false) {
+            if (variable.type() == *instance() || ignoreType) {
                 uint64_t result = 0;
                 uint64_t *data = (uint64_t *) variable.value();
                 result = *data;

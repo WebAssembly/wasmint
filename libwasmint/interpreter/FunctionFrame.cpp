@@ -56,10 +56,10 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             int32_t left = getRegister<int32_t>(opcodeData);
             int32_t right = getRegister<int32_t>(opcodeData + 1);
             if (left == std::numeric_limits<int32_t>::min() && right == -1)
-                return runner.trap("Cant execute i32.div_s INT32_MIN / -1 (overflow)");
+                return runner.trap("integer overflow");
 
             if (right == 0)
-                return runner.trap("Cant execute i32.div_s x / 0 (division through zero)");
+                return runner.trap("integer divide by zero");
             setRegister<int32_t>(opcodeData, left / right);
             break;
         }
@@ -67,7 +67,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             uint32_t left = getRegister<uint32_t>(opcodeData);
             uint32_t right = getRegister<uint32_t>(opcodeData + 1);
             if (right == 0)
-                return runner.trap("Cant execute i32.div_u x / 0 (division through zero)");
+                return runner.trap("integer divide by zero");
             setRegister<uint32_t>(opcodeData, left / right);
             break;
         }
@@ -77,7 +77,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             if (right < 0)
                 right = -right;
             if (right == 0)
-                return runner.trap("Cant execute i32.rem_s x / 0 (division through zero)");
+                return runner.trap("integer divide by zero");
             setRegister<int32_t>(opcodeData, left % right);
             break;
         }
@@ -85,7 +85,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             uint32_t left = getRegister<uint32_t>(opcodeData);
             uint32_t right = getRegister<uint32_t>(opcodeData + 1);
             if (right == 0)
-                return runner.trap("Cant execute i32.rem_u x / 0 (division through zero)");
+                return runner.trap("integer divide by zero");
             setRegister<uint32_t>(opcodeData, left % right);
             break;
         }
@@ -269,10 +269,10 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             int64_t left = getRegister<int64_t>(opcodeData);
             int64_t right = getRegister<int64_t>(opcodeData + 1);
             if (left == std::numeric_limits<int64_t>::min() && right == -1)
-                return runner.trap("Cant execute i64.div_s INT64_MIN / -1 (overflow)");
+                return runner.trap("integer overflow");
 
             if (right == 0)
-                return runner.trap("Cant execute i64.div_s x / 0 (division through zero)");
+                return runner.trap("integer divide by zero");
             setRegister<int64_t>(opcodeData, left / right);
             break;
         }
@@ -280,7 +280,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             uint64_t left = getRegister<uint64_t>(opcodeData);
             uint64_t right = getRegister<uint64_t>(opcodeData + 1);
             if (right == 0)
-                return runner.trap("Cant execute i64.div_u x / 0 (division through zero)");
+                return runner.trap("integer divide by zero");
             setRegister<uint64_t>(opcodeData, left / right);
             break;
         }
@@ -290,7 +290,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             if (right < 0)
                 right = -right;
             if (right == 0)
-                return runner.trap("Cant execute i64.rem_s x / 0 (division through zero)");
+                return runner.trap("integer divide by zero");
             setRegister<int64_t>(opcodeData, left % right);
             break;
         }
@@ -298,7 +298,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             uint64_t left = getRegister<uint64_t>(opcodeData);
             uint64_t right = getRegister<uint64_t>(opcodeData + 1);
             if (right == 0)
-                return runner.trap("Cant execute i64.rem_u x / 0 (division through zero)");
+                return runner.trap("integer divide by zero");
             setRegister<uint64_t>(opcodeData, left % right);
             break;
         }
@@ -582,7 +582,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             setRegister(opcodeData, popFromCode<double>());
             break;
         case ByteOpcodes::Unreachable:
-            runner.trap("Reached unreachable instruction");
+            runner.trap("unreachable executed");
             break;
 
         case ByteOpcodes::Nop:
@@ -592,12 +592,12 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             uint32_t value = getRegister<uint32_t>(opcodeData);
 
             if (value % heap.pageSize() != 0) {
-                return runner.trap("Grow memory not multitude of page size");
+                return runner.trap("growing memory by non-multiple of page size");
             }
 
             // TODO risky conversion
             if (!heap.grow((uint32_t) value)) {
-                return runner.trap("Can't grow memory");
+                return runner.trap("memory size exceeds implementation limit");
             }
         }
 
@@ -617,7 +617,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             int8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<int32_t>(opcodeData, value);
             break;
         }
@@ -626,7 +626,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             uint8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint32_t>(opcodeData, value);
             break;
         }
@@ -635,7 +635,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             int16_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<int32_t>(opcodeData, value);
             break;
         }
@@ -644,7 +644,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             uint16_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint32_t>(opcodeData, value);
             break;
         }
@@ -652,7 +652,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             uint32_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint32_t>(opcodeData, value);
             break;
         }
@@ -661,7 +661,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             int8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<int64_t>(opcodeData, value);
             break;
         }
@@ -669,7 +669,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load8Unsigned: {
             uint8_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, value);
             break;
         }
@@ -677,7 +677,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load16Signed: {
             int16_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<int64_t>(opcodeData, value);
             break;
         }
@@ -685,7 +685,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load16Unsigned: {
             uint16_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, value);
             break;
         }
@@ -693,7 +693,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load32Signed: {
             int32_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<int64_t>(opcodeData, value);
             break;
         }
@@ -701,7 +701,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load32Unsigned: {
             uint32_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, value);
             break;
         }
@@ -709,7 +709,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Load: {
             uint64_t value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, value);
             break;
         }
@@ -717,7 +717,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F32Load: {
             float value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<float>(opcodeData, value);
             break;
         }
@@ -725,14 +725,14 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F64Load: {
             double value;
             if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<double>(opcodeData, value);
             break;
         }
         case ByteOpcodes::I32Store8: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint8_t>(opcodeData + 1)))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -740,7 +740,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I32Store16: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint16_t>(opcodeData + 1)))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -748,7 +748,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Store8: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint8_t>(opcodeData + 1)))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -756,7 +756,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Store16: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint16_t>(opcodeData + 1)))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -764,7 +764,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I64Store32: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint32_t>(opcodeData + 1)))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -772,28 +772,28 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::F32Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<float>(opcodeData + 1)))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::F64Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<double>(opcodeData + 1)))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::I32Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint32_t>(opcodeData + 1)))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::I64Store: {
             if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
                                       getRegister<uint64_t>(opcodeData + 1)))
-                runner.trap("Memory trap");
+                runner.trap("out of bounds memory access");
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
@@ -1196,13 +1196,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             float value = getRegister<float>(opcodeData);
 
             if (value >= 2.14748365e+09f)
-                return runner.trap("i32.trunc_s/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (value < std::numeric_limits<int32_t>::min())
-                return runner.trap("i32.trunc_s/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isinf(value))
-                return runner.trap("i32.trunc_s/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isnan(value))
-                return runner.trap("i32.trunc_s/f32 can't handle value " + std::to_string(value));
+                return runner.trap("invalid conversion to integer");
 
 
             int32_t result = (int32_t) value;
@@ -1214,13 +1214,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             double value = getRegister<double>(opcodeData);
 
             if (value > 2147483647.0)
-                return runner.trap("i32.trunc_s/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (value < -2147483648.0)
-                return runner.trap("i32.trunc_s/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isinf(value))
-                return runner.trap("i32.trunc_s/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isnan(value))
-                return runner.trap("i32.trunc_s/f64 can't handle value " + std::to_string(value));
+                return runner.trap("invalid conversion to integer");
 
             int32_t result = (int32_t) value;
 
@@ -1232,13 +1232,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             float value = getRegister<float>(opcodeData);
 
             if (value >= 4.2949673e+09f)
-                return runner.trap("i32.trunc_u/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (value <= -1.0f)
-                return runner.trap("i32.trunc_u/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isinf(value))
-                return runner.trap("i32.trunc_u/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isnan(value))
-                return runner.trap("i32.trunc_u/f32 can't handle value " + std::to_string(value));
+                return runner.trap("invalid conversion to integer");
 
 
             uint32_t result = (uint32_t) value;
@@ -1251,13 +1251,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             double value = getRegister<double>(opcodeData);
 
             if (value >= 4294967296)
-                return runner.trap("i32.trunc_u/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (value <= -1.0)
-                return runner.trap("i32.trunc_u/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isinf(value))
-                return runner.trap("i32.trunc_u/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isnan(value))
-                return runner.trap("i32.trunc_u/f64 can't handle value " + std::to_string(value));
+                return runner.trap("invalid conversion to integer");
 
             uint32_t result = (uint32_t) value;
 
@@ -1277,13 +1277,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             float value = getRegister<float>(opcodeData);
 
             if (value >= 9.22337204e+18f)
-                return runner.trap("i64.trunc_s/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (value < -9223372036854775808.0f)
-                return runner.trap("i64.trunc_s/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isinf(value))
-                return runner.trap("i64.trunc_s/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isnan(value))
-                return runner.trap("i64.trunc_s/f32 can't handle value " + std::to_string(value));
+                return runner.trap("invalid conversion to integer");
 
             int64_t result = (int64_t) value;
 
@@ -1295,13 +1295,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             double value = getRegister<double>(opcodeData);
 
             if (value >= 9.2233720368547758e+18)
-                return runner.trap("i64.trunc_s/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (value < -9223372036854775808.0)
-                return runner.trap("i64.trunc_s/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isinf(value))
-                return runner.trap("i64.trunc_s/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isnan(value))
-                return runner.trap("i64.trunc_s/f64 can't handle value " + std::to_string(value));
+                return runner.trap("invalid conversion to integer");
 
             int64_t result = (int64_t) value;
 
@@ -1313,13 +1313,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             float value = getRegister<float>(opcodeData);
 
             if (value >= 1.84467441e+19f)
-                return runner.trap("i64.trunc_u/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (value <= -1.0f)
-                return runner.trap("i64.trunc_u/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isinf(value))
-                return runner.trap("i64.trunc_u/f32 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isnan(value))
-                return runner.trap("i64.trunc_u/f32 can't handle value " + std::to_string(value));
+                return runner.trap("invalid conversion to integer");
 
             uint64_t result = (uint64_t) value;
 
@@ -1331,13 +1331,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             double value = getRegister<double>(opcodeData);
 
             if (value >= 1.8446744073709552e+19)
-                return runner.trap("i64.trunc_u/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (value <= -1.0)
-                return runner.trap("i64.trunc_u/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isinf(value))
-                return runner.trap("i64.trunc_u/f64 can't handle value " + std::to_string(value));
+                return runner.trap("integer overflow");
             if (std::isnan(value))
-                return runner.trap("i64.trunc_u/f64 can't handle value " + std::to_string(value));
+                return runner.trap("invalid conversion to integer");
 
             uint64_t result = (uint64_t) value;
 

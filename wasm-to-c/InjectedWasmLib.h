@@ -83,7 +83,12 @@ void _wasm_grow_heap(size_t diff) {
     }
 }
 
-void* _wasm_get_heap(size_t pos, size_t size) {
+void* _wasm_get_heap(size_t offset, size_t pos, size_t size) {
+    if (_wasm_safe_size_t_add(pos, offset, &pos)) {
+        _wasm_deinit();
+        fprintf(stderr, "Failed to get data from heap (integer overflow). Aborting...");
+        abort();
+    }
     if (_wasm_safe_size_t_add(pos, size, &size)) {
         _wasm_deinit();
         fprintf(stderr, "Failed to get data from heap (integer overflow). Aborting...");
@@ -97,6 +102,31 @@ void* _wasm_get_heap(size_t pos, size_t size) {
     return _wasm_heap + pos;
 }
 
+/* stdlib */
+
+void _wasm_import_stdio_print_i(uint32_t a) {
+    printf("%u", a);
+}
+
+void _wasm_import_stdio_print_if(uint32_t a, float b) {
+    printf("%u %f", a, b);
+}
+
+void _wasm_import_stdio_print_f(float b) {
+    printf("%f", b);
+}
+
+void _wasm_import_stdio_print_l(uint64_t a) {
+    printf("%u", a);
+}
+
+void _wasm_import_stdio_print_ld(uint64_t a, double b) {
+    printf("%u %f", a, b);
+}
+
+void _wasm_import_stdio_print_d(double b) {
+    printf("%f", b);
+}
 )";
 
 #define WASMINT_INJECTEDWASMLIB_H

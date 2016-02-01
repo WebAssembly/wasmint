@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <iostream>
 #include <instructions/Instructions.h>
+#include <assert.h>
 
 #define WASMINT_STRINGIFY_LIBWASM
 #include "InjectedWasmLib.h"
@@ -31,7 +32,9 @@
 void ModuleConverter::convert() {
     cSource_ << "#include <stdint.h>\n"
                 "#include <stdio.h>\n"
+                "#include <string.h>\n"
                 "#include <stdlib.h>\n"
+                "#include <math.h>\n"
                 "#include <fenv.h>\n"
                 "#include <malloc.h>\n";
     cSource_ << libWasmSource;
@@ -130,12 +133,13 @@ void ModuleConverter::appendFunctionDefinition(const wasm_module::Function* func
     appendFunctionDeclaration(function);
     cSource_ << " {\n";
 
-    std::size_t localIndex = 0;
+    std::size_t localIndex = function->parameters().size();
     for (const wasm_module::Type* localType : function->pureLocals()) {
         indent(4);
         cSource_ << toCType(localType) << " " << variableName(function, localIndex) << ";\n";
         localIndex++;
     }
+
 
     functionConverter = FunctionConverter();
     functionConverter.setFunction(function);
@@ -148,10 +152,23 @@ void ModuleConverter::appendFunctionDefinition(const wasm_module::Function* func
         functionConverter.tryCreateLabel(instr);
     });
 
+    for (auto& pair : functionConverter.floatLiteralVariables()) {
+        indent(4);
+        if (pair.first->id() == InstructionId::F32Const) {
+            cSource_ << "uint32_t " << pair.second << " = " <<
+            dynamic_cast<const wasm_module::Literal*>(pair.first)->literalValue().uint32Reinterpret() << "u;\n";
+        } else if (pair.first->id() == InstructionId::F64Const) {
+            cSource_ << "uint64_t " << pair.second << " = " <<
+                    dynamic_cast<const wasm_module::Literal*>(pair.first)->literalValue().uint64Reinterpret() << "u;\n";
+        } else {
+            assert(false);
+        }
+    }
 
     serializeInstruction(*function->mainInstruction(), 4);
 
-    if (function->returnType() != wasm_module::Void::instance()) {
+    if (function->returnType() != wasm_module::Void::instance()
+        && function->mainInstruction()->returnType() != wasm_module::Void::instance()) {
         indent(4);
         cSource_ << "return " << functionConverter(function->mainInstruction()) << ";\n";
     }
@@ -209,7 +226,10 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = ((uint32_t)(" <<
                 functionConverter(instruction.children().at(0), "int32_t") << " % " <<
-                functionConverter(instruction.children().at(1), "int32_t") << "));\n";
+                functionConverter(instruction.children().at(1), "int32_t") << " < 0 ? -" <<
+                functionConverter(instruction.children().at(1), "int32_t") << " : " <<
+                functionConverter(instruction.children().at(1), "int32_t")
+                << "));\n";
             break;
         case InstructionId::I32RemainderUnsigned:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -552,13 +572,13 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = fabsf(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F32Neg:
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = -(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F32CopySign:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -572,25 +592,25 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = ceilf(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F32Floor:
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = floorf(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F32Trunc:
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = truncf(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F32Nearest:
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = nearbyintf(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F32Equal:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -658,11 +678,9 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             break;
         case InstructionId::F32Sqrt:
             serializeInstruction(*instruction.children().at(0), indentation);
-            serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = sqrtf(" <<
-            functionConverter(instruction.children().at(0)) << "," <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F64Add:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -700,13 +718,13 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = fabs(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F64Neg:
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = -(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F64CopySign:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -720,25 +738,25 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = ceil(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F64Floor:
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = floor(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F64Trunc:
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = trunc(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F64Nearest:
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = nearbyint(" <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
         case InstructionId::F64Equal:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -806,84 +824,82 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             break;
         case InstructionId::F64Sqrt:
             serializeInstruction(*instruction.children().at(0), indentation);
-            serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = sqrt(" <<
-            functionConverter(instruction.children().at(0)) << "," <<
-            functionConverter(instruction.children().at(1)) << ");\n";
+            functionConverter(instruction.children().at(0)) << ");\n";
             break;
 
         case InstructionId::I32Store8:
             serializeInstruction(*instruction.children().at(0), indentation);
             serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " <<
-            functionConverter(instruction.children().at(0)) << " << " <<
-            functionConverter(instruction.children().at(1)) << ";\n";
+            cSource_ << "memcpy(_wasm_get_heap("
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 1), &" << functionConverter(instruction.children().at(1)) << ", 1);\n";
             break;
         case InstructionId::I32Store16:
             serializeInstruction(*instruction.children().at(0), indentation);
             serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " <<
-            functionConverter(instruction.children().at(0)) << " << " <<
-            functionConverter(instruction.children().at(1)) << ";\n";
+            cSource_ << "memcpy(_wasm_get_heap("
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 2), &" << functionConverter(instruction.children().at(1)) << ", 2);\n";
             break;
         case InstructionId::I32Store:
             serializeInstruction(*instruction.children().at(0), indentation);
             serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " <<
-            functionConverter(instruction.children().at(0)) << " << " <<
-            functionConverter(instruction.children().at(1)) << ";\n";
+            cSource_ << "memcpy(_wasm_get_heap("
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 4), &" << functionConverter(instruction.children().at(1)) << ", 4);\n";
             break;
         case InstructionId::I64Store8:
             serializeInstruction(*instruction.children().at(0), indentation);
             serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " <<
-            functionConverter(instruction.children().at(0)) << " << " <<
-            functionConverter(instruction.children().at(1)) << ";\n";
+            cSource_ << "memcpy(_wasm_get_heap("
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 1), &" << functionConverter(instruction.children().at(1)) << ", 1);\n";
             break;
         case InstructionId::I64Store16:
             serializeInstruction(*instruction.children().at(0), indentation);
             serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " <<
-            functionConverter(instruction.children().at(0)) << " << " <<
-            functionConverter(instruction.children().at(1)) << ";\n";
+            cSource_ << "memcpy(_wasm_get_heap("
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 2), &" << functionConverter(instruction.children().at(1)) << ", 2);\n";
             break;
         case InstructionId::I64Store32:
             serializeInstruction(*instruction.children().at(0), indentation);
             serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " <<
-            functionConverter(instruction.children().at(0)) << " << " <<
-            functionConverter(instruction.children().at(1)) << ";\n";
+            cSource_ << "memcpy(_wasm_get_heap("
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 4), &" << functionConverter(instruction.children().at(1)) << ", 4);\n";
             break;
         case InstructionId::I64Store:
             serializeInstruction(*instruction.children().at(0), indentation);
             serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " <<
-            functionConverter(instruction.children().at(0)) << " << " <<
-            functionConverter(instruction.children().at(1)) << ";\n";
+            cSource_ << "memcpy(_wasm_get_heap("
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 8), &" << functionConverter(instruction.children().at(1)) << ", 8);\n";
             break;
         case InstructionId::F32Store:
             serializeInstruction(*instruction.children().at(0), indentation);
             serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " <<
-            functionConverter(instruction.children().at(0)) << " << " <<
-            functionConverter(instruction.children().at(1)) << ";\n";
+            cSource_ << "memcpy(_wasm_get_heap("
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 4), &" << functionConverter(instruction.children().at(1)) << ", 4);\n";
             break;
         case InstructionId::F64Store:
             serializeInstruction(*instruction.children().at(0), indentation);
             serializeInstruction(*instruction.children().at(1), indentation);
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " <<
-            functionConverter(instruction.children().at(0)) << " << " <<
-            functionConverter(instruction.children().at(1)) << ";\n";
+            cSource_ << "memcpy(_wasm_get_heap("
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 8), &" << functionConverter(instruction.children().at(1)) << ", 8);\n";
             break;
 
         case InstructionId::I32CountLeadingZeroes:
@@ -926,11 +942,11 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             break;
         case InstructionId::F32Const:
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " << dynamic_cast<const wasm_module::Literal&>(instruction).literalValue().float32() << ";\n";
+            cSource_ << "memcpy(&" <<functionConverter(&instruction) << ", &" << functionConverter.getFloatLiteralVariable(&instruction) << ", 4);\n";
             break;
         case InstructionId::F64Const:
             indent(indentation);
-            cSource_ << functionConverter(&instruction) << " = " << dynamic_cast<const wasm_module::Literal&>(instruction).literalValue().float64() << ";\n";
+            cSource_ << "memcpy(&" <<functionConverter(&instruction) << ", &" << functionConverter.getFloatLiteralVariable(&instruction) << ", 8);\n";
             break;
         case InstructionId::GetLocal:
             indent(indentation);
@@ -1011,7 +1027,10 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
 
             const wasm_module::FunctionSignature& targetFunction = dynamic_cast<const wasm_module::Call&>(instruction).functionSignature;
 
-            cSource_ << functionConverter(&instruction) << " = " << functionName(&targetFunction) << "(";
+            if (targetFunction.returnType() != wasm_module::Void::instance())
+                cSource_ << functionConverter(&instruction) << " = ";
+
+            cSource_ << functionName(&targetFunction) << "(";
             std::size_t functionCallIndex = 0;
             for (const wasm_module::Instruction* child : instruction.children()) {
                 if (functionCallIndex != 0)
@@ -1040,7 +1059,7 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             cSource_ << "} else {\n";
             if (instruction.returnType() != wasm_module::Void::instance()) {
                 indent(indentation + 4);
-                cSource_ << functionConverter(&instruction) << " = " << functionConverter(instruction.children().at(1)) << ";\n";
+                cSource_ << functionConverter(&instruction) << " = " << functionConverter(instruction.children().at(2)) << ";\n";
             }
             indent(indentation);
             cSource_ << "}\n";
@@ -1112,14 +1131,14 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
         case InstructionId::I64ReinterpretF64:
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
-            cSource_ << "memcpy(&" << functionConverter(&instruction) << ", " << functionConverter(instruction.children().at(0)) << ", 8);\n";
+            cSource_ << "memcpy(&" << functionConverter(&instruction) << ", &" << functionConverter(instruction.children().at(0)) << ", 8);\n";
             break;
         case InstructionId::I32Wrap:
         case InstructionId::F32ReinterpretI32:
         case InstructionId::I32ReinterpretF32:
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
-            cSource_ << "memcpy(&" << functionConverter(&instruction) << ", " << functionConverter(instruction.children().at(0)) << ", 4);\n";
+            cSource_ << "memcpy(&" << functionConverter(&instruction) << ", &" << functionConverter(instruction.children().at(0)) << ", 4);\n";
             break;
         case InstructionId::F32DemoteF64:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -1137,7 +1156,8 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << "memcpy(&" << functionConverter(&instruction) << ", _wasm_get_heap("
-            << functionConverter(instruction.children().at(0)) << "), 4));\n";
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 4), 4);\n";
             break;
 
         case InstructionId::I64Load:
@@ -1145,7 +1165,8 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             serializeInstruction(*instruction.children().at(0), indentation);
             indent(indentation);
             cSource_ << "memcpy(&" << functionConverter(&instruction) << ", _wasm_get_heap("
-            << functionConverter(instruction.children().at(0)) << "), 8));\n";
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 8), 8);\n";
             break;
 
         case InstructionId::I32Load8Unsigned:
@@ -1155,7 +1176,8 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             cSource_ << functionConverter(&instruction) << " = 0;\n";
             indent(indentation);
             cSource_ << "memcpy(&" << functionConverter(&instruction) << ", _wasm_get_heap("
-            << functionConverter(instruction.children().at(0)) << "), 1));\n";
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 1), 1);\n";
             break;
 
         case InstructionId::I32Load16Unsigned:
@@ -1165,7 +1187,8 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             cSource_ << functionConverter(&instruction) << " = 0;\n";
             indent(indentation);
             cSource_ << "memcpy(&" << functionConverter(&instruction) << ", _wasm_get_heap("
-            << functionConverter(instruction.children().at(0)) << "), 2));\n";
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 2), 2);\n";
             break;
 
         case InstructionId::I64Load32Unsigned:
@@ -1174,7 +1197,8 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             cSource_ << functionConverter(&instruction) << " = 0;\n";
             indent(indentation);
             cSource_ << "memcpy(&" << functionConverter(&instruction) << ", _wasm_get_heap("
-            << functionConverter(instruction.children().at(0)) << "), 4));\n";
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 4), 4);\n";
             break;
         case InstructionId::I32TruncSignedF32:
         {
@@ -1414,11 +1438,12 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             cSource_ << functionConverter(&instruction) << " = 0;\n";
             indent(indentation);
             cSource_ << "memcpy(&" << functionConverter(&instruction) << ", _wasm_get_heap("
-            << functionConverter(instruction.children().at(0)) << "), 1));\n";
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 1), 1);\n";
             indent(indentation);
             cSource_ << "if (" << functionConverter(&instruction) << " >= 128u)\n";
             indent(indentation);
-            cSource_ << "    " << functionConverter(&instruction) << " |= 0xFFFFFF)\n";
+            cSource_ << "    " << functionConverter(&instruction) << " |= 0xFFFFFF00;\n";
             break;
         case InstructionId::I32Load16Signed:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -1426,11 +1451,12 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             cSource_ << functionConverter(&instruction) << " = 0;\n";
             indent(indentation);
             cSource_ << "memcpy(&" << functionConverter(&instruction) << ", _wasm_get_heap("
-            << functionConverter(instruction.children().at(0)) << "), 1));\n";
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 2), 2);\n";
             indent(indentation);
             cSource_ << "if (" << functionConverter(&instruction) << " >= 32768u)\n";
             indent(indentation);
-            cSource_ << "    " << functionConverter(&instruction) << " |= 0xFFFF)\n";
+            cSource_ << "    " << functionConverter(&instruction) << " |= 0xFFFF0000;\n";
             break;
         case InstructionId::I64Load8Signed:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -1438,11 +1464,12 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             cSource_ << functionConverter(&instruction) << " = 0;\n";
             indent(indentation);
             cSource_ << "memcpy(&" << functionConverter(&instruction) << ", _wasm_get_heap("
-            << functionConverter(instruction.children().at(0)) << "), 1));\n";
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 1), 1);\n";
             indent(indentation);
             cSource_ << "if (" << functionConverter(&instruction) << " >= 128u)\n";
             indent(indentation);
-            cSource_ << "    " << functionConverter(&instruction) << " |= 0xFFFFFFFFFFFFFF)\n";
+            cSource_ << "    " << functionConverter(&instruction) << " |= 0xFFFFFFFFFFFFFF00;\n";
             break;
         case InstructionId::I64Load16Signed:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -1450,11 +1477,12 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             cSource_ << functionConverter(&instruction) << " = 0;\n";
             indent(indentation);
             cSource_ << "memcpy(&" << functionConverter(&instruction) << ", _wasm_get_heap("
-            << functionConverter(instruction.children().at(0)) << "), 1));\n";
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 2), 2);\n";
             indent(indentation);
             cSource_ << "if (" << functionConverter(&instruction) << " >= 32768u)\n";
             indent(indentation);
-            cSource_ << "    " << functionConverter(&instruction) << " |= 0xFFFFFFFFFFFF)\n";
+            cSource_ << "    " << functionConverter(&instruction) << " |= 0xFFFFFFFFFFFF0000;\n";
             break;
         case InstructionId::I64Load32Signed:
             serializeInstruction(*instruction.children().at(0), indentation);
@@ -1462,21 +1490,136 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             cSource_ << functionConverter(&instruction) << " = 0;\n";
             indent(indentation);
             cSource_ << "memcpy(&" << functionConverter(&instruction) << ", _wasm_get_heap("
-            << functionConverter(instruction.children().at(0)) << "), 1));\n";
+            << dynamic_cast<const wasm_module::LoadStoreInstruction*>(&instruction)->offset() << "u, "
+            << functionConverter(instruction.children().at(0)) << ", 4), 4);\n";
             indent(indentation);
-            cSource_ << "if (" << functionConverter(&instruction) << " >= 2,147,483,648u)\n";
+            cSource_ << "if (" << functionConverter(&instruction) << " >= 2147483648u)\n";
             indent(indentation);
-            cSource_ << "    " << functionConverter(&instruction) << " |= 0xFFFFFFFF)\n";
+            cSource_ << "    " << functionConverter(&instruction) << " |= 0xFFFFFFFF00000000;\n";
             break;
 
+        case InstructionId::HasFeature: {
+            const wasm_module::HasFeature* hasFeature = dynamic_cast<const wasm_module::HasFeature*>(&instruction);
+            indent(indentation);
+            cSource_ << functionConverter(&instruction);
+            if (hasFeature->featureName() == "wasm") {
+                cSource_ << " = 1;\n";
+            } else {
+                cSource_ << " = 0;\n";
+            }
+            break;
+        }
         case InstructionId::I32ShiftRightSigned:
-        case InstructionId::HasFeature:
-        case InstructionId::CallIndirect:
+            indent(indentation);
+            cSource_ << "{\n";
+            indent(indentation + 4);
+            cSource_ << functionConverter(instruction.children().at(1)) << " %= 32;\n";
+            indent(indentation + 4);
+            cSource_ << functionConverter(&instruction) << " = " << functionConverter(instruction.children().at(0))
+                     << " >> " << functionConverter(instruction.children().at(1)) << ";\n";
+            indent(indentation + 4);
+            cSource_ << "if (((int32_t) " << functionConverter(instruction.children().at(0)) << ") < 0) {\n";
+            indent(indentation + 4);
+            cSource_ << "    if ((" << functionConverter(instruction.children().at(0)) << " & (0x1u << 31u)) != 0) {\n";
+            indent(indentation + 4);
+            cSource_ << "        uint32_t i;\n";
+            indent(indentation + 4);
+            cSource_ << "        uint32_t bitMask = 0;\n";
+            indent(indentation + 4);
+            cSource_ << "        for (i = 0; i < " << functionConverter(instruction.children().at(1)) << "; i++) {\n";
+            indent(indentation + 4);
+            cSource_ << "            bitMask >>= 1u;\n";
+            indent(indentation + 4);
+            cSource_ << "            bitMask |= (0x1u << 31u);\n";
+            indent(indentation + 4);
+            cSource_ << "        }\n";
+            indent(indentation + 4);
+            cSource_ << "        " << functionConverter(&instruction) << " |= bitMask;\n";
+            indent(indentation + 4);
+            cSource_ << "    }\n";
+            indent(indentation + 4);
+            cSource_ << "}\n";
+
+            indent(indentation);
+            cSource_ << "}\n";
+            break;
+        case InstructionId::I64ShiftRightSigned:
+            indent(indentation);
+            cSource_ << "{\n";
+            indent(indentation + 4);
+            cSource_ << functionConverter(instruction.children().at(1)) << " %= 64;\n";
+            indent(indentation + 4);
+            cSource_ << functionConverter(&instruction) << " = " << functionConverter(instruction.children().at(0))
+            << " >> " << functionConverter(instruction.children().at(1)) << ";\n";
+            indent(indentation + 4);
+            cSource_ << "if (((int64_t) " << functionConverter(instruction.children().at(0)) << ") < 0) {\n";
+            indent(indentation + 4);
+            cSource_ << "    if ((" << functionConverter(instruction.children().at(0)) << " & (0x1ul << 63u)) != 0) {\n";
+            indent(indentation + 4);
+            cSource_ << "        uint32_t i;\n";
+            indent(indentation + 4);
+            cSource_ << "        uint64_t bitMask = 0;\n";
+            indent(indentation + 4);
+            cSource_ << "        for (i = 0; i < " << functionConverter(instruction.children().at(1)) << "; i++) {\n";
+            indent(indentation + 4);
+            cSource_ << "            bitMask >>= 1u;\n";
+            indent(indentation + 4);
+            cSource_ << "            bitMask |= (0x1ul << 63u);\n";
+            indent(indentation + 4);
+            cSource_ << "        }\n";
+            indent(indentation + 4);
+            cSource_ << "        " << functionConverter(&instruction) << " |= bitMask;\n";
+            indent(indentation + 4);
+            cSource_ << "    }\n";
+            indent(indentation + 4);
+            cSource_ << "}\n";
+
+            indent(indentation);
+            cSource_ << "}\n";
+            break;
         case InstructionId::CallImport:
+        {
+            for (const wasm_module::Instruction* child : instruction.children()) {
+                serializeInstruction(*child, indentation);
+            }
+            indent(indentation);
+
+            const wasm_module::FunctionSignature& targetFunction = dynamic_cast<const wasm_module::CallImport&>(instruction).functionSignature;
+
+            if (targetFunction.returnType() != wasm_module::Void::instance())
+                cSource_ << functionConverter(&instruction) << " = ";
+
+            cSource_ << "_wasm_import_" << targetFunction.moduleName() << "_" << targetFunction.name() << "_";
+            for (const wasm_module::Type* parameter : targetFunction.parameters()) {
+                if (parameter == wasm_module::Int32::instance()) {
+                    cSource_ << "i";
+                }
+                if (parameter == wasm_module::Int64::instance()) {
+                    cSource_ << "l";
+                }
+                if (parameter == wasm_module::Float32::instance()) {
+                    cSource_ << "f";
+                }
+                if (parameter == wasm_module::Float64::instance()) {
+                    cSource_ << "d";
+                }
+            }
+
+            cSource_ << "(";
+            std::size_t functionCallIndex = 0;
+            for (const wasm_module::Instruction* child : instruction.children()) {
+                if (functionCallIndex != 0)
+                    cSource_ << ", ";
+                cSource_ << functionConverter(child);
+                functionCallIndex++;
+            }
+            cSource_ << ");\n";
+
+            break;
+        }
+        case InstructionId::CallIndirect:
         case InstructionId::TableSwitch:
         case InstructionId::Case:
-        case InstructionId::AddressOf:
-        case InstructionId::I64ShiftRightSigned:
         default:
             std::cerr << "Can't handle instruction " << instruction.name() << std::endl;
     }

@@ -25,7 +25,29 @@ namespace wasmint {
 
 
     void VMThread::enterFunction(std::size_t functionId) {
+        std::vector<wasm_module::Variable> emptyParameters;
+        enterFunction(functionId, emptyParameters);
+    }
+
+    void VMThread::enterFunction(std::size_t functionId, const std::vector<wasm_module::Variable>& parameters) {
+        frames_.clear();
+        CompiledFunction& function = machine().getCompiledFunction(functionId);
+        if (function.function().parameters().size() != parameters.size()) {
+            throw InvalidCallParameters("Function " + function.function().name() + " takes " +
+                                        std::to_string(function.function().parameters().size())
+                                        + " parameters, but " + std::to_string(parameters.size()) + " were given");
+        }
+        for (std::size_t i = 0; i < parameters.size(); i++) {
+            if (&parameters[i].type() != function.function().parameters()[i]) {
+                throw InvalidCallParameters("Type mismatch: Parameter " + std::to_string(i + 1) + " needs type "
+                                            + function.function().parameters()[i]->name() + " but " + parameters[i].type().name()
+                                            + " was given");
+            }
+        }
         pushFrame(FunctionFrame(machine().getCompiledFunction(functionId)));
+        for (uint64_t i = 0; i < parameters.size(); i++) {
+            frames_.front().setVariable(i, parameters[i].primitiveValue());
+        }
     }
 
     void VMThread::enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset) {
@@ -70,6 +92,13 @@ namespace wasmint {
     void VMThread::finishFrame(uint64_t result) {
         if (frames_.empty())
             throw std::domain_error("Can't call finishFrame(): frame stack is empty!");
+
+        if (frames_.size() == 1) {
+            if (frames_.back().function().function().returnType() != wasm_module::Void::instance()) {
+                result_ = wasm_module::Variable(frames_.back().function().function().returnType());
+                result_.setFromPrimitiveValue(result);
+            }
+        }
 
         machine().history().threadStackShrinked(*this);
 

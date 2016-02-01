@@ -47,7 +47,9 @@ namespace wasm_module { namespace sexpr {
 
         void parseImport(const SExpr& importExpr);
 
-        void parseMemory(const SExpr&memoryExpr);
+        void parseMemory(const SExpr& memoryExpr);
+
+        void parseExport(const SExpr& exportExpr);
 
         ModuleParser(const SExpr& moduleExpr, const std::string& nameHint);
 

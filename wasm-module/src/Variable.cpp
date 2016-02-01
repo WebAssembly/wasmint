@@ -161,4 +161,12 @@ namespace wasm_module {
             return false;
         return true;
     }
+
+    uint32_t Variable::uint32Reinterpret() const {
+        return Int32::getUnsignedValue(*this, true);
+    }
+
+    uint64_t Variable::uint64Reinterpret() const {
+        return Int64::getUnsignedValue(*this, true);
+    }
 }

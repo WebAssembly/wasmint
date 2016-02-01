@@ -27,3 +27,35 @@ void wasmint::WasmintVM::loadModuleFromData(const std::string &moduleContent) {
     wasm_module::Module* module = wasm_module::sexpr::ModuleParser::parse(moduleContent);
     loadModule(*module, true);
 }
+
+void wasmint::WasmintVM::startAtFunction(const wasm_module::Function& function, bool enableHistory) {
+    linkModules();
+    for (std::size_t i = 0; i < functions_.size(); i++) {
+        if (&functions_[i].function() == &function) {
+            state_.heap().removeObserver();
+            state_.heap().attachObserver(history_);
+            state_.startAtFunction(this, i);
+            if (enableHistory) {
+                startHistoryRecording();
+            }
+            return;
+        }
+    }
+    throw std::domain_error("Can't find compiled function with name " + function.name());
+}
+
+void wasmint::WasmintVM::startAtFunction(const wasm_module::Function& function, const std::vector<wasm_module::Variable>& parameters, bool enableHistory) {
+    linkModules();
+    for (std::size_t i = 0; i < functions_.size(); i++) {
+        if (&functions_[i].function() == &function) {
+            state_.heap().removeObserver();
+            state_.heap().attachObserver(history_);
+            state_.startAtFunction(this, i, parameters);
+            if (enableHistory) {
+                startHistoryRecording();
+            }
+            return;
+        }
+    }
+    throw std::domain_error("Can't find compiled function with name " + function.name());
+}

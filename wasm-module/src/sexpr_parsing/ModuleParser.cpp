@@ -39,6 +39,8 @@ namespace wasm_module { namespace sexpr {
                 // we will handle indirect call tables later
             } else if (typeName == "type") {
                 parseFunctionType(expr);
+            } else if (typeName == "export") {
+                // will handle later
             } else if (typeName == "func") {
                 Function* function = &FunctionParser::parse(expr, module_->context());
                 module_->context().mainFunctionTable().addFunctionSignature(*function, function->name());
@@ -53,6 +55,9 @@ namespace wasm_module { namespace sexpr {
             const std::string& typeName = expr[0].value();
             if (typeName == "table") {
                 parseIndirectCallTable(expr);
+            }
+            if (typeName == "export") {
+                parseExport(expr);
             }
         }
 
@@ -283,16 +288,20 @@ namespace wasm_module { namespace sexpr {
         throw InvalidHexEncoding("No hexadecimal character: " + std::to_string(character));
     }
 
-        Module *ModuleParser::parse(const std::string& str, const std::string& nameHint) {
-            CharacterStream stream(str);
+    Module *ModuleParser::parse(const std::string& str, const std::string& nameHint) {
+        CharacterStream stream(str);
 
-            SExprParser parser(stream);
+        SExprParser parser(stream);
 
-            SExpr expr = parser.parse();
+        SExpr expr = parser.parse();
 
-            ModuleParser moduleParser(expr, nameHint);
-            Module* result = moduleParser.getParsedModule();
+        ModuleParser moduleParser(expr, nameHint);
+        Module* result = moduleParser.getParsedModule();
 
-            return result;
-        }
-    }}
+        return result;
+    }
+
+    void ModuleParser::parseExport(const SExpr& exportExpr) {
+        module_->addExport(exportExpr[1].value(), module_->function(exportExpr[2].value()));
+    }
+}}

@@ -26,11 +26,16 @@ class FunctionConverter {
 
     std::map<const wasm_module::Instruction*, std::string> subexprVariableNames_;
     std::map<const wasm_module::Instruction*, std::string> subexprLabelNames_;
+    std::map<const wasm_module::Instruction*, std::string> floatLiteralVariables_;
     const wasm_module::Function* function_ = nullptr;
 
 public:
     void addInstruction(const wasm_module::Instruction* instruction) {
-        subexprVariableNames_[instruction] = "sub" + std::to_string(subexprVariableNames_.size());
+        std::size_t index = subexprVariableNames_.size();
+        subexprVariableNames_[instruction] = "sub" + std::to_string(index);
+        if (instruction->id() == InstructionId::F32Const || instruction->id() == InstructionId::F64Const) {
+            floatLiteralVariables_[instruction] = "floatValue" + std::to_string(index);
+        }
     }
 
     void tryCreateLabel(const wasm_module::Instruction* instruction) {
@@ -46,7 +51,21 @@ public:
         }
     }
 
-    std::string getLabel(const wasm_module::Instruction* instruction) {
+    const std::map<const wasm_module::Instruction*, std::string> floatLiteralVariables() {
+        return floatLiteralVariables_;
+    }
+
+    const std::string& getFloatLiteralVariable(const wasm_module::Instruction* instruction) {
+        auto iter = floatLiteralVariables_.find(instruction);
+
+        if (iter != floatLiteralVariables_.end()) {
+            return iter->second;
+        } else {
+            throw std::domain_error("No known float literal value for instruction " + instruction->toSExprString());
+        }
+    }
+
+    const std::string& getLabel(const wasm_module::Instruction* instruction) {
         auto iter = subexprLabelNames_.find(instruction);
 
         if (iter != subexprLabelNames_.end()) {
@@ -57,10 +76,14 @@ public:
     }
 
     std::string operator()(const wasm_module::Instruction* instruction, const char* cast) {
+        if (instruction->id() == InstructionId::Unreachable)
+            return "0"; // this could should never be reached. TODO: abort program if it is reached anyways
         return "((" + std::string(cast) + ") " + subexprVariableNames_.at(instruction) + ")";
     }
 
     std::string operator()(const wasm_module::Instruction* instruction) {
+        if (instruction->id() == InstructionId::Unreachable)
+            return "0"; // this could should never be reached. TODO: abort program if it is reached anyways
         return subexprVariableNames_.at(instruction);
     }
 

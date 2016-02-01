@@ -144,15 +144,15 @@ namespace wasm_module {
     DeclLoadStoreInstruction(F32Load, "f32.load", {Int32::instance()}, Float32::instance())};
     DeclLoadStoreInstruction(F64Load, "f64.load", {Int32::instance()}, Float64::instance())};
 
-    DeclLoadStoreInstruction(I32Store8, "i32.store8", {Int32::instance() DeclInstComma Int32::instance()}, Void::instance())};
-    DeclLoadStoreInstruction(I32Store16, "i32.store16", {Int32::instance() DeclInstComma Int32::instance()}, Void::instance())};
-    DeclLoadStoreInstruction(I32Store, "i32.store", {Int32::instance() DeclInstComma Int32::instance()}, Void::instance())};
-    DeclLoadStoreInstruction(I64Store8, "i64.store8", {Int32::instance() DeclInstComma Int64::instance()}, Void::instance())};
-    DeclLoadStoreInstruction(I64Store16, "i64.store16", {Int32::instance() DeclInstComma Int64::instance()}, Void::instance())};
-    DeclLoadStoreInstruction(I64Store32, "i64.store32", {Int32::instance() DeclInstComma Int64::instance()}, Void::instance())};
-    DeclLoadStoreInstruction(I64Store, "i64.store", {Int32::instance() DeclInstComma Int64::instance()}, Void::instance())};
-    DeclLoadStoreInstruction(F32Store, "f32.store", {Int32::instance() DeclInstComma Float32::instance()}, Void::instance())};
-    DeclLoadStoreInstruction(F64Store, "f64.store", {Int32::instance() DeclInstComma Float64::instance()}, Void::instance())};
+    DeclLoadStoreInstruction(I32Store8, "i32.store8", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
+    DeclLoadStoreInstruction(I32Store16, "i32.store16", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
+    DeclLoadStoreInstruction(I32Store, "i32.store", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
+    DeclLoadStoreInstruction(I64Store8, "i64.store8", {Int32::instance() DeclInstComma Int64::instance()}, Int64::instance())};
+    DeclLoadStoreInstruction(I64Store16, "i64.store16", {Int32::instance() DeclInstComma Int64::instance()}, Int64::instance())};
+    DeclLoadStoreInstruction(I64Store32, "i64.store32", {Int32::instance() DeclInstComma Int64::instance()}, Int64::instance())};
+    DeclLoadStoreInstruction(I64Store, "i64.store", {Int32::instance() DeclInstComma Int64::instance()}, Int64::instance())};
+    DeclLoadStoreInstruction(F32Store, "f32.store", {Int32::instance() DeclInstComma Float32::instance()}, Float32::instance())};
+    DeclLoadStoreInstruction(F64Store, "f64.store", {Int32::instance() DeclInstComma Float64::instance()}, Float64::instance())};
 
 
     DeclInstruction(I32Wrap, "i32.wrap/i64", {Int64::instance()}, Int32::instance())};

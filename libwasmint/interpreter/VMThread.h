@@ -45,6 +45,7 @@ namespace wasmint {
 
         bool finished_ = false;
         static const uint32_t stackLimit = 10000;
+        wasm_module::Variable result_;
 
     public:
         VMThread() {
@@ -63,7 +64,7 @@ namespace wasmint {
             frames_.push_back(frame);
             currentFrame_ = &frames_.back();
             if (frames_.size() > stackLimit) {
-                trap("maximum amount of function frames reached: " + std::to_string(stackLimit));
+                trap("call stack exhausted");
             }
         }
 
@@ -100,7 +101,12 @@ namespace wasmint {
             return *machine_;
         }
 
+        const wasm_module::Variable& result() const {
+            return result_;
+        }
+
         void enterFunction(std::size_t functionId);
+        void enterFunction(std::size_t functionId, const std::vector<wasm_module::Variable>& parameters);
 
         void enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset);
 
@@ -116,7 +122,7 @@ namespace wasmint {
                 }
             }
 
-            return finished_ == other.finished_
+            return result_ == other.result_ && finished_ == other.finished_
                     && trapReason_ == other.trapReason_;
         }
 

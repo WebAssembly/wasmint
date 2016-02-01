@@ -32,6 +32,8 @@
 namespace wasm_module {
 
     ExceptionMessage(NoFunctionWithName)
+    ExceptionMessage(NoExportWithName)
+    ExceptionMessage(MultipleExportsWithSameName)
 
     class Module {
 
@@ -39,6 +41,7 @@ namespace wasm_module {
         std::vector<std::string> requiredModules_;
         std::vector<Function*> functions_;
         std::vector<Function*> functionsToDelete_;
+        std::map<std::string, const Function*> exportedFunction_;
 
         HeapData heapData_;
 
@@ -78,7 +81,17 @@ namespace wasm_module {
                     return function;
                 }
             }
-            throw std::domain_error("Module " + functionName + " has no function with name " + name());
+            throw NoFunctionWithName("Module " + name() + " has no function with name " + functionName);
+        }
+
+        const Function* exportedFunction(const std::string& exportName) const {
+            auto iter = exportedFunction_.find(exportName);
+
+            if (iter != exportedFunction_.end()) {
+                return iter->second;
+            } else {
+                throw NoExportWithName("Module " + name() + " has no function with name " + exportName);
+            }
         }
 
         FunctionTable& mainFunctionTable() {
@@ -113,6 +126,12 @@ namespace wasm_module {
                 }
             }
             throw NoFunctionWithName(functionName + " in module " + name());
+        }
+
+        void addExport(std::string exportName, const Function* function) {
+            if (exportedFunction_.find(exportName) != exportedFunction_.end())
+                throw MultipleExportsWithSameName(exportName);
+            exportedFunction_[exportName] = function;
         }
 
         const std::string& name() const {
