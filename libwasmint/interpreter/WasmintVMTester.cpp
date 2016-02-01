@@ -21,28 +21,34 @@ void wasmint::WasmintVMTester::stepUntilFinished() {
     vm_.state().instructionCounter(0);
 
     vm_.startHistoryRecording();
-    states_.push_back(vm_.state());
+
+
+    VMState startState = vm_.state();
     while (true) {
         vm_.step();
-        states_.push_back(vm_.state());
+        if (selectedIntermediateStates.size() < maxIntermediateStates
+            && vm_.instructionCounter().multipleOf(intermediateStateInterval)) {
+            selectedIntermediateStates[vm_.instructionCounter()] = vm_.state();
+        }
         if (vm_.finished()) {
             break;
         }
     }
+    VMState endState = vm_.state();
 
-    for (std::size_t i = states_.size() - 1; i > 0 ; i--) {
-        if (states_[i] != vm_.state()) {
-            throw FailedVMTest("Couldn't roll back state with counter " + std::to_string(i));
+    for (auto& pair : selectedIntermediateStates) {
+        vm_.simulateTo(pair.first);
+        if (pair.second != vm_.state()) {
+            throw FailedVMTest("Couldn't simulate to selected state");
         }
-        vm_.stepBack();
     }
-    if (states_[0] != vm_.state()) {
-        throw FailedVMTest("Couldn't roll back state with counter 0");
+
+    vm_.simulateTo(0);
+    if (startState != vm_.state()) {
+        throw FailedVMTest("Couldn't rollback to start state");
     }
-    for (std::size_t i = 0; i < states_.size(); i++) {
-        if (states_[i] != vm_.state()) {
-            throw FailedVMTest("Couldn't rerun to state with counter " + std::to_string(i));
-        }
-        vm_.step();
+    vm_.simulateTo(endState.instructionCounter());
+    if (endState != vm_.state()) {
+        throw FailedVMTest("Couldn't reproduce end state");
     }
 }

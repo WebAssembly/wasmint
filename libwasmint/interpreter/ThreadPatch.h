@@ -27,8 +27,8 @@ namespace wasmint {
         std::size_t stackSize;
         std::vector<FunctionFrame> savedFrames_;
         std::string trapReason_;
-        wasm_module::Variable result_;
         bool finished_;
+        wasm_module::Variable result_;
 
         std::size_t smallestSavedFrameIndex() const {
             return stackSize - savedFrames_.size();
@@ -41,8 +41,8 @@ namespace wasmint {
             if (!thread.frames_.empty()) {
                 savedFrames_.push_back(thread.frames_.back());
             }
-            trapReason_ = thread.trapReason_;
             finished_ = thread.finished_;
+            trapReason_ = thread.trapReason_;
             result_ = thread.result_;
         }
 
@@ -61,8 +61,9 @@ namespace wasmint {
                     j--;
                 }
             }
-            thread.trapReason_ = trapReason_;
+            thread.currentFrame_ = &thread.frames_.back();
             thread.finished_ = finished_;
+            thread.trapReason_ = trapReason_;
             thread.result_ = result_;
         }
     };

@@ -71,6 +71,12 @@ namespace wasmint {
             return counter_ >= other.counter_;
         }
 
+        bool multipleOf(unsigned n) const {
+            if (n == 0)
+                return false;
+            return counter_ % n == 0;
+        }
+
         std::string toString() const {
             return std::to_string(counter_);
         }

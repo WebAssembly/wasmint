@@ -108,7 +108,7 @@ namespace wasmint {
             history_.setToState(targetCounter, state_);
         }
 
-        void stepBackTo(InstructionCounter targetCounter) {
+        void simulateTo(InstructionCounter targetCounter) {
             history_.setToState(targetCounter, state_);
         }
 

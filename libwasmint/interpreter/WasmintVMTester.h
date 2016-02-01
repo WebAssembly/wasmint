@@ -28,7 +28,10 @@ namespace wasmint {
     class WasmintVMTester {
 
         WasmintVM& vm_;
-        std::vector<VMState> states_;
+
+        std::size_t maxIntermediateStates = 10;
+        std::size_t intermediateStateInterval = 50;
+        std::map<InstructionCounter, VMState> selectedIntermediateStates;
 
     public:
         WasmintVMTester(WasmintVM& vm) : vm_(vm) {
