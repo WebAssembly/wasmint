@@ -159,11 +159,18 @@ target_link_libraries(wasmint_wast libwasmint wasm-module)
 ###########################
 
 find_package(Curses)
+find_package(Boost COMPONENTS system filesystem)
 
 if(${Boost_FOUND})
     include_directories(${CURSES_INCLUDE_DIR})
 
-    add_executable(wasmdbg debugger/main.cpp debugger/WasmDbg.cpp debugger/WasmDbg.h debugger/VMViewer.cpp debugger/VMViewer.h)
+    add_executable(wasmdbg debugger/main.cpp
+            debugger/WasmDbg.cpp
+            debugger/VMViewer.cpp
+            debugger/InstructionViewer.cpp
+            debugger/MemoryViewer.cpp
+            debugger/Widget.cpp
+            debugger/FunctionList.cpp)
 
     target_link_libraries(wasmdbg libwasmint wasm-module ${CURSES_LIBRARIES})
 endif()

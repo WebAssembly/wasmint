@@ -20,13 +20,8 @@
 
 #include <stdlib.h>
 #include <curses.h>
-#include <interpreter/heap/Heap.h>
-#include <Module.h>
-#include <sexpr_parsing/ModuleParser.h>
 #include <interpreter/WasmintVM.h>
-#include "MemoryViewer.h"
-#include "InstructionViewer.h"
-#include "VMViewer.h"
+class VMViewer;
 
 class WasmDbg {
 
@@ -34,51 +29,28 @@ class WasmDbg {
 
     wasmint::WasmintVM vm_;
 
-    VMViewer vmViewer;
+    VMViewer* vmViewer;
+
+    static WasmDbg* instance_;
 
 public:
-    WasmDbg() {
+    WasmDbg();
+
+    virtual ~WasmDbg();
+
+    static void initCurses();
+
+    static void deinitCurses();
+
+    wasmint::WasmintVM& vm() {
+        return vm_;
     }
 
-
-    static void initCurses() {
-        /*  Initialize ncurses  */
-        if ( (mainwin = initscr()) == NULL ) {
-            fprintf(stderr, "Error initializing ncurses.\n");
-            exit(EXIT_FAILURE);
-        }
-
-        curs_set(0);
-        noecho();                  /*  Turn off key echoing                 */
-        keypad(mainwin, TRUE);     /*  Enable the keypad for non-char keys  */
-
+    static WasmDbg* instance() {
+        return instance_;
     }
 
-    static void deinitCurses() {
-
-        /*  Clean up after ourselves  */
-
-        delwin(mainwin);
-        endwin();
-        refresh();
-
-    }
-
-    wasmint::WasmintVM& vm() const {
-
-    }
-
-    void run() {
-        int ch = 0;
-
-        do {
-            erase();
-
-            vmViewer.handleCharacter(ch);
-            vmViewer.draw();
-            doupdate();
-        } while ( (ch = getch()) != 'q' );
-    }
+    void run();
 };
 
 

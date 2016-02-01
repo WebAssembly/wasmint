@@ -18,6 +18,7 @@
 #ifndef WASMINT_WIDGET_H
 #define WASMINT_WIDGET_H
 
+#include <string>
 #include <curses.h>
 #include <vector>
 
@@ -29,6 +30,7 @@ class Widget {
     std::string name_;
 
     std::vector<Widget*> children_;
+    bool hidden_ = false;
 
 public:
     Widget(int x, int y, int w, int h) : x_(x), y_(y), w_(w), h_(h) {
@@ -49,6 +51,14 @@ public:
 
     int getWidth() const {
         return w_ - border_ * 2;
+    }
+
+    void hide() {
+        hidden_ = true;
+    }
+
+    void show() {
+        hidden_ = false;
     }
 
     int getHeight() const {
@@ -80,6 +90,9 @@ public:
     }
 
     void draw() {
+        if (hidden_)
+            return;
+
         if (border_ != 0) {
             box(win, 0, 0);
             mvwprintw(win, 0, getWidth() / 2 - name_.size() / 2, name_.c_str());
@@ -97,6 +110,17 @@ public:
 
     virtual bool handleCharacter(int c) {
         return false;
+    }
+
+    bool doHandleCharacter(int c) {
+        for (Widget* child : children_) {
+            if (!child->hidden_) {
+                if (child->doHandleCharacter(c)) {
+                    return true;
+                }
+            }
+        }
+        return handleCharacter(c);
     }
 
     void setBorder(int border) {

@@ -19,6 +19,9 @@
 #define WASMINT_INSTRUCTIONVIEWER_H
 
 
+#include <instructions/Instruction.h>
+#include "Widget.h"
+
 class InstructionViewer : public Widget {
 
     const wasm_module::Instruction* instruction_ = nullptr;
@@ -77,7 +80,7 @@ class InstructionViewer : public Widget {
     }
 
 public:
-    InstructionViewer() : Widget(68, 2, 60, 20) {
+    InstructionViewer(int x, int y, int w, int h) : Widget(x, y, w, h) {
         setBorder(1);
         setName("Instruction");
     }

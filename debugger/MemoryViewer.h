@@ -18,6 +18,7 @@
 #ifndef WASMINT_MEMORYVIEWER_H
 #define WASMINT_MEMORYVIEWER_H
 
+#include <interpreter/heap/Heap.h>
 #include "Widget.h"
 
 class MemoryViewer : public Widget {
@@ -89,8 +90,16 @@ class MemoryViewer : public Widget {
         }
     }
 
+    void printInfo() {
+        std::stringstream stream;
+        stream << std::hex << cursorPosition;
+        std::string info = "Pos: " + std::to_string(cursorPosition) + " (0x" + stream.str() + ")";
+
+        print(getWidth() / 2 - info.size() / 2, getHeight(), info, A_REVERSE);
+    }
+
 public:
-    MemoryViewer() : Widget(5, 4, 60, 20) {
+    MemoryViewer(int x, int y, int w, int h) : Widget(x, y, w, h) {
         setBorder(1);
         setName("Memory");
     }
@@ -106,6 +115,9 @@ public:
 
         bytesPerLine = 0;
         while (true) {
+            if (posIter >= heap_->size())
+                break;
+
             uint8_t byte = heap_->getByte(posIter);
 
             if (cursorPosition == posIter) {
@@ -141,6 +153,7 @@ public:
                 break;
             }
         }
+        printInfo();
     }
 
     virtual bool handleCharacter(int c) override {

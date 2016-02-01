@@ -16,3 +16,18 @@
 
 
 #include "VMViewer.h"
+#include "WasmDbg.h"
+
+VMViewer::VMViewer(int width, int height) : Widget(0, 0, width, height) {
+    memoryViewer.reset(new MemoryViewer(0, 0, width, height));
+    functionList.reset(new FunctionList(0, 0, width, height));
+
+    memoryViewer->setHeap(&WasmDbg::instance()->vm().heap());
+
+    addChild(memoryViewer.get());
+    addChild(functionList.get());
+
+    tab = Tab::Instructions;
+    functionList->show();
+    memoryViewer->hide();
+}

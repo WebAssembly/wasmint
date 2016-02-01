@@ -24,48 +24,45 @@
 #include "Widget.h"
 #include "MemoryViewer.h"
 #include "InstructionViewer.h"
+#include "FunctionList.h"
 
 class VMViewer : public Widget {
 
     wasmint::WasmintVM* vm;
 
-    wasmint::Heap heap;
-    MemoryViewer memoryViewer;
-    InstructionViewer instructionViewer;
+    std::unique_ptr<MemoryViewer> memoryViewer;
+    std::unique_ptr<FunctionList> functionList;
+
+    enum class Tab {
+        Memory,
+        Instructions
+    };
+    Tab tab = Tab::Memory;
 
 public:
-    VMViewer() : Widget(1, 1, 80, 20) {
+    VMViewer(int width, int height);
 
-        heap.grow(1000);
-        heap.setByte(0, 0xFA);
-
-        memoryViewer.setHeap(&heap);
-
-        wasm_module::Module* positiveModule = wasm_module::sexpr::ModuleParser::parse(
-                "module (func main "
-                        "(if_else (i32.const 0) (unreachable) ())"
-                        "(if_else (i32.const 1) (unreachable) ())"
-                        "(if_else (i32.const 2) (unreachable) ())"
-                        ")");
-
-        instructionViewer.setInstruction(positiveModule->functions().front()->mainInstruction());
-
-        setBorder(1);
-        setName("VM");
-
-        addChild(&memoryViewer);
-        addChild(&instructionViewer);
+    virtual bool handleCharacter(int c) override {
+        if (c == 'm') {
+            tab = Tab::Memory;
+            functionList->hide();
+            memoryViewer->show();
+            return true;
+        }
+        if (c == 'i') {
+            tab = Tab::Instructions;
+            functionList->show();
+            memoryViewer->hide();
+            return true;
+        }
+        return false;
     }
 
+    virtual void render() override {
 
-    virtual bool handleCharacter(int c) {
-        memoryViewer.handleCharacter(c);
+        memoryViewer->draw();
+        functionList->draw();
 
-        memoryViewer.draw();
-
-        instructionViewer.handleCharacter(c);
-        instructionViewer.draw();
-        return true;
     }
 
 };

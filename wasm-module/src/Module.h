@@ -64,7 +64,7 @@ namespace wasm_module {
             heapData_ = data;
         }
 
-        const std::vector<Function *>& functions() {
+        const std::vector<Function *>& functions() const {
             return functions_;
         }
 
