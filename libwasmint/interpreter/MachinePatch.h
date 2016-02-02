@@ -61,7 +61,7 @@ namespace wasmint {
             threadPatch_.backupPreShrink(thread);
         }
 
-        bool influencedByExternalState(bool value) {
+        void influencedByExternalState(bool value) {
             influencedByExternalState_ = value;
         }
 
