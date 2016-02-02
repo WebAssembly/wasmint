@@ -22,7 +22,7 @@ totalTests=0
 failedTests=0
 
 echo "######################################"
-echo "###    Running positive tests      ###"
+echo "###    Running positive infinite_tests      ###"
 echo "######################################"
 
 for i in ./positive/*.wasm; do

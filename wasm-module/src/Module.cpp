@@ -31,6 +31,7 @@ namespace wasm_module {
         function->module(this);
         functions_.push_back(function);
         functionsToDelete_.push_back(function);
+        function->deterministic(false);
     }
 
     void Module::addVariadicFunction(std::string functionName, const Type *returnType,
@@ -40,5 +41,6 @@ namespace wasm_module {
         function->module(this);
         functions_.push_back(function);
         functionsToDelete_.push_back(function);
+        function->deterministic(false);
     }
 }

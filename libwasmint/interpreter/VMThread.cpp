@@ -52,11 +52,13 @@ namespace wasmint {
 
     void VMThread::enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset) {
         CompiledFunction& targetFunction = machine().getCompiledFunction(functionId);
-        if (targetFunction.function().mainInstruction()->id() == InstructionId::NativeInstruction) {
-            auto nativeInstruction = dynamic_cast<const wasm_module::NativeInstruction*>(targetFunction.function().mainInstruction());
+        const wasm_module::Function& function = targetFunction.function();
+
+        if (function.isNative()) {
+            auto nativeInstruction = static_cast<const wasm_module::NativeInstruction*>(function.mainInstruction());
 
             if (machine().reconstructing()) {
-                if (targetFunction.function().variadic()) {
+                if (function.variadic()) {
                     for (uint16_t i = 0; i < parameterSize; i++) {
                         frames_.back().popFromCode<uint8_t>();
                     }
@@ -65,11 +67,16 @@ namespace wasmint {
                     currentFrame_->passFunctionResult(machine().history().getNativeFunctionReturnValue(machine().instructionCounter()));
                 }
             } else {
+
+                if (!function.deterministic() && machine().history().enabled()) {
+                    machine().history().getLastCheckpoint().influencedByExternalState(true);
+                }
+
                 std::vector<wasm_module::Variable> parameters;
                 parameters.reserve(nativeInstruction->childrenTypes().size());
                 for (uint16_t i = 0; i < parameterSize; i++) {
                     const wasm_module::Type* type = nullptr;
-                    if (targetFunction.function().variadic()) {
+                    if (function.variadic()) {
                         uint8_t typeId = frames_.back().popFromCode<uint8_t>();
                         switch(typeId) {
                             case 0:
@@ -88,7 +95,7 @@ namespace wasmint {
                                 assert(false);
                         }
                     } else {
-                        type = targetFunction.function().parameters().at(i);
+                        type = function.parameters().at(i);
                     }
                     wasm_module::Variable parameter(type);
                     uint64_t value = currentFrame_->getRegister<uint64_t>(parameterRegisterOffset + i);

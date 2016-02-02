@@ -31,6 +31,7 @@ namespace wasmint {
         HeapPatch heapPatch_;
         ThreadPatch threadPatch_;
         InstructionCounter startCounter_;
+        bool influencedByExternalState_ = false;
 
     public:
         MachinePatch() {
@@ -60,6 +61,13 @@ namespace wasmint {
             threadPatch_.backupPreShrink(thread);
         }
 
+        bool influencedByExternalState(bool value) {
+            influencedByExternalState_ = value;
+        }
+
+        bool influencedByExternalState() const {
+            return influencedByExternalState_;
+        }
     };
 }
 

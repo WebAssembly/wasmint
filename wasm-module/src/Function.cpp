@@ -47,6 +47,6 @@ namespace wasm_module {
     }
 
     bool Function::isNative() const {
-        return dynamic_cast<const wasm_module::NativeInstruction*>(mainInstruction_) != nullptr;
+        return mainInstruction_->id() == InstructionId::NativeInstruction;
     }
 }

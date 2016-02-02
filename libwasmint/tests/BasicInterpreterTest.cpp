@@ -32,7 +32,7 @@ int main() {
     // we will just test some basic programs here to verify that the if_else and unreachable work that are required
     // for the test suite.
 
-    // positive tests
+    // positive infinite_tests
     {
 
         MachineState environment;
@@ -54,7 +54,7 @@ int main() {
         InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
         thread.stepUntilFinished();
     }
-    // negative tests
+    // negative infinite_tests
     {
 
         MachineState environment;

@@ -71,7 +71,7 @@ add_library(libwasmint
 
     libwasmint/serialization/ByteOutputStream.cpp
     libwasmint/serialization/ByteInputStream.cpp
-        libwasmint/interpreter/halting/HaltingProblemDetector.cpp libwasmint/interpreter/halting/HaltingProblemDetector.h)
+        libwasmint/interpreter/halting/HaltingProblemDetector.cpp libwasmint/interpreter/halting/HaltingProblemDetector.h libwasmint/builtins/RandomModule.cpp libwasmint/builtins/RandomModule.h)
 
 
 ###########################
@@ -100,7 +100,7 @@ endif()
 
 
 ####################
-#    Unit tests    #
+#    Unit infinite_tests    #
 ####################
 
 file(GLOB_RECURSE TEST_FILES "libwasmint/tests/*Test.cpp")
@@ -122,7 +122,7 @@ endforeach()
 file(GLOB TEST_WAST_FILES "libwasmint/tests/wast_tests/*.wast")
 foreach(TEST_WAST_FILE ${TEST_WAST_FILES})
     get_filename_component(BASENAME ${TEST_WAST_FILE} NAME)
-    add_test(NAME ${BASENAME} COMMAND ./wasmint ${TEST_WAST_FILE})
+    add_test(NAME ${BASENAME} COMMAND ./wasmint_wast ${TEST_WAST_FILE})
 endforeach()
 
 ####################
@@ -195,7 +195,7 @@ configure_file(tools/halting_problem/runHaltingTests.template.sh runHaltingTests
 
 
 ###########################
-#    Performance tests    #
+#    Performance infinite_tests    #
 ###########################
 
 option(wasmintProfile "Enable profiling with gperf" OFF)

@@ -26,10 +26,40 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
     bool result = false;
     const VMState backupState = vm_.state();
 
-    for (InstructionCounter counter = 0; counter < backupState.instructionCounter(); ++counter) {
-        vm_.simulateTo(counter);
-        if (isIdentical(vm_.state(), backupState)) {
-            return true;
+    InstructionCounter lastCounter = vm_.instructionCounter();
+
+    while (true) {
+        const MachinePatch& lastPatch = vm_.history().getCheckpoint(lastCounter);
+
+        if (lastPatch.influencedByExternalState()) {
+            throw CantMakeHaltingDecision("Patch indicates that its related state depend on the external state");
+        }
+
+        InstructionCounter nextRollbackCounter = lastPatch.startCounter();
+
+        if (nextRollbackCounter < startCounter)
+            nextRollbackCounter = startCounter;
+
+        vm_.simulateTo(nextRollbackCounter);
+
+        InstructionCounter counter = nextRollbackCounter;
+        while (counter != lastCounter) {
+            if (isIdentical(vm_.state(), backupState)) {
+                result = true;
+                break;
+            }
+            ++counter;
+            vm_.simulateTo(counter);
+        }
+        if (!result) {
+            lastCounter = nextRollbackCounter;
+            if (lastCounter <= startCounter) {
+                break;
+            } else {
+                --lastCounter;
+            }
+        } else {
+            break;
         }
     }
 

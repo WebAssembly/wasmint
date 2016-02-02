@@ -31,11 +31,12 @@ namespace wasmint {
     class SpectestModule : public wasm_module::Module {
 
         static std::stringstream stdout_;
+        uint32_t counter_ = 0;
 
     public:
         static wasm_module::Module* create() {
             using namespace wasm_module;
-            Module* module = new Module();
+            SpectestModule* module = new SpectestModule();
             module->context().name("stdio");
 
             module->addVariadicFunction("print", Void::instance(),
@@ -69,6 +70,20 @@ namespace wasmint {
                     return Void::instance();
                 }
             );
+
+            // alternating returns 1 or the sequence of increasing uneven numbers
+            // only useful for testing the halting problem detector
+            module->addFunction("uneven", Int32::instance(), {},
+                [=](std::vector<Variable> parameters) {
+                    module->counter_++;
+                    if (module->counter_ % 2 == 0) {
+                        return Variable::createInt32(1);
+                    } else {
+                        return Variable::createInt32(module->counter_);
+                    }
+                }
+            );
+
             return module;
         }
 

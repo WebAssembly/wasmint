@@ -15,29 +15,4 @@
  */
 
 
-#ifndef WASMINT_HALTINGPROBLEMDETECTOR_H
-#define WASMINT_HALTINGPROBLEMDETECTOR_H
-
-#include <interpreter/WasmintVM.h>
-
-namespace wasmint {
-
-    ExceptionMessage(CantMakeHaltingDecision)
-
-    class HaltingProblemDetector {
-
-        WasmintVM& vm_;
-
-        bool isIdentical(const VMState& a, const VMState& b);
-
-    public:
-        HaltingProblemDetector(WasmintVM& vm) : vm_(vm) {
-        }
-
-        bool isLooping(InstructionCounter startCounter = 0);
-    };
-}
-
-
-
-#endif //WASMINT_HALTINGPROBLEMDETECTOR_H
+#include "RandomModule.h"

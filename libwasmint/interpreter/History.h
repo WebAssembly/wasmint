@@ -50,9 +50,6 @@ namespace wasmint {
 
         InstructionCounter latestStateCounter_;
 
-        MachinePatch& getLastCheckpoint() {
-            return *patches_.begin()->second;
-        }
     public:
         History() {
         }
@@ -68,8 +65,16 @@ namespace wasmint {
             latestStateCounter_ = 0;
         }
 
+        MachinePatch& getLastCheckpoint() {
+            return *patches_.begin()->second;
+        }
+
         virtual ~History() {
             clear();
+        }
+
+        bool enabled() const {
+            return enabled_;
         }
 
         const MachinePatch& getCheckpoint(const InstructionCounter& counter) {

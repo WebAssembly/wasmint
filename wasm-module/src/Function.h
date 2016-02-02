@@ -41,6 +41,7 @@ namespace wasm_module {
          */
         Instruction *mainInstruction_;
         Module* module_ = nullptr;
+        bool deterministic_ = true;
 
     public:
         Function(FunctionContext &context, Instruction *mainInstruction);
@@ -75,11 +76,18 @@ namespace wasm_module {
 
         bool isNative() const;
 
+        void deterministic(bool value) {
+            deterministic_ = value;
+        }
+
+        bool deterministic() const {
+            return deterministic_;
+        }
+
         bool operator==(const Function& other) const {
             return (*mainInstruction_) == (*other.mainInstruction_)
                    && FunctionContext::operator==(other);
         }
-
     };
 
 }

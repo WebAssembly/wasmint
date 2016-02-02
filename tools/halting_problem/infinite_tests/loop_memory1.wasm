@@ -1,0 +1,16 @@
+(module
+  (memory 256 256 (segment 1 "abcdef"))
+  (func main
+    (local $i i32)
+    (set_local $i (i32.const 0))
+    (loop $exit $cont
+      (set_local $i (i32.add (get_local $i) (i32.const 2)))
+      (set_local $i (i32.rem_u (get_local $i) (i32.const 256)))
+      (i32.store8 (get_local $i) (i32.mul (get_local $i) (get_local $i)))
+      (if (i32.eq (get_local $i) (i32.const 7))
+        (br $exit)
+      )
+      (br $cont)
+    )
+  )
+)

@@ -18,6 +18,7 @@
 #include <assert.h>
 #include <ModuleLoader.h>
 #include <builtins/SpectestModule.h>
+#include <builtins/RandomModule.h>
 #include "TestRunner.h"
 
 bool TestRunner::run(const wasm_module::sexpr::SExpr& expr) {
@@ -30,6 +31,7 @@ bool TestRunner::run(const wasm_module::sexpr::SExpr& expr) {
                 wasm_module::Module* module = wasm_module::sexpr::ModuleParser::parse(child);
                 vm.reset(new wasmint::WasmintVM());
                 vm->loadModule(*wasmint::SpectestModule::create(), true);
+                vm->loadModule(*wasmint::RandomModule::create(), true);
                 vm->loadModule(*module, true);
             } else {
                 TestCase testCase(child);
