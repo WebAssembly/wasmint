@@ -71,7 +71,7 @@ add_library(libwasmint
 
     libwasmint/serialization/ByteOutputStream.cpp
     libwasmint/serialization/ByteInputStream.cpp
-)
+        libwasmint/interpreter/halting/HaltingProblemDetector.cpp libwasmint/interpreter/halting/HaltingProblemDetector.h)
 
 
 ###########################
@@ -184,6 +184,14 @@ add_executable(wasm2c
         wasm-to-c/ModuleConverter.cpp
         wasm-to-c/FunctionConverter.cpp wasm-to-c/FunctionConverter.h wasm-to-c/InjectedWasmLib.h)
 target_link_libraries(wasm2c wasm-module)
+
+###########################
+#   does_halt    #
+###########################
+
+add_executable(does_halt tools/halting_problem/does_halt.cpp)
+target_link_libraries(does_halt libwasmint wasm-module)
+configure_file(tools/halting_problem/runHaltingTests.template.sh runHaltingTests.sh NEWLINE_STYLE UNIX)
 
 
 ###########################

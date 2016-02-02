@@ -15,11 +15,26 @@
  */
 
 
-#include "InstructionCounter.h"
+#ifndef WASMINT_HALTINGPROBLEMDETECTOR_H
+#define WASMINT_HALTINGPROBLEMDETECTOR_H
 
-wasmint::InstructionCounter wasmint::InstructionCounter::operator-(uint64_t value) const {
-    if (value > counter_)
-        throw std::domain_error("Can't call operator- on Instruction counter with counter "
-                                + std::to_string(counter_) + " and arg " + std::to_string(value) + " (underflow)");
-    return InstructionCounter(counter_ - value);
+#include <interpreter/WasmintVM.h>
+
+namespace wasmint {
+    class HaltingProblemDetector {
+
+        WasmintVM& vm_;
+
+        bool isIdentical(const VMState& a, const VMState& b);
+
+    public:
+        HaltingProblemDetector(WasmintVM& vm) : vm_(vm) {
+        }
+
+        bool isLooping(InstructionCounter startCounter = 0);
+    };
 }
+
+
+
+#endif //WASMINT_HALTINGPROBLEMDETECTOR_H

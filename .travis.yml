@@ -27,3 +27,4 @@ script:
   - ctest
   - bash testValgrind.sh
   - bash runTestsuite.sh
+  - bash runHaltingTests.sh

@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <limits>
 #include <string>
+#include <stdexcept>
 
 namespace wasmint {
 
@@ -80,6 +81,8 @@ namespace wasmint {
         std::string toString() const {
             return std::to_string(counter_);
         }
+
+        InstructionCounter operator-(uint64_t value) const;
     };
 }
 

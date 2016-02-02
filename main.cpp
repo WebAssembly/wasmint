@@ -49,7 +49,7 @@ int main(int argc, char** argv) {
                 return 2;
             }
         } else {
-            const std::string& modulePath = argv[i];
+            const std::string& modulePath = arg;
 
             try {
                 vm.loadModule(modulePath);

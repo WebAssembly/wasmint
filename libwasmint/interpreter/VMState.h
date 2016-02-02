@@ -99,6 +99,10 @@ namespace wasmint {
             return heap_;
         }
 
+        const Heap& heap() const {
+            return heap_;
+        }
+
         VMThread& thread() {
             return thread_;
         }

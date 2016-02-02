@@ -26,6 +26,7 @@ namespace wasmint {
     ExceptionMessage(TargetStateNotInHistory)
     ExceptionMessage(TargetStateInTheFuture)
     ExceptionMessage(HistoryNotEnabled)
+    ExceptionMessage(NoCheckpointAvailable)
 
     class History : public HeapObserver {
 
@@ -49,6 +50,9 @@ namespace wasmint {
 
         InstructionCounter latestStateCounter_;
 
+        MachinePatch& getLastCheckpoint() {
+            return *patches_.begin()->second;
+        }
     public:
         History() {
         }
@@ -68,13 +72,18 @@ namespace wasmint {
             clear();
         }
 
+        const MachinePatch& getCheckpoint(const InstructionCounter& counter) {
+            auto targetIter = patches_.lower_bound(counter);
+            if (targetIter == patches_.end()) {
+                throw NoCheckpointAvailable("No checkpoint available for counter " + counter.toString());
+            } else {
+                return *targetIter->second;
+            }
+        }
+
         void addCheckpoint(VMState & machine) {
             enabled_ = true;
             patches_[machine.instructionCounter()] = new MachinePatch(machine);
-        }
-
-        MachinePatch& getLastCheckpoint() {
-            return *patches_.begin()->second;
         }
 
         virtual void preChanged(const Heap& heap, const Interval& changedInterval) override {

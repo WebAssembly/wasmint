@@ -1,0 +1,7 @@
+(module
+    (func main
+        (loop $exit $cont
+          (br $cont)
+        )
+    )
+)

@@ -1,0 +1,13 @@
+(module
+  (func main
+    (local $i i32)
+    (set_local $i (i32.const 0))
+    (loop $exit $cont
+      (set_local $i (i32.rem_u (i32.add (get_local $i) (i32.const 3)) (i32.const 12)))
+      (if (i32.eq (get_local $i) (i32.const 2))
+        (br $exit)
+      )
+      (br $cont)
+    )
+  )
+)
