@@ -29,6 +29,10 @@ namespace wasm_module { namespace sexpr {
         std::string value_;
         std::size_t position = 0;
 
+        std::size_t line_ = 1;
+        std::size_t linePos_ = 1;
+        bool nextIsNewLine_ = false;
+
 
     public:
         CharacterStream() {
@@ -46,7 +50,16 @@ namespace wasm_module { namespace sexpr {
         }
 
         char popChar() {
+            if (nextIsNewLine_) {
+                nextIsNewLine_ = false;
+                line_++;
+                linePos_ = 0;
+            }
             char result = peekChar();
+            linePos_++;
+            if (result == '\n') {
+                nextIsNewLine_ = true;
+            }
             position++;
             return result;
         }
@@ -76,6 +89,13 @@ namespace wasm_module { namespace sexpr {
             return position >= value_.size();
         }
 
+        std::size_t line() const {
+            return line_;
+        }
+
+        std::size_t linePos() const {
+            return linePos_;
+        }
     };
 
 }}

@@ -40,6 +40,7 @@ namespace wasm_module { namespace sexpr {
                 if (expr[0].hasValue()) {
                     std::set<std::size_t> subExprToIgnore;
                     Instruction* result = InstructionSet::getInstruction(expr[0].value(), expr, moduleContext_, functionContext_, subExprToIgnore);
+                    result->line(expr[0].line());
 
                     std::vector<Instruction*> children;
 
@@ -57,6 +58,7 @@ namespace wasm_module { namespace sexpr {
                     return result;
                 } else {
                     Instruction* result = new Block((uint32_t) expr.children().size());
+                    result->line(expr.line());
 
                     std::vector<Instruction*> children;
 
@@ -70,7 +72,9 @@ namespace wasm_module { namespace sexpr {
                     return result;
                 }
             } else {
-                return new Nop();
+                Instruction* result = new Nop();
+                result->line(expr.line());
+                return result;
             }
         }
 

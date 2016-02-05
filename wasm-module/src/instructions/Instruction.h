@@ -48,6 +48,8 @@ namespace wasm_module {
         const Instruction* parent_ = nullptr;
         const Function* function_ = nullptr;
 
+        std::size_t line_ = 0;
+
     protected:
 
         virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) {
@@ -185,6 +187,14 @@ namespace wasm_module {
 
         virtual bool operator==(const Instruction& other) const {
             return id() == other.id();
+        }
+
+        void line(std::size_t l) {
+            line_ = l;
+        }
+
+        std::size_t line() const {
+            return line_;
         }
     };
 }

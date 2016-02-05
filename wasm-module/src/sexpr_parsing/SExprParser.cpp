@@ -20,6 +20,7 @@
 namespace wasm_module { namespace sexpr {
 
     void SExprParser::parseValues(SExpr &parent, bool allowsEndOfStream) {
+        parent.line(stream_.line());
 
         bool exit = false;
 
@@ -55,8 +56,6 @@ namespace wasm_module { namespace sexpr {
                 continue;
             }
 
-
-
             if (stream_.peekChar() == '(') {
                 stream_.popChar();
                 if (stream_.peekChar() == ';') {
@@ -82,6 +81,8 @@ namespace wasm_module { namespace sexpr {
                     parseValues(parent.addChild(), false);
                 }
             } else if (stream_.peekChar() == '"') {
+
+                std::size_t line = stream_.line();
 
                 stream_.popChar();
 
@@ -113,7 +114,7 @@ namespace wasm_module { namespace sexpr {
                         if (c == '\\') {
                             escape = true;
                         } else if (c == '"') {
-                            parent.addChild(word);
+                            parent.addChild(word).line(line);
                             break;
                         } else {
                             word.push_back(c);
@@ -125,6 +126,7 @@ namespace wasm_module { namespace sexpr {
                 stream_.popChar();
                 exit = true;
             } else {
+                std::size_t line = stream_.line();
                 std::string word;
 
                 while (true) {
@@ -132,13 +134,13 @@ namespace wasm_module { namespace sexpr {
                     if (!stream_.isWhitespace(c)) {
                         if (c == ')') {
                             exit = true;
-                            parent.addChild(word);
+                            parent.addChild(word).line(line);
                             break;
                         } else {
                             word.push_back(c);
                         }
                     } else {
-                        parent.addChild(word);
+                        parent.addChild(word).line(line);
                         break;
                     }
                 }

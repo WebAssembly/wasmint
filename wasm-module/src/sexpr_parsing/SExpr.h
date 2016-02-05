@@ -38,6 +38,8 @@ namespace wasm_module { namespace sexpr {
 
         std::vector<SExpr> children_;
 
+        std::size_t line_ = 0;
+
     public:
         SExpr() {
         }
@@ -120,6 +122,13 @@ namespace wasm_module { namespace sexpr {
 
         std::string toString(unsigned int intend = 0) const;
 
+        void line(std::size_t l) {
+            line_ = l;
+        }
+
+        std::size_t line() const {
+            return line_;
+        }
     };
 }}
 
