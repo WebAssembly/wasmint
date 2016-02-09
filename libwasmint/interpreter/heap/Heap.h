@@ -43,7 +43,8 @@ namespace wasmint {
         const static std::size_t maxSize_ = 1073741824;
         std::vector<uint8_t> data_;
 
-        const static std::size_t pageSize_ = 1024;
+        // 64 KiB as stated in the design documents
+        const static std::size_t pageSize_ = 65536;
 
         HeapObserver* observer_ = nullptr;
 
@@ -52,7 +53,14 @@ namespace wasmint {
         }
 
         Heap(std::size_t size) {
-            data_.resize(size, 0);
+            if (size % pageSize_ == 0) {
+                data_.resize(size, 0);
+            } else {
+                // round up to next page
+                std::size_t pages = size % pageSize_;
+                pages++;
+                data_.resize(pages * pageSize_);
+            }
         }
 
         Heap(const wasm_module::HeapData& data) {
@@ -254,7 +262,7 @@ namespace wasmint {
 
         void attachObserver(HeapObserver& newObserver) {
             if (observer_) {
-                throw OnlyOneObserverSupported("Spanier");
+                throw OnlyOneObserverSupported("Only one observer is supported right now.");
             } else {
                 observer_ = &newObserver;
             }
