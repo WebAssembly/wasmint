@@ -53,18 +53,11 @@ namespace wasmint {
         }
 
         Heap(std::size_t size) {
-            if (size % pageSize_ == 0) {
-                data_.resize(size, 0);
-            } else {
-                // round up to next page
-                std::size_t pages = size % pageSize_;
-                pages++;
-                data_.resize(pages * pageSize_);
-            }
+            resize(size);
         }
 
         Heap(const wasm_module::HeapData& data) {
-            data_.resize(data.startSize());
+            resize(data.startSize());
             std::fill(data_.begin(), data_.end(), 0);
 
             for (const wasm_module::HeapSegment& segment : data.segments()) {
@@ -118,7 +111,14 @@ namespace wasmint {
             if (size > maxSize_) {
                 return false;
             }
-            data_.resize(size);
+            if (size % pageSize_ == 0) {
+                data_.resize(size, 0);
+            } else {
+                // round up to next page
+                std::size_t pages = size % pageSize_;
+                pages++;
+                data_.resize(pages * pageSize_);
+            }
             return true;
         }
 

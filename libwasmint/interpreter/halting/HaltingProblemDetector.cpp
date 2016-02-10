@@ -49,7 +49,6 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
         InstructionCounter counter = nextRollbackCounter;
         while (counter != lastCounter) {
             if (isIdentical(vm_.state(), backupState, modifiedPages)) {
-                std::cerr << vm_.instructionCounter().toString() << std::endl;
                 result = true;
                 break;
             }
@@ -91,5 +90,5 @@ bool wasmint::HaltingProblemDetector::isIdentical(const VMState& a, const VMStat
 }
 
 bool wasmint::HaltingProblemDetector::comparePage(const Heap& a, const Heap& b, std::size_t pageIndex) {
-    return a.equalRange(b, pageIndex, HeapPatch::chunkSize);
+    return a.equalRange(b, HeapPatch::chunkSize * pageIndex, HeapPatch::chunkSize);
 }
