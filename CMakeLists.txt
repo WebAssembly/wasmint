@@ -98,6 +98,11 @@ if(wasmintCoverage)
     configure_file(generateCoverage.template.sh generateCoverage.sh NEWLINE_STYLE UNIX)
 endif()
 
+option(wasmintUBSAN "Enable undefined behaviour sanitizer" OFF)
+
+if(wasmintUBSAN)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined -fno-sanitize-recover")
+endif()
 
 ####################
 #    Unit tests    #
