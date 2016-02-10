@@ -30,7 +30,7 @@ void wasmint::WasmintVMTester::stepUntilFinished() {
             && vm_.instructionCounter().multipleOf(intermediateStateInterval)) {
             selectedIntermediateStates[vm_.instructionCounter()] = vm_.state();
         }
-        if (vm_.instructionCounter().multipleOf(5)) {
+        if (vm_.instructionCounter().multipleOf(5) && !vm_.finished()) {
             vm_.history().addCheckpoint(vm_.state());
         }
         if (vm_.finished()) {

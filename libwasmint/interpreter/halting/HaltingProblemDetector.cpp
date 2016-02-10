@@ -27,6 +27,7 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
     const VMState backupState = vm_.state();
 
     InstructionCounter lastCounter = vm_.instructionCounter();
+    std::set<std::size_t> modifiedPages;
 
     while (true) {
         const MachinePatch& lastPatch = vm_.history().getCheckpoint(lastCounter);
@@ -34,6 +35,9 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
         if (lastPatch.influencedByExternalState()) {
             throw CantMakeHaltingDecision("Patch indicates that its related state depend on the external state");
         }
+
+        std::set<std::size_t> newPages = lastPatch.heapPatch().modifiedChunks();
+        modifiedPages.insert(newPages.begin(), newPages.end());
 
         InstructionCounter nextRollbackCounter = lastPatch.startCounter();
 
@@ -44,7 +48,8 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
 
         InstructionCounter counter = nextRollbackCounter;
         while (counter != lastCounter) {
-            if (isIdentical(vm_.state(), backupState)) {
+            if (isIdentical(vm_.state(), backupState, modifiedPages)) {
+                std::cerr << vm_.instructionCounter().toString() << std::endl;
                 result = true;
                 break;
             }
@@ -64,17 +69,27 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
     }
 
     vm_.state() = backupState;
+    assert(vm_.state() == backupState);
 
     return result;
 }
 
-bool wasmint::HaltingProblemDetector::isIdentical(const VMState& a, const VMState& b) {
+bool wasmint::HaltingProblemDetector::isIdentical(const VMState& a, const VMState& b, std::set<std::size_t>& indexes) {
     // we don't compare the instruction pointer on purpose
     // as we only compare for memory/thread equality when checking for reoccurring states
 
-    if (a.heap() != b.heap())
+    if (a.heap().size() != b.heap().size())
         return false;
+    for (std::size_t pageIndex : indexes) {
+        if (!comparePage(a.heap(), b.heap(), pageIndex)) {
+            return false;
+        }
+    }
     if (a.thread() != b.thread())
         return false;
     return true;
+}
+
+bool wasmint::HaltingProblemDetector::comparePage(const Heap& a, const Heap& b, std::size_t pageIndex) {
+    return a.equalRange(b, pageIndex, HeapPatch::chunkSize);
 }

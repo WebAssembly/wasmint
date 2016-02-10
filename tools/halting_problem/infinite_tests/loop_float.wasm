@@ -1,0 +1,13 @@
+(module
+  (func main
+    (local $i f32)
+    (set_local $i (f32.const 0))
+    (loop $exit $cont
+      (set_local $i (f32.add (get_local $i) (f32.mul (f32.sub (f32.const 1) (get_local $i)) (f32.const 0.1))))
+      (if (f32.eq (get_local $i) (f32.const 1))
+        (br $exit)
+      )
+      (br $cont)
+    )
+  )
+)

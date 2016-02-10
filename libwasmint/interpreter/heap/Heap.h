@@ -256,6 +256,10 @@ namespace wasmint {
             return !this->operator==(other);
         }
 
+        bool equalRange(const Heap& other, std::size_t index, std::size_t range) const {
+            return std::memcmp(data_.data() + index, other.data_.data() + index, range) == 0;
+        }
+
         void removeObserver() {
             observer_ = nullptr;
         }

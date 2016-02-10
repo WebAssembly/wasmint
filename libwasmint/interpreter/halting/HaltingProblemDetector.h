@@ -28,7 +28,9 @@ namespace wasmint {
 
         WasmintVM& vm_;
 
-        bool isIdentical(const VMState& a, const VMState& b);
+        bool comparePage(const Heap& a, const Heap& b, std::size_t pageIndex);
+
+        bool isIdentical(const VMState& a, const VMState& b, std::set<std::size_t>& indexes);
 
     public:
         HaltingProblemDetector(WasmintVM& vm) : vm_(vm) {

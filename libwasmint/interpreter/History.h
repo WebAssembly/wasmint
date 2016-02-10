@@ -145,7 +145,7 @@ namespace wasmint {
         }
 
         void threadStackShrinked(VMThread& thread) {
-            if (enabled_)
+            if (enabled_ && !reconstructing_)
                 getLastCheckpoint().preThreadShrinked(thread);
         }
 

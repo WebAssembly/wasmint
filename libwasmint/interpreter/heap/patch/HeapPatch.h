@@ -34,10 +34,11 @@ namespace wasmint {
 
         std::size_t heapSize_;
 
-        std::size_t chunkSize = 1024;
         std::map<std::size_t, HeapPatchChunk> chunks_;
 
     public:
+        static const std::size_t chunkSize = 1024;
+
         HeapPatch() {
         }
         HeapPatch(Heap& heap) : heapSize_(heap.size()) {
@@ -69,6 +70,14 @@ namespace wasmint {
                     chunk.setByte(i, heap.getByte(i));
                 }
             }
+        }
+
+        std::set<std::size_t> modifiedChunks() const {
+            std::set<std::size_t> result;
+            for (auto& pair : chunks_) {
+                result.insert(pair.first);
+            }
+            return result;
         }
     };
 }

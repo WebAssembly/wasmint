@@ -100,7 +100,7 @@ endif()
 
 
 ####################
-#    Unit infinite_tests    #
+#    Unit tests    #
 ####################
 
 file(GLOB_RECURSE TEST_FILES "libwasmint/tests/*Test.cpp")
@@ -186,7 +186,7 @@ add_executable(wasm2c
 target_link_libraries(wasm2c wasm-module)
 
 ###########################
-#   does_halt    #
+#       does_halt         #
 ###########################
 
 add_executable(does_halt tools/halting_problem/does_halt.cpp)
@@ -195,7 +195,7 @@ configure_file(tools/halting_problem/runHaltingTests.template.sh runHaltingTests
 
 
 ###########################
-#    Performance infinite_tests    #
+#    Performance tests    #
 ###########################
 
 option(wasmintProfile "Enable profiling with gperf" OFF)

@@ -68,6 +68,10 @@ namespace wasmint {
         bool influencedByExternalState() const {
             return influencedByExternalState_;
         }
+
+        const HeapPatch& heapPatch() const {
+            return heapPatch_;
+        }
     };
 }
 

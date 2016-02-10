@@ -24,43 +24,43 @@
 namespace wasmint {
     class ThreadPatch {
 
+        std::size_t smallestSavedFrameIndex;
         std::size_t stackSize;
         std::vector<FunctionFrame> savedFrames_;
         std::string trapReason_;
         bool finished_;
         wasm_module::Variable result_;
 
-        std::size_t smallestSavedFrameIndex() const {
-            return stackSize - savedFrames_.size();
-        }
-
     public:
         ThreadPatch() {
         }
         ThreadPatch(const VMThread& thread)
                 : stackSize(thread.frames_.size()), trapReason_(thread.trapReason_) {
-            if (!thread.frames_.empty()) {
-                savedFrames_.push_back(thread.frames_.back());
+            if (thread.frames_.empty()) {
+                throw std::domain_error("ThreadPatch can't handle threads that already finished/haven't started yet");
             }
+            smallestSavedFrameIndex = thread.frames_.size() - 1;
+            savedFrames_.push_back(thread.frames_.back());
             finished_ = thread.finished_;
             trapReason_ = thread.trapReason_;
             result_ = thread.result_;
         }
 
         void backupPreShrink(const VMThread& thread) {
-            if (thread.frames_.size() - 1 <= smallestSavedFrameIndex() && smallestSavedFrameIndex() > 0) {
-                savedFrames_.push_back(thread.frames_.at(smallestSavedFrameIndex() - 1));
+            if (thread.frames_.size() - 1 <= smallestSavedFrameIndex) {
+                if (smallestSavedFrameIndex != 0) {
+                    smallestSavedFrameIndex--;
+                    savedFrames_.push_back(thread.frames_.at(smallestSavedFrameIndex));
+                }
             }
         }
 
         void applyPatch(VMThread& thread) const {
             thread.frames_.resize(stackSize);
-            if (!savedFrames_.empty()) {
-                std::size_t j = savedFrames_.size() - 1;
-                for (std::size_t i = smallestSavedFrameIndex(); i < stackSize; i++) {
-                    thread.frames_.at(i) = savedFrames_.at(j);
-                    j--;
-                }
+            std::size_t j = savedFrames_.size() - 1;
+            for (std::size_t i = smallestSavedFrameIndex; i < stackSize; i++) {
+                thread.frames_.at(i) = savedFrames_.at(j);
+                j--;
             }
             thread.currentFrame_ = &thread.frames_.back();
             thread.finished_ = finished_;

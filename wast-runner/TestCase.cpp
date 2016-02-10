@@ -65,7 +65,7 @@ bool TestCase::run(wasmint::WasmintVM& vm) {
         return true;
     } else if (type_ == Type::AssertReturn) {
         const wasm_module::Function* function = getExportedFunction(vm);
-        vm.startAtFunction(*function, parameters_, false);
+        vm.startAtFunction(*function, parameters_, true);
 
         wasmint::WasmintVMTester tester(vm);
         tester.stepUntilFinished();

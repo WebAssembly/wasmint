@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
 
         while (!vm.finished()) {
             vm.step();
-            if (vm.instructionCounter().multipleOf(1000000)) {
+            if (vm.instructionCounter().multipleOf(5000000)) {
                 std::cout << "\rAnalysing... " << getCurrentMemoryUseage() << " counter: " << vm.state().instructionCounter().toString();
                 std::cout.flush();
                 HaltingProblemDetector haltingProblemDetector(vm);

@@ -44,7 +44,7 @@ namespace wasmint {
         WasmintVM* machine_ = nullptr;
 
         bool finished_ = false;
-        static const uint32_t stackLimit = 10000;
+        static const uint32_t stackLimit = 100000;
         wasm_module::Variable result_;
 
     public:
