@@ -586,11 +586,13 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
 
 void wasmint::JITCompiler::addBranch(const wasm_module::BranchInformation* information) {
     code_.appendOpcode(ByteOpcodes::Branch);
+    code_.append<uint16_t>(0); // alignment
     addBranchAddress(information);
 }
 
 void wasmint::JITCompiler::addBranch(const wasm_module::Instruction* instruction, bool before) {
     code_.appendOpcode(ByteOpcodes::Branch);
+    code_.append<uint16_t>(0); // alignment
     addBranchAddress(instruction, before);
 }
 

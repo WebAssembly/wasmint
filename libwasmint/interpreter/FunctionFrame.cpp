@@ -465,7 +465,6 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
              ******************************************************/
 
         case ByteOpcodes::Branch:
-            instructionPointer_ -= sizeof(uint16_t);
             instructionPointer_ = popFromCode<uint32_t>();
             break;
 
