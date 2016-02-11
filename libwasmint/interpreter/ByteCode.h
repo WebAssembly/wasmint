@@ -30,8 +30,17 @@ namespace wasmint {
 
     class ByteCode {
 
-        std::vector<uint8_t> byteCode_;
+        std::size_t usedCodeSize_ = 0;
+        std::vector<uint32_t> byteCode_;
 
+        const uint8_t* data() const {
+            return (uint8_t *) byteCode_.data();
+        }
+
+        uint8_t* data() {
+            return (uint8_t *) byteCode_.data();
+        }
+        
     public:
         ByteCode() {
         }
@@ -41,10 +50,10 @@ namespace wasmint {
             std::size_t size = sizeof(T);
             std::size_t unused;
             if (safeSizeTAddition(position, size, &unused)) {
-                throw std::out_of_range("Can't call get on bytecode with length " + std::to_string(byteCode_.size())
+                throw std::out_of_range("Can't call get on bytecode with length " + std::to_string(usedCodeSize_)
                 + " with pos " + std::to_string(position) + " and size " + std::to_string(size));
             }
-            std::memcpy(target, byteCode_.data() + position, size);
+            std::memcpy(target, data() + position, size);
         }
 
         template<typename T>
@@ -53,16 +62,16 @@ namespace wasmint {
             std::size_t size = sizeof(T);
             std::size_t unused;
             if (safeSizeTAddition(position, size, &unused)) {
-                throw std::out_of_range("Can't call get on bytecode with length " + std::to_string(byteCode_.size())
+                throw std::out_of_range("Can't call get on bytecode with length " + std::to_string(usedCodeSize_)
                                         + " with pos " + std::to_string(position) + " and size " + std::to_string(size));
             }
-            std::memcpy(&target, byteCode_.data() + position, size);
+            std::memcpy(&target, data() + position, size);
             return target;
         }
 
         template<typename T>
         void getUnsafe(T* target, std::size_t position) const {
-            (*target) = *((T*) (byteCode_.data() + position));
+            (*target) = *((T*) (data() + position));
         }
 
         void appendOpcode(ByteOpcode opcode) {
@@ -71,20 +80,28 @@ namespace wasmint {
 
         template<typename T>
         void append(T value) {
-            byteCode_.resize(byteCode_.size() + sizeof value);
-            memcpy(byteCode_.data() + (byteCode_.size() - sizeof(value)), &value, sizeof(value));
+            usedCodeSize_ += sizeof value;
+            if (usedCodeSize_ > byteCode_.size() * 4) {
+                if (usedCodeSize_ % 4 == 0) {
+                    byteCode_.resize(usedCodeSize_ / 4);
+                } else {
+                    // round up to the next word
+                    byteCode_.resize((usedCodeSize_ / 4 + 1) * 4);
+                }
+            }
+            memcpy(data() + (usedCodeSize_ - sizeof(value)), &value, sizeof(value));
         }
 
         template<typename T>
         void write(std::size_t offset, T value) {
-            if (offset + sizeof(value) > byteCode_.size()) {
-                throw std::domain_error(std::to_string(offset) + " + " + std::to_string(sizeof(value)) + " <= " + std::to_string(byteCode_.size()) + " failed");
+            if (offset + sizeof(value) > usedCodeSize_) {
+                throw std::domain_error(std::to_string(offset) + " + " + std::to_string(sizeof(value)) + " <= " + std::to_string(usedCodeSize_) + " failed");
             }
-            memcpy(byteCode_.data() + offset, &value, sizeof(value));
+            memcpy(data() + offset, &value, sizeof(value));
         }
 
         uint32_t size() const {
-            return (uint32_t) byteCode_.size();
+            return (uint32_t) usedCodeSize_;
         }
     };
 }

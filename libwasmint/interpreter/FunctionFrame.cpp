@@ -465,7 +465,6 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
              ******************************************************/
 
         case ByteOpcodes::Branch:
-            instructionPointer_ -= sizeof(uint16_t);
             instructionPointer_ = popFromCode<uint32_t>();
             break;
 
@@ -490,6 +489,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             uint16_t sourceRegister = popFromCode<uint16_t>();
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(sourceRegister));
+            popFromCode<uint16_t>(); // alignment padding
             instructionPointer_ = popFromCode<uint32_t>();
             break;
         }
@@ -573,9 +573,11 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         }
         case ByteOpcodes::SetLocal:
             setVariable(popFromCode<uint16_t>(), getRegister<uint64_t>(opcodeData));
+            popFromCode<uint16_t>(); // pop alignment data
             break;
         case ByteOpcodes::GetLocal:
             setRegister<uint64_t>(opcodeData, getVariable(popFromCode<uint16_t>()));
+            popFromCode<uint16_t>(); // pop alignment data
             break;
         case ByteOpcodes::I32Const:
             setRegister(opcodeData, popFromCode<uint32_t>());
@@ -1397,6 +1399,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         {
             uint16_t sourceRegister = popFromCode<uint16_t>();
             setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(sourceRegister));
+            popFromCode<uint16_t>(); // alignment padding
             break;
         }
         case ByteOpcodes::End:

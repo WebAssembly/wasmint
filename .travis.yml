@@ -22,7 +22,7 @@ addons:
       - libboost1.55-all-dev
 
 script:
-  - cmake .
+  - cmake -DwasmintUBSAN=ON .
   - make -j4
   - ctest
   - bash testValgrind.sh

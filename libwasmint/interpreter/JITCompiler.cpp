@@ -41,6 +41,8 @@
 void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* instruction) {
 
     instructionStartAddresses[instruction] = code_.size();
+    // check that each operation is word aligned
+    assert(code_.size() % 4 == 0);
 
     switch (instruction->id()) {
         Op2Case(I32Add)
@@ -314,12 +316,14 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             code_.appendOpcode(ByteOpcodes::GetLocal);
             code_.append(registerAllocator_(instruction));
             code_.append<uint16_t>((uint16_t) dynamic_cast<const wasm_module::GetLocal*>(instruction)->localIndex);
+            code_.append<uint16_t>(0); // alignment
             break;
         case InstructionId::SetLocal:
             compileInstruction(instruction->children().at(0));
             code_.appendOpcode(ByteOpcodes::SetLocal);
             code_.append(registerAllocator_(instruction));
             code_.append<uint16_t>((uint16_t) dynamic_cast<const wasm_module::SetLocal*>(instruction)->localIndex);
+            code_.append<uint16_t>(0); // alignment
             break;
         case InstructionId::I32Const:
             code_.appendOpcode(ByteOpcodes::I32Const);
@@ -407,16 +411,16 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             for (std::size_t i = 0; i < instruction->children().size(); i++) {
                 const wasm_module::Type* type = instruction->children().at(i)->returnType();
                 if (type == wasm_module::Int32::instance()) {
-                    code_.append<uint8_t>(0);
+                    code_.append<uint32_t>(0);
                 } else if (type == wasm_module::Int64::instance()) {
-                    code_.append<uint8_t>(1);
+                    code_.append<uint32_t>(1);
                 } else if (type == wasm_module::Float32::instance()) {
-                    code_.append<uint8_t>(2);
+                    code_.append<uint32_t>(2);
                 } else if (type == wasm_module::Float64::instance()) {
-                    code_.append<uint8_t>(3);
+                    code_.append<uint32_t>(3);
                 } else if (type == wasm_module::Void::instance()) {
                     // void arguments will result in crash
-                    code_.append<uint8_t>(4);
+                    code_.append<uint32_t>(4);
                 }
             }
             // nop that will trigger when we return (just for the debugger)
@@ -584,11 +588,13 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
 
 void wasmint::JITCompiler::addBranch(const wasm_module::BranchInformation* information) {
     code_.appendOpcode(ByteOpcodes::Branch);
+    code_.append<uint16_t>(0); // alignment
     addBranchAddress(information);
 }
 
 void wasmint::JITCompiler::addBranch(const wasm_module::Instruction* instruction, bool before) {
     code_.appendOpcode(ByteOpcodes::Branch);
+    code_.append<uint16_t>(0); // alignment
     addBranchAddress(instruction, before);
 }
 
@@ -611,6 +617,7 @@ void wasmint::JITCompiler::addBranchCopyReg(const wasm_module::BranchInformation
         code_.appendOpcode(ByteOpcodes::BranchCopyReg);
         code_.append(targetReg);
         code_.append(srcReg);
+        code_.append<uint16_t>(0); // padding for alignment
         addBranchAddress(information->target(), false);
     }
 }
@@ -661,6 +668,7 @@ void wasmint::JITCompiler::addBranchCopyReg(const wasm_module::Instruction* inst
     code_.appendOpcode(ByteOpcodes::BranchCopyReg);
     code_.append(targetReg);
     code_.append(srcReg);
+    code_.append<uint16_t>(0);
     addBranchAddress(instruction, false);
 }
 
@@ -668,6 +676,7 @@ void wasmint::JITCompiler::addCopyRegister(uint16_t target, uint16_t source) {
     code_.appendOpcode(ByteOpcodes::CopyReg);
     code_.append(target);
     code_.append(source);
+    code_.append<uint16_t>(0);
 }
 
 

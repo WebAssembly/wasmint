@@ -60,7 +60,7 @@ namespace wasmint {
             if (machine().reconstructing()) {
                 if (function.variadic()) {
                     for (uint16_t i = 0; i < parameterSize; i++) {
-                        frames_.back().popFromCode<uint8_t>();
+                        frames_.back().popFromCode<uint32_t>();
                     }
                 }
                 if (nativeInstruction->returnType() != wasm_module::Void::instance()) {
@@ -77,7 +77,7 @@ namespace wasmint {
                 for (uint16_t i = 0; i < parameterSize; i++) {
                     const wasm_module::Type* type = nullptr;
                     if (function.variadic()) {
-                        uint8_t typeId = frames_.back().popFromCode<uint8_t>();
+                        uint32_t typeId = frames_.back().popFromCode<uint32_t>();
                         switch(typeId) {
                             case 0:
                                 type = wasm_module::Int32::instance();
