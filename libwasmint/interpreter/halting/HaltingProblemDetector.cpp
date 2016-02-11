@@ -49,7 +49,6 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
         InstructionCounter counter = nextRollbackCounter;
         while (counter != lastCounter) {
             if (isIdentical(vm_.state(), backupState, modifiedPages)) {
-                std::cerr << vm_.instructionCounter().toString() << std::endl;
                 result = true;
                 break;
             }
@@ -75,7 +74,7 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
 }
 
 bool wasmint::HaltingProblemDetector::isIdentical(const VMState& a, const VMState& b, std::set<std::size_t>& indexes) {
-    // we don't compare the instruction pointer on purpose
+    // we don't compare the instruction pointer which is on purpose
     // as we only compare for memory/thread equality when checking for reoccurring states
 
     if (a.heap().size() != b.heap().size())
@@ -91,5 +90,5 @@ bool wasmint::HaltingProblemDetector::isIdentical(const VMState& a, const VMStat
 }
 
 bool wasmint::HaltingProblemDetector::comparePage(const Heap& a, const Heap& b, std::size_t pageIndex) {
-    return a.equalRange(b, pageIndex, HeapPatch::chunkSize);
+    return a.equalRange(b, HeapPatch::chunkSize * pageIndex, HeapPatch::chunkSize * (pageIndex + 1));
 }

@@ -29,6 +29,7 @@
 #include "Interval.h"
 #include "HeapObserver.h"
 #include <cstring>
+#include <cassert>
 
 namespace wasmint {
 
@@ -53,18 +54,11 @@ namespace wasmint {
         }
 
         Heap(std::size_t size) {
-            if (size % pageSize_ == 0) {
-                data_.resize(size, 0);
-            } else {
-                // round up to next page
-                std::size_t pages = size % pageSize_;
-                pages++;
-                data_.resize(pages * pageSize_);
-            }
+            resize(size);
         }
 
         Heap(const wasm_module::HeapData& data) {
-            data_.resize(data.startSize());
+            resize(data.startSize());
             std::fill(data_.begin(), data_.end(), 0);
 
             for (const wasm_module::HeapSegment& segment : data.segments()) {
@@ -118,7 +112,17 @@ namespace wasmint {
             if (size > maxSize_) {
                 return false;
             }
-            data_.resize(size);
+            data_.resize(size, 0);
+#ifdef WASMINT_FUTURE_COMPABILITY
+            if (size % pageSize_ == 0) {
+                data_.resize(size, 0);
+            } else {
+                // round up to next page
+                std::size_t pages = size % pageSize_;
+                pages++;
+                data_.resize(pages * pageSize_);
+            }
+#endif
             return true;
         }
 
@@ -256,8 +260,11 @@ namespace wasmint {
             return !this->operator==(other);
         }
 
-        bool equalRange(const Heap& other, std::size_t index, std::size_t range) const {
-            return std::memcmp(data_.data() + index, other.data_.data() + index, range) == 0;
+        bool equalRange(const Heap& other, std::size_t start, std::size_t end) const {
+            if (end > data_.size()) {
+                end = data_.size();
+            }
+            return std::memcmp(data_.data() + start, other.data_.data() + start, end - start) == 0;
         }
 
         void removeObserver() {
