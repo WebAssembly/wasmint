@@ -617,6 +617,7 @@ void wasmint::JITCompiler::addBranchCopyReg(const wasm_module::BranchInformation
         code_.appendOpcode(ByteOpcodes::BranchCopyReg);
         code_.append(targetReg);
         code_.append(srcReg);
+        code_.append<uint16_t>(0); // padding for alignment
         addBranchAddress(information->target(), false);
     }
 }
