@@ -58,7 +58,7 @@ namespace wasm_module { namespace sexpr {
                 return result;
             }
 
-            virtual bool reachedEnd() const {
+            virtual bool reachedEnd() const override {
                 return position >= value_.size();
             }
         };

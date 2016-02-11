@@ -77,7 +77,6 @@ int main(int argc, char** argv) {
     std::cout.flush();
 
     if (expr.children().size() == 0) {
-
         std::cout << "[" << Color::FG_RED << " EMPTY  " << Color::FG_DEFAULT << "]" << std::endl;
         return 1;
     }
