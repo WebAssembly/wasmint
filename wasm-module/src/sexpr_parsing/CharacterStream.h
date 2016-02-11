@@ -37,7 +37,7 @@ namespace wasm_module { namespace sexpr {
         }
         // no copying
         CharacterStream(const CharacterStream& other);
-        CharacterStream&operator=(const CharacterStream& other);
+        CharacterStream& operator=(const CharacterStream& other);
 
         virtual char peekChar() const = 0;
         virtual char popChar() = 0;
@@ -63,7 +63,6 @@ namespace wasm_module { namespace sexpr {
                 popChar();
             }
         }
-
 
         std::size_t line() const {
             return line_;

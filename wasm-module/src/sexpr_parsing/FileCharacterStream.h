@@ -63,7 +63,7 @@ namespace wasm_module { namespace sexpr {
         }
 
         virtual bool reachedEnd() const {
-            return hasNextChar_;
+            return !hasNextChar_;
         }
     };
 }}

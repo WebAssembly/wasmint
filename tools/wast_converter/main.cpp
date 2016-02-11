@@ -16,7 +16,9 @@
 
 #include <sexpr_parsing/SExpr.h>
 #include <sexpr_parsing/SExprParser.h>
+#include <Module.h>
 
+using namespace wasm_module;
 using namespace wasm_module::sexpr;
 
 int main(int argc, char** argv) {
@@ -26,4 +28,14 @@ int main(int argc, char** argv) {
     for (std::size_t i = 0; i < argc; i++)
         args[i] = std::string(argv[i]);
 
+    SExpr fileExpr = SExprParser::parseFile(args.at(1));
+
+    std::unique_ptr<Module> module;
+
+    for (const SExpr& child : fileExpr.children()) {
+        const std::string& firstValue = child[0].value();
+        if (firstValue == "module") {
+
+        }
+    }
 }

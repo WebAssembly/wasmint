@@ -19,6 +19,7 @@
 #define WASMINT_STRINGCHARACTERSTREAM_H
 
 #include <string>
+#include <iostream>
 #include "CharacterStream.h"
 
 namespace wasm_module { namespace sexpr {
@@ -27,11 +28,6 @@ namespace wasm_module { namespace sexpr {
 
             std::string value_;
             std::size_t position = 0;
-
-            std::size_t line_ = 1;
-            std::size_t linePos_ = 1;
-            bool nextIsNewLine_ = false;
-
 
         public:
             StringCharacterStream() {
