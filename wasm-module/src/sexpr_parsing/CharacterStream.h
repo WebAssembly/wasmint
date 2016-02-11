@@ -26,9 +26,7 @@ namespace wasm_module { namespace sexpr {
 
     class CharacterStream {
 
-        std::string value_;
-        std::size_t position = 0;
-
+    protected:
         std::size_t line_ = 1;
         std::size_t linePos_ = 1;
         bool nextIsNewLine_ = false;
@@ -37,32 +35,13 @@ namespace wasm_module { namespace sexpr {
     public:
         CharacterStream() {
         }
+        // no copying
+        CharacterStream(const CharacterStream& other);
+        CharacterStream& operator=(const CharacterStream& other);
 
-        CharacterStream(const std::string& value) : value_(value) {
-            trimWhitespace();
-        }
-
-        char peekChar() const {
-            if (position >= value_.size()) {
-                throw UnexpectedEndOfCharacterStream();
-            }
-            return value_[position];
-        }
-
-        char popChar() {
-            if (nextIsNewLine_) {
-                nextIsNewLine_ = false;
-                line_++;
-                linePos_ = 0;
-            }
-            char result = peekChar();
-            linePos_++;
-            if (result == '\n') {
-                nextIsNewLine_ = true;
-            }
-            position++;
-            return result;
-        }
+        virtual char peekChar() const = 0;
+        virtual char popChar() = 0;
+        virtual bool reachedEnd() const = 0;
 
         bool isWhitespace(char c) {
             return c == ' ' || c == '\n' || c == '\t';
@@ -83,10 +62,6 @@ namespace wasm_module { namespace sexpr {
             while (!reachedEnd() && isWhitespace(peekChar())) {
                 popChar();
             }
-        }
-
-        bool reachedEnd() const {
-            return position >= value_.size();
         }
 
         std::size_t line() const {

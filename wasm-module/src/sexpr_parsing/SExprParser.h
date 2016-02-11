@@ -20,6 +20,8 @@
 
 #include "CharacterStream.h"
 #include "SExpr.h"
+#include "StringCharacterStream.h"
+#include "FileCharacterStream.h"
 
 namespace wasm_module { namespace sexpr {
 
@@ -34,12 +36,18 @@ namespace wasm_module { namespace sexpr {
         void parseValues(SExpr &parent, bool allowsEndOfStream);
 
     public:
-        SExprParser(CharacterStream &stream);
+        SExprParser(CharacterStream& stream);
 
         SExpr parse(bool allowExitBeforeEOF = false);
 
         static SExpr parseString(const std::string& str) {
-            CharacterStream stream(str);
+            StringCharacterStream stream(str);
+            SExprParser parser(stream);
+            return parser.parse();
+        }
+
+        static SExpr parseFile(const std::string& filePath) {
+            FileCharacterStream stream(filePath);
             SExprParser parser(stream);
             return parser.parse();
         }

@@ -41,7 +41,7 @@ int main() {
         "    )\n"
         ")";
 
-    CharacterStream stream(str);
+    StringCharacterStream stream(str);
 
     SExprParser parser(stream);
 
