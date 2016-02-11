@@ -667,6 +667,7 @@ void wasmint::JITCompiler::addBranchCopyReg(const wasm_module::Instruction* inst
     code_.appendOpcode(ByteOpcodes::BranchCopyReg);
     code_.append(targetReg);
     code_.append(srcReg);
+    code_.append<uint16_t>(0);
     addBranchAddress(instruction, false);
 }
 
@@ -674,6 +675,7 @@ void wasmint::JITCompiler::addCopyRegister(uint16_t target, uint16_t source) {
     code_.appendOpcode(ByteOpcodes::CopyReg);
     code_.append(target);
     code_.append(source);
+    code_.append<uint16_t>(0);
 }
 
 
