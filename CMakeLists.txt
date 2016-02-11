@@ -101,7 +101,12 @@ endif()
 option(wasmintUBSAN "Enable undefined behaviour sanitizer" OFF)
 
 if(wasmintUBSAN)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined -fno-sanitize-recover")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=undefined -fno-sanitize-recover")
+    else()
+        # TODO wrong report for latest GCC. Check for GCC >= 4.9 here
+        message(WARNING "Compiler doesn't support UBSAN")
+    endif()
 endif()
 
 ####################
