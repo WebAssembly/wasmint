@@ -316,12 +316,14 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             code_.appendOpcode(ByteOpcodes::GetLocal);
             code_.append(registerAllocator_(instruction));
             code_.append<uint16_t>((uint16_t) dynamic_cast<const wasm_module::GetLocal*>(instruction)->localIndex);
+            code_.append<uint16_t>(0); // alignment
             break;
         case InstructionId::SetLocal:
             compileInstruction(instruction->children().at(0));
             code_.appendOpcode(ByteOpcodes::SetLocal);
             code_.append(registerAllocator_(instruction));
             code_.append<uint16_t>((uint16_t) dynamic_cast<const wasm_module::SetLocal*>(instruction)->localIndex);
+            code_.append<uint16_t>(0); // alignment
             break;
         case InstructionId::I32Const:
             code_.appendOpcode(ByteOpcodes::I32Const);
