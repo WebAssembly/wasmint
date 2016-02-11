@@ -60,7 +60,7 @@ namespace wasmint {
             if (machine().reconstructing()) {
                 if (function.variadic()) {
                     for (uint16_t i = 0; i < parameterSize; i++) {
-                        frames_.back().popFromCode<uint8_t>();
+                        frames_.back().popFromCode<uint32_t>();
                     }
                 }
                 if (nativeInstruction->returnType() != wasm_module::Void::instance()) {
