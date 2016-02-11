@@ -289,7 +289,7 @@ namespace wasm_module { namespace sexpr {
     }
 
     Module *ModuleParser::parse(const std::string& str, const std::string& nameHint) {
-        CharacterStream stream(str);
+        StringCharacterStream stream(str);
 
         SExprParser parser(stream);
 

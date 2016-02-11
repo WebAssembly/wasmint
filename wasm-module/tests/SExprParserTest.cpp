@@ -35,7 +35,7 @@ int main() {
             "\n(module)"
             "\n(module)";
 
-    CharacterStream stream(str);
+   StringCharacterStream stream(str);
 
     SExprParser parser(stream);
 

@@ -44,7 +44,6 @@ namespace Color {
 int main(int argc, char** argv) {
 
     std::string modulePath;
-    std::string moduleContent;
     std::string expectedOutput;
 
     if (argc <= 1) {
@@ -65,20 +64,13 @@ int main(int argc, char** argv) {
     std::string expectedOutputPath = directory + "/expected-output/" + filename + ".log";
 
     {
-        std::ifstream stream(modulePath);
-        moduleContent = std::string((std::istreambuf_iterator<char>(stream)),
-                        std::istreambuf_iterator<char>());
-        stream.close();
-    }
-
-    {
         std::ifstream stream(expectedOutputPath);
         expectedOutput = std::string((std::istreambuf_iterator<char>(stream)),
                                     std::istreambuf_iterator<char>());
         stream.close();
     }
 
-    wasm_module::sexpr::SExpr expr = wasm_module::sexpr::SExprParser::parseString(moduleContent);
+    wasm_module::sexpr::SExpr expr = wasm_module::sexpr::SExprParser::parseFile(modulePath);
 
     std::cout << std::left << std::setw(73) << argv[1] << std::setw(0) << " ";
     std::cout.flush();
