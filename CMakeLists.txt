@@ -103,7 +103,7 @@ option(wasmintUBSAN "Enable undefined behaviour sanitizer" OFF)
 if(wasmintUBSAN)
     if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         # all flags beside -fsanitize=float-divide-by-zero which is defined behaviour and will happen during normal execution
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=alignment -fsanitize=bool -fsanitize=bounds -fsanitize=enum -fsanitize=float-cast-overflow -fsanitize=function -fsanitize=integer-divide-by-zero -fsanitize=nonnull-attribute -fsanitize=null -fsanitize=object-size -fsanitize=return -fsanitize=returns-nonnull-attribute -fsanitize=shift -fsanitize=signed-integer-overflow -fsanitize=unreachable -fsanitize=unsigned-integer-overflow -fsanitize=vla-bound -fsanitize=vptr")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=alignment -fsanitize=bool -fsanitize=bounds -fsanitize=enum -fsanitize=float-cast-overflow -fsanitize=function -fsanitize=integer-divide-by-zero -fsanitize=nonnull-attribute -fsanitize=null -fsanitize=object-size -fsanitize=return -fsanitize=returns-nonnull-attribute -fsanitize=shift -fsanitize=signed-integer-overflow -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=vptr")
     else()
         # TODO wrong report for latest GCC. Check for GCC >= 4.9 here
         message(WARNING "Compiler doesn't support UBSAN")
