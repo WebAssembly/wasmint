@@ -32,6 +32,8 @@ namespace wasmint {
     bool Heap::operator==(const Heap& other) const {
         if (other.size() != size())
             return false;
+        if (size() == 0)
+            return true;
         return memcmp(other.data_.data(), data_.data(), size()) == 0;
     }
 }

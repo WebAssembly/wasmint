@@ -77,7 +77,7 @@ namespace wasmint {
                 for (uint16_t i = 0; i < parameterSize; i++) {
                     const wasm_module::Type* type = nullptr;
                     if (function.variadic()) {
-                        uint8_t typeId = frames_.back().popFromCode<uint8_t>();
+                        uint32_t typeId = frames_.back().popFromCode<uint32_t>();
                         switch(typeId) {
                             case 0:
                                 type = wasm_module::Int32::instance();

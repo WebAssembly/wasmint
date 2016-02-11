@@ -407,16 +407,16 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             for (std::size_t i = 0; i < instruction->children().size(); i++) {
                 const wasm_module::Type* type = instruction->children().at(i)->returnType();
                 if (type == wasm_module::Int32::instance()) {
-                    code_.append<uint8_t>(0);
+                    code_.append<uint32_t>(0);
                 } else if (type == wasm_module::Int64::instance()) {
-                    code_.append<uint8_t>(1);
+                    code_.append<uint32_t>(1);
                 } else if (type == wasm_module::Float32::instance()) {
-                    code_.append<uint8_t>(2);
+                    code_.append<uint32_t>(2);
                 } else if (type == wasm_module::Float64::instance()) {
-                    code_.append<uint8_t>(3);
+                    code_.append<uint32_t>(3);
                 } else if (type == wasm_module::Void::instance()) {
                     // void arguments will result in crash
-                    code_.append<uint8_t>(4);
+                    code_.append<uint32_t>(4);
                 }
             }
             // nop that will trigger when we return (just for the debugger)
