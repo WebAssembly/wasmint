@@ -41,6 +41,8 @@
 void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* instruction) {
 
     instructionStartAddresses[instruction] = code_.size();
+    // check that each operation is word aligned
+    assert(code_.size() % 4 == 0);
 
     switch (instruction->id()) {
         Op2Case(I32Add)

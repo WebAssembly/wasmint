@@ -30,7 +30,8 @@ namespace wasmint {
 
     class ByteCode {
 
-        std::vector<uint8_t> byteCode_;
+        std::size_t usedCodeSize_ = 0;
+        std::vector<uint32_t> byteCode_;
 
     public:
         ByteCode() {
@@ -71,7 +72,9 @@ namespace wasmint {
 
         template<typename T>
         void append(T value) {
-            byteCode_.resize(byteCode_.size() + sizeof value);
+            usedCodeSize_ += sizeof value;
+            if (usedCodeSize_ > byteCode_.size())
+                byteCode_.resize(usedCodeSize_);
             memcpy(byteCode_.data() + (byteCode_.size() - sizeof(value)), &value, sizeof(value));
         }
 
@@ -84,7 +87,7 @@ namespace wasmint {
         }
 
         uint32_t size() const {
-            return (uint32_t) byteCode_.size();
+            return (uint32_t) usedCodeSize_;
         }
     };
 }
