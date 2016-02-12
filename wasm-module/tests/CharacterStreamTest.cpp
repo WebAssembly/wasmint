@@ -21,47 +21,52 @@
 #include <cassert>
 #include <types/Int32.h>
 #include <sexpr_parsing/CharacterStream.h>
+#include <sexpr_parsing/StringCharacterStream.h>
 
 using namespace wasm_module::sexpr;
 
 int main() {
     std::string str1 = "these are four words";
 
-    CharacterStream stream(str1);
-    stream.trimWhitespace();
-    stream.trimWhitespace();
+    {
 
-    assert(!stream.reachedEnd());
-    assert(stream.peekChar() == 't');
-    assert(stream.popWord() == "these");
-    assert(!stream.reachedEnd());
-    stream.trimWhitespace();
+        StringCharacterStream stream(str1);
+        stream.trimWhitespace();
+        stream.trimWhitespace();
 
-    assert(stream.peekChar() == 'a');
-    assert(stream.popWord() == "are");
-    assert(!stream.reachedEnd());
-    stream.trimWhitespace();
+        assert(!stream.reachedEnd());
+        assert(stream.peekChar() == 't');
+        assert(stream.popWord() == "these");
+        assert(!stream.reachedEnd());
+        stream.trimWhitespace();
 
-    assert(stream.peekChar() == 'f');
-    assert(stream.popWord() == "four");
-    assert(!stream.reachedEnd());
-    stream.trimWhitespace();
+        assert(stream.peekChar() == 'a');
+        assert(stream.popWord() == "are");
+        assert(!stream.reachedEnd());
+        stream.trimWhitespace();
 
-    assert(stream.peekChar() == 'w');
-    assert(stream.popWord() == "words");
-    assert(stream.reachedEnd());
-    try {
-        stream.popChar();
-        assert(false);
-    } catch (const UnexpectedEndOfCharacterStream &ex) {
+        assert(stream.peekChar() == 'f');
+        assert(stream.popWord() == "four");
+        assert(!stream.reachedEnd());
+        stream.trimWhitespace();
+
+        assert(stream.peekChar() == 'w');
+        assert(stream.popWord() == "words");
+        assert(stream.reachedEnd());
+        try {
+            stream.popChar();
+            assert(false);
+        } catch (const UnexpectedEndOfCharacterStream &ex) {
+        }
     }
 
-
-    stream = CharacterStream("");
-    assert(stream.reachedEnd());
-    try {
-        stream.popChar();
-        assert(false);
-    } catch (const UnexpectedEndOfCharacterStream &ex) {
+    {
+        StringCharacterStream stream("");
+        assert(stream.reachedEnd());
+        try {
+            stream.popChar();
+            assert(false);
+        } catch (const UnexpectedEndOfCharacterStream &ex) {
+        }
     }
 }

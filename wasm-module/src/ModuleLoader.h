@@ -21,17 +21,14 @@
 #include <sexpr_parsing/ModuleParser.h>
 #include <fstream>
 #include <sexpr_parsing/SExprParser.h>
+#include <sexpr_parsing/FileCharacterStream.h>
 #include "Module.h"
 
 namespace wasm_module {
     class ModuleLoader {
     public:
         static Module* loadFromFile(const std::string& filePath) {
-            std::ifstream moduleFile(filePath);
-            std::string moduleData((std::istreambuf_iterator<char>(moduleFile)),
-                                   std::istreambuf_iterator<char>());
-
-            sexpr::CharacterStream stream(moduleData);
+            sexpr::FileCharacterStream stream(filePath);
 
             sexpr::SExpr expr = sexpr::SExprParser(stream).parse(true);
             Module* result = sexpr::ModuleParser::parse(expr[0]);

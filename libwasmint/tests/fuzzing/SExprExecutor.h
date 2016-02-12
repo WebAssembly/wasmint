@@ -22,7 +22,7 @@ namespace wasmint {
         void execute(const std::string& program) {
             using namespace wasm_module;
             using namespace wasmint;
-            sexpr::CharacterStream stream(program);
+            sexpr::StringCharacterStream stream(program);
 
             Module* m = nullptr;
             try {

@@ -159,5 +159,6 @@ namespace wasm_module { namespace sexpr {
     }
 
     SExprParser::SExprParser(CharacterStream &stream) : stream_(stream) {
+        stream_.trimWhitespace();
     }
 }}

@@ -64,11 +64,7 @@ int main(int argc, char** argv) {
             }
 
         } else {
-
-            std::ifstream moduleFile(modulePath);
-            std::string moduleData((std::istreambuf_iterator<char>(moduleFile)),
-                            std::istreambuf_iterator<char>());
-            sexpr::CharacterStream stream(moduleData);
+            sexpr::FileCharacterStream stream(modulePath);
 
             try {
                 sexpr::SExpr expr = sexpr::SExprParser(stream).parse(true);

@@ -35,6 +35,7 @@ add_library(libwasmint
     libwasmint/builtins/SpectestModule.cpp
     libwasmint/builtins/StdioModule.cpp
     libwasmint/builtins/SDLModule.cpp
+    libwasmint/builtins/RandomModule.cpp
 
     libwasmint/interpreter/at/thread/InterpreterThread.cpp
     libwasmint/interpreter/at/thread/FunctionState.cpp
@@ -54,6 +55,8 @@ add_library(libwasmint
     libwasmint/interpreter/heap/Interval.cpp
     libwasmint/interpreter/heap/patch/HeapPatchChunk.cpp
 
+    libwasmint/interpreter/halting/HaltingProblemDetector.cpp
+
     libwasmint/interpreter/RegisterAllocator.cpp
     libwasmint/interpreter/ByteOpcodes.h
     libwasmint/interpreter/JITCompiler.cpp
@@ -71,7 +74,7 @@ add_library(libwasmint
 
     libwasmint/serialization/ByteOutputStream.cpp
     libwasmint/serialization/ByteInputStream.cpp
-        libwasmint/interpreter/halting/HaltingProblemDetector.cpp libwasmint/interpreter/halting/HaltingProblemDetector.h libwasmint/builtins/RandomModule.cpp libwasmint/builtins/RandomModule.h)
+)
 
 
 ###########################
@@ -195,6 +198,13 @@ add_executable(wasm2c
         wasm-to-c/ModuleConverter.cpp
         wasm-to-c/FunctionConverter.cpp wasm-to-c/FunctionConverter.h wasm-to-c/InjectedWasmLib.h)
 target_link_libraries(wasm2c wasm-module)
+
+###########################
+#     wast converter      #
+###########################
+
+add_executable(wast-converter tools/wast_converter/main.cpp)
+target_link_libraries(wast-converter libwasmint wasm-module)
 
 ###########################
 #       does_halt         #
