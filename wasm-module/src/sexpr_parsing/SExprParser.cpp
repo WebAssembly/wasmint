@@ -130,6 +130,11 @@ namespace wasm_module { namespace sexpr {
                 std::string word;
 
                 while (true) {
+                    if (!word.empty() && stream_.reachedEnd()) {
+                        parent.addChild(word).line(line);
+                        break;
+                    }
+
                     char c = stream_.popChar();
                     if (!stream_.isWhitespace(c)) {
                         if (c == ')') {
