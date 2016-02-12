@@ -186,7 +186,7 @@ if(${Boost_FOUND})
             debugger/Widget.cpp
             debugger/FunctionList.cpp)
 
-    target_link_libraries(wasmdbg libwasmint wasm-module ${CURSES_LIBRARIES})
+    target_link_libraries(wasmdbg libwasmint wasm-module ${CURSES_LIBRARIES} ${Boost_LIBRARIES})
 endif()
 
 ###########################
@@ -203,8 +203,10 @@ target_link_libraries(wasm2c wasm-module)
 #     wast converter      #
 ###########################
 
-add_executable(wast-converter tools/wast_converter/main.cpp)
-target_link_libraries(wast-converter libwasmint wasm-module)
+if(${Boost_FOUND})
+    add_executable(wast-converter tools/wast_converter/main.cpp)
+    target_link_libraries(wast-converter libwasmint wasm-module ${Boost_LIBRARIES})
+endif()
 
 ###########################
 #       does_halt         #
