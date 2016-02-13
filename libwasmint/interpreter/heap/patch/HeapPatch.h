@@ -35,6 +35,7 @@ namespace wasmint {
         std::size_t heapSize_;
 
         std::map<std::size_t, HeapPatchChunk> chunks_;
+        std::set<std::size_t> modifiedChunks_;
 
     public:
         static const std::size_t chunkSize = 1024;
@@ -64,6 +65,7 @@ namespace wasmint {
                 changedInterval.end(heapSize_);
             }
 
+            modifiedChunks_.insert(chunkIndex);
             if (chunks_.find(chunkIndex) == chunks_.end()) {
                 HeapPatchChunk& chunk = chunks_[chunkIndex] = HeapPatchChunk(changedInterval);
                 for (std::size_t i = changedInterval.start(); i < changedInterval.end(); i++) {
@@ -72,12 +74,8 @@ namespace wasmint {
             }
         }
 
-        std::set<std::size_t> modifiedChunks() const {
-            std::set<std::size_t> result;
-            for (auto& pair : chunks_) {
-                result.insert(pair.first);
-            }
-            return result;
+        const std::set<std::size_t>& modifiedChunks() const {
+            return modifiedChunks_;
         }
     };
 }

@@ -17,6 +17,7 @@
 
 #include "HaltingProblemDetector.h"
 #include <stdexcept>
+#include <algorithm>
 
 bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter) {
     if (startCounter > vm_.instructionCounter()) {
@@ -26,8 +27,10 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
     bool result = false;
     const VMState backupState = vm_.state();
 
+    totalStates_ = vm_.instructionCounter().toUint64();
+
     InstructionCounter lastCounter = vm_.instructionCounter();
-    std::set<std::size_t> modifiedPages;
+    std::set<std::size_t> pagesThatNeedChecks;
 
     while (true) {
         const MachinePatch& lastPatch = vm_.history().getCheckpoint(lastCounter);
@@ -36,9 +39,6 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
             throw CantMakeHaltingDecision("Patch indicates that its related state depend on the external state");
         }
 
-        std::set<std::size_t> newPages = lastPatch.heapPatch().modifiedChunks();
-        modifiedPages.insert(newPages.begin(), newPages.end());
-
         InstructionCounter nextRollbackCounter = lastPatch.startCounter();
 
         if (nextRollbackCounter < startCounter)
@@ -46,14 +46,35 @@ bool wasmint::HaltingProblemDetector::isLooping(InstructionCounter startCounter)
 
         vm_.simulateTo(nextRollbackCounter);
 
-        InstructionCounter counter = nextRollbackCounter;
-        while (counter != lastCounter) {
-            if (isIdentical(vm_.state(), backupState, modifiedPages)) {
-                result = true;
-                break;
+        for (auto iter = pagesThatNeedChecks.begin(); iter != pagesThatNeedChecks.end(); ) {
+            std::size_t pageIndex = *iter;
+            if (comparePage(vm_.heap(), backupState.heap(), pageIndex)) {
+                iter = pagesThatNeedChecks.erase(iter);
+            } else {
+                ++iter;
             }
-            ++counter;
-            vm_.simulateTo(counter);
+        }
+
+        const std::set<std::size_t>& modifiedPages = lastPatch.heapPatch().modifiedChunks();
+
+        bool modifiesRelevantPages = std::includes(modifiedPages.begin(), modifiedPages.end(),
+                                                pagesThatNeedChecks.begin(), pagesThatNeedChecks.end());
+
+        pagesThatNeedChecks.insert(modifiedPages.begin(), modifiedPages.end());
+
+        if (modifiesRelevantPages) {
+            InstructionCounter counter = nextRollbackCounter;
+            while (counter != lastCounter) {
+                if (isIdentical(vm_.state(), backupState, pagesThatNeedChecks)) {
+                    ignoredStates_ += counter.toUint64();
+                    result = true;
+                    break;
+                }
+                ++counter;
+                vm_.simulateTo(counter);
+            }
+        } else {
+            ignoredStates_ += (lastCounter.toUint64() - nextRollbackCounter.toUint64());
         }
         if (!result) {
             lastCounter = nextRollbackCounter;

@@ -263,6 +263,13 @@ namespace wasmint {
         bool equalRange(const Heap& other, std::size_t start, std::size_t end) const {
             if (end > data_.size()) {
                 end = data_.size();
+                if (other.size() != this->size())
+                    return false;
+            }
+            if (end > other.data_.size()) {
+                end = other.data_.size();
+                if (other.size() != this->size())
+                    return false;
             }
             return std::memcmp(data_.data() + start, other.data_.data() + start, end - start) == 0;
         }
