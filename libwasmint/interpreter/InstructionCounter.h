@@ -83,6 +83,10 @@ namespace wasmint {
         }
 
         InstructionCounter operator-(uint64_t value) const;
+
+        uint64_t toUint64() const {
+            return counter_;
+        }
     };
 }
 

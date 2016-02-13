@@ -19,6 +19,7 @@
 #define WASMINT_HALTINGPROBLEMDETECTOR_H
 
 #include <interpreter/WasmintVM.h>
+#include <iomanip>
 
 namespace wasmint {
 
@@ -26,10 +27,12 @@ namespace wasmint {
 
     class HaltingProblemDetector {
 
+        std::size_t ignoredStates_ = 0;
+        std::size_t totalStates_;
+
         WasmintVM& vm_;
 
         bool comparePage(const Heap& a, const Heap& b, std::size_t pageIndex);
-
         bool isIdentical(const VMState& a, const VMState& b, std::set<std::size_t>& indexes);
 
     public:
@@ -37,6 +40,10 @@ namespace wasmint {
         }
 
         bool isLooping(InstructionCounter startCounter = 0);
+
+        void printInfo() {
+            std::cout << "Skipped " << std::setprecision (2) << std::fixed << ((ignoredStates_ * 100.0) / totalStates_) << "%" << std::endl;
+        }
     };
 }
 
