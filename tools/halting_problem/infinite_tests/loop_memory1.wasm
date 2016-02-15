@@ -1,6 +1,6 @@
 (module
   (memory 256 256 (segment 1 "abcdef"))
-  (func main
+  (func $main
     (local $i i32)
     (set_local $i (i32.const 0))
     (loop $exit $cont

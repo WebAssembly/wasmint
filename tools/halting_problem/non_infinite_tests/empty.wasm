@@ -1,4 +1,4 @@
 (module
-    (func main
+    (func $main
     )
 )

@@ -10,7 +10,7 @@
         (local $ptr i32)
         (local $split i32)
         (if (i32.gt_u (i32.sub (get_local $end) (get_local $begin)) (i32.const 1))
-            (
+            (block
                 (set_local $ptr (get_local $begin))
                 (set_local $split (i32.add (get_local $begin) (i32.const 1)))
                 (loop $exit $cont
@@ -19,7 +19,7 @@
                         (br $exit)
                     )
                     (if (i32.lt_u (i32.load8_u (get_local $ptr)) (i32.load8_u (get_local $begin)))
-                        (
+                        (block
                             (call $swap (get_local $ptr) (get_local $split))
                             (set_local $split (i32.add (get_local $split) (i32.const 1)))
                         )
@@ -33,11 +33,9 @@
         )
     )
     (func $main
-        (call $quicksort (i32.const 0) (i32.const 4095))
-        (call $quicksort (i32.const 4096) (i32.const 8100))
-        (loop $exit $cont
-            (call $quicksort (i32.const 2048) (i32.const 2500))
-          (br $cont)
-        )
+        (call $quicksort (i32.const 0) (i32.const 9968))
     )
+    (export "main" $main)
 )
+
+(invoke "main")

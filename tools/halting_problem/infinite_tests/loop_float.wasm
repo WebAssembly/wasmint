@@ -1,5 +1,5 @@
 (module
-  (func main
+  (func $main
     (local $i f32)
     (set_local $i (f32.const 0))
     (loop $exit $cont

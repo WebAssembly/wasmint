@@ -11,6 +11,7 @@
 #include <builtins/StdioModule.h>
 #include <builtins/SDLModule.h>
 #include <interpreter/WasmintVM.h>
+#include <chrono>
 
 using namespace wasm_module;
 using namespace wasmint;
@@ -67,7 +68,7 @@ int main(int argc, char** argv) {
 
         for (const wasm_module::Module *module : vm.modules()) {
             try {
-                module->getFunction("main");
+                module->getFunction("$main");
                 if (mainModule != nullptr) {
                     std::cerr << "Multiple modules with a main function! Aborting..." << std::endl;
                     std::cerr << "Module 1 was " << module->name() << ", Module 2 was " << mainModule->name() <<
@@ -86,12 +87,21 @@ int main(int argc, char** argv) {
         }
 
         try {
-            vm.startAtFunction(*mainModule->function("main"), false);
+            std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+
+            vm.startAtFunction(*mainModule->function("$main"), false);
             vm.stepUntilFinished();
             if (vm.gotTrap()) {
                 std::cerr << "Got trap while executing program: " << vm.trapReason() << std::endl;
                 return 2;
             }
+
+            std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+
+            std::cout << "Execution took "
+                    << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()
+                    << "ms" << std::endl;
+            std::cout << "Executed " << vm.instructionCounter().toString() << " instructions" << std::endl;
         } catch(const wasm_module::NoFunctionWithName& e) {
             if (std::string(e.what()) == "main") {
                 std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;
@@ -104,6 +114,5 @@ int main(int argc, char** argv) {
             << std::endl;
             return 1;
         }
-
     }
 }

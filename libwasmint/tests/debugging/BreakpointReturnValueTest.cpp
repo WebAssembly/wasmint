@@ -53,7 +53,7 @@ int main() {
 
     WasmintVM vm;
 
-    Module* module = ModuleParser::parse("module (func main (if_else (i32.const 0) (unreachable) (nop)))");
+    Module* module = ModuleParser::parse("module (func $main (if_else (i32.const 0) (unreachable) (nop)))");
 
     const Instruction* breakpointInstruction1 = module->functions().front()->mainInstruction()->children().at(0);
     const Instruction* breakpointInstruction2 = module->functions().front()->mainInstruction()->children().at(2);

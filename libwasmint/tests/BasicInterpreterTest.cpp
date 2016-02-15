@@ -37,7 +37,7 @@ int main() {
 
         MachineState environment;
 
-        Module* positiveModule = ModuleParser::parse("module (func main (if_else (i32.const 0) (unreachable) ()))");
+        Module* positiveModule = ModuleParser::parse("module (func $main (if_else (i32.const 0) (unreachable) ()))");
 
         environment.useModule(*positiveModule, true);
 
@@ -47,7 +47,7 @@ int main() {
     {
         MachineState environment;
 
-        Module* positiveModule = ModuleParser::parse("module (func main (if_else (i32.const 1) () (unreachable)))");
+        Module* positiveModule = ModuleParser::parse("module (func $main (if_else (i32.const 1) () (unreachable)))");
 
         environment.useModule(*positiveModule, true);
 
@@ -59,7 +59,7 @@ int main() {
 
         MachineState environment;
 
-        Module* positiveModule = ModuleParser::parse("module (func main (if_else (i32.const 1) (unreachable) ()))");
+        Module* positiveModule = ModuleParser::parse("module (func $main (if_else (i32.const 1) (unreachable) ()))");
 
         environment.useModule(*positiveModule, true);
 
@@ -70,7 +70,7 @@ int main() {
     {
         MachineState environment;
 
-        Module* positiveModule = ModuleParser::parse("module (func main (if_else (i32.const 0) () (unreachable)))");
+        Module* positiveModule = ModuleParser::parse("module (func $main (if_else (i32.const 0) () (unreachable)))");
 
         environment.useModule(*positiveModule, true);
 

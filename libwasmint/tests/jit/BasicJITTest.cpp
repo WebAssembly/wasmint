@@ -34,7 +34,7 @@ int main() {
     {
         WasmintVM vm;
 
-        Module* module = ModuleParser::parse("module (func main (if_else (i32.const 0) (unreachable) (nop)))");
+        Module* module = ModuleParser::parse("module (func $main (if_else (i32.const 0) (unreachable) (nop)))");
         vm.loadModule(*module, true);
         vm.startAtFunction(*module->functions().front());
 
@@ -46,7 +46,7 @@ int main() {
     {
         WasmintVM vm;
 
-        Module* module = ModuleParser::parse("module (func main (if_else (i32.const 1) (unreachable) (nop)))");
+        Module* module = ModuleParser::parse("module (func $main (if_else (i32.const 1) (unreachable) (nop)))");
         vm.loadModule(*module, true);
         vm.startAtFunction(*module->functions().front());
         vm.stepUntilFinished();

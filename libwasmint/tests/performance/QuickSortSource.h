@@ -57,7 +57,7 @@ const std::string quickSortSource =
         "            )\n" // end if block
         "        )\n" // end if
         "    )\n" // end quicksort func
-        "    (func main\n"
+        "    (func $main\n"
         "        (call $quicksort (i32.const 0) (i32.const " + std::to_string((sizeof WASMINT_PI_DIGITS_STR) - 1) + "))\n"
         "    )\n";
 

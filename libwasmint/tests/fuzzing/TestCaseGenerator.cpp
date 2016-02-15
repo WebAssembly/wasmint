@@ -242,7 +242,7 @@ namespace wasmint {
     };
 
     void TestCaseGenerator::generateMainFunction() {
-        source_ << "(func main ";
+        source_ << "(func $main ";
 
         while (decision(90))
             generateInstruction();

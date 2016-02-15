@@ -1,7 +1,7 @@
 (module
   (import $uneven "stdio" "uneven" (result i32))
 
-  (func main
+  (func $main
     (local $i i32)
     (set_local $i (i32.const 0))
     (loop $exit $cont

@@ -33,7 +33,7 @@ int main() {
     std::unique_ptr<MachineState> environment;
     environment.reset(new MachineState());
 
-    Module* module = ModuleParser::parse("module (func main (if_else (i32.sub (i32.const 1) (i32.const 1)) (unreachable) (i32.add (i32.const 1) (i32.const 3))))");
+    Module* module = ModuleParser::parse("module (func $main (if_else (i32.sub (i32.const 1) (i32.const 1)) (unreachable) (i32.add (i32.const 1) (i32.const 3))))");
 
     environment->useModule(*module, false);
 

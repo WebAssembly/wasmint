@@ -33,7 +33,7 @@ using namespace wasmint;
 int main() {
     WasmintVM vm;
 
-    Module* module = ModuleParser::parse("module (func main (if_else (i32.add (i32.const 2) (i32.const 4)) (nop) (unreachable)))");
+    Module* module = ModuleParser::parse("module (func $main (if_else (i32.add (i32.const 2) (i32.const 4)) (nop) (unreachable)))");
     vm.loadModule(*module, true);
     vm.startAtFunction(*module->functions().front());
 

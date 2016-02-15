@@ -33,11 +33,6 @@
         )
     )
     (func $main
-        (call $quicksort (i32.const 0) (i32.const 4095))
-        (call $quicksort (i32.const 4096) (i32.const 8100))
-        (loop $exit $cont
-            (call $quicksort (i32.const 2048) (i32.const 2500))
-          (br $cont)
-        )
+        (call $quicksort (i32.const 0) (i32.const 9968))
     )
 )

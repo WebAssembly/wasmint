@@ -36,7 +36,7 @@ int main() {
 
     Module* module = ModuleParser::parse("module "
                                                  "(func $add (param $a i32) (param $b i32) (i32.add (get_local $a) (get_local $b)))"
-                                                 "(func main (if_else (i32.const 0) (unreachable) (call $add (i32.const 1) (i32.const 2))))");
+                                                 "(func $main (if_else (i32.const 0) (unreachable) (call $add (i32.const 1) (i32.const 2))))");
 
     vm.loadModule(*module, true);
     vm.startAtFunction(*module->functions().back());
