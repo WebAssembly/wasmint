@@ -23,6 +23,8 @@ inline bool ends_with(std::string const & value, std::string const & ending)
 }
 
 int main(int argc, char** argv) {
+    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+
     bool runMain = true;
 
     if (argc == 1) {
@@ -87,7 +89,6 @@ int main(int argc, char** argv) {
         }
 
         try {
-            std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 
             vm.startAtFunction(*mainModule->function("$main"), false);
             vm.stepUntilFinished();
