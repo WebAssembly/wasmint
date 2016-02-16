@@ -69,7 +69,7 @@ void ModuleConverter::convert() {
     indent(4);
 
     for (const wasm_module::Function* function : module_->functions()) {
-        if (function->name() == "main") {
+        if (function->name() == "$main") {
             cSource_ << functionName(function) << "();\n";
         }
     }

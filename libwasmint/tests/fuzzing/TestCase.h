@@ -66,7 +66,7 @@ namespace wasmint {
 
             vm.loadModuleFromData(sourceString_);
             const wasm_module::Module* module = vm.modules().back();
-            vm.startAtFunction(*module->function("main"));
+            vm.startAtFunction(*module->function("$main"));
 
             vm.stepUntilFinished(false);
 

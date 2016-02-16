@@ -103,7 +103,7 @@ int main(int argc, char** argv) {
                     << "ms" << std::endl;
             std::cout << "Executed " << vm.instructionCounter().toString() << " instructions" << std::endl;
         } catch(const wasm_module::NoFunctionWithName& e) {
-            if (std::string(e.what()) == "main") {
+            if (std::string(e.what()) == "$main") {
                 std::cerr << "None of the given modules has a main function. Exiting..." << std::endl;
             } else {
                 std::cerr << "Exiting because we can't find function with name: " << e.what() << std::endl;

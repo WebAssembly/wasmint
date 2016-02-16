@@ -28,7 +28,7 @@ namespace wasmint {
             try {
                 sexpr::SExpr expr = sexpr::SExprParser(stream).parse(true);
                 m = sexpr::ModuleParser::parse(expr[0]);
-                InterpreterThread & thread = machineState.createThread().startAtFunction(m->name(), "main");
+                InterpreterThread & thread = machineState.createThread().startAtFunction(m->name(), "$main");
                 thread.stepUntilFinished();
             } catch (const std::exception& e) {
                 // uncommented because it only slows down the normal fuzzing

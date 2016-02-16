@@ -41,7 +41,7 @@ int main() {
 
         environment.useModule(*positiveModule, true);
 
-        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
+        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "$main");
         thread.stepUntilFinished();
     }
     {
@@ -51,7 +51,7 @@ int main() {
 
         environment.useModule(*positiveModule, true);
 
-        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
+        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "$main");
         thread.stepUntilFinished();
     }
     // negative infinite_tests
@@ -63,7 +63,7 @@ int main() {
 
         environment.useModule(*positiveModule, true);
 
-        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
+        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "$main");
         thread.stepUntilFinished();
         assert(thread.gotTrap());
     }
@@ -74,7 +74,7 @@ int main() {
 
         environment.useModule(*positiveModule, true);
 
-        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "main");
+        InterpreterThread & thread = environment.createThread().startAtFunction(positiveModule->name(), "$main");
         thread.stepUntilFinished();
         assert(thread.gotTrap());
     }

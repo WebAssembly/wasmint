@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 
     for (const wasm_module::Module *module : vm.modules()) {
         try {
-            module->getFunction("main");
+            module->getFunction("$main");
             if (mainModule != nullptr) {
                 std::cout << "Multiple modules with a main function! Aborting..." << std::endl;
                 std::cout << "Module 1 was " << module->name() << ", Module 2 was " << mainModule->name() <<
@@ -95,7 +95,7 @@ int main(int argc, char** argv) {
     try {
         std::cout << "Start analyzing program" << std::endl;
 
-        vm.startAtFunction(*mainModule->function("main"), true);
+        vm.startAtFunction(*mainModule->function("$main"), true);
         std::cout << "Analysing... " << getCurrentMemoryUseage() << " counter: " << vm.state().instructionCounter().toString() << std::endl;
         while (!vm.finished()) {
             vm.step();
@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
         }
         return 0;
     } catch(const wasm_module::NoFunctionWithName& e) {
-        if (std::string(e.what()) == "main") {
+        if (std::string(e.what()) == "$main") {
             std::cout << std::endl << "None of the given modules has a main function. Exiting..." << std::endl;
         } else {
             std::cout << std::endl << "Exiting because we can't find function with name: " << e.what() << std::endl;

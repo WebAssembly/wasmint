@@ -37,7 +37,7 @@ int main() {
 
     environment->useModule(*module, false);
 
-    environment->createThread().startAtFunction(module->name(), "main");
+    environment->createThread().startAtFunction(module->name(), "$main");
 
     InterpreterThread * thread = &environment->getThread();
 

@@ -59,7 +59,7 @@ void runATCore() {
     environment.useModule(*positiveModule, true);
 
     high_resolution_clock::time_point t1 = high_resolution_clock::now();
-    InterpreterThread * thread = &environment.createThread().startAtFunction(positiveModule->name(), "main");
+    InterpreterThread * thread = &environment.createThread().startAtFunction(positiveModule->name(), "$main");
     thread->stepUntilFinished();
     if (thread->gotTrap()) {
         std::cerr << "thread got trap: " << thread->trapReason() << std::endl;
