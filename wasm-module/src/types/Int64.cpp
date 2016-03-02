@@ -26,7 +26,7 @@ namespace wasm_module {
             if (literal.at(0) == '-') {
                 int64_t value = 0;
                 for(std::size_t i = 3; i < literal.size(); i++) {
-                    value <<= 4u;
+                    value *= 16;
                     char c = literal[i];
                     if (c >= 'a' && c <= 'f') {
                         value -= c - 'a' + 10u;
