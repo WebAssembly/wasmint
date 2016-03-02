@@ -5,6 +5,33 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${wasmint_SOURCE_DIR}/cmake")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
+###########################
+#       Options           #
+###########################
+
+option(wasmintCoverage "Enable coverage analysis with lcov" OFF)
+
+if(wasmintCoverage)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs")
+    configure_file(generateCoverage.template.sh generateCoverage.sh NEWLINE_STYLE UNIX)
+endif()
+
+option(wasmintUBSAN "Enable undefined behaviour sanitizer" OFF)
+
+if(wasmintUBSAN)
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        # all flags beside -fsanitize=float-divide-by-zero which is defined behaviour and will happen during normal execution
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-sanitize-recover -fsanitize=alignment -fsanitize=bool -fsanitize=bounds -fsanitize=enum -fsanitize=float-cast-overflow -fsanitize=function -fsanitize=integer-divide-by-zero -fsanitize=nonnull-attribute -fsanitize=null -fsanitize=object-size -fsanitize=return -fsanitize=returns-nonnull-attribute -fsanitize=shift -fsanitize=signed-integer-overflow -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=vptr")
+    else()
+        # TODO wrong report for latest GCC. Check for GCC >= 4.9 here
+        message(WARNING "Compiler doesn't support UBSAN")
+    endif()
+endif()
+
+###########################
+#      Submodules         #
+###########################
+
 add_subdirectory(wasm-module)
 
 ###########################
@@ -93,25 +120,6 @@ endif()
 #        Tests            #
 ###########################
 enable_testing()
-
-option(wasmintCoverage "Enable coverage analysis with lcov" OFF)
-
-if(wasmintCoverage)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs")
-    configure_file(generateCoverage.template.sh generateCoverage.sh NEWLINE_STYLE UNIX)
-endif()
-
-option(wasmintUBSAN "Enable undefined behaviour sanitizer" OFF)
-
-if(wasmintUBSAN)
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        # all flags beside -fsanitize=float-divide-by-zero which is defined behaviour and will happen during normal execution
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-sanitize-recover -fsanitize=alignment -fsanitize=bool -fsanitize=bounds -fsanitize=enum -fsanitize=float-cast-overflow -fsanitize=function -fsanitize=integer-divide-by-zero -fsanitize=nonnull-attribute -fsanitize=null -fsanitize=object-size -fsanitize=return -fsanitize=returns-nonnull-attribute -fsanitize=shift -fsanitize=signed-integer-overflow -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=vptr")
-    else()
-        # TODO wrong report for latest GCC. Check for GCC >= 4.9 here
-        message(WARNING "Compiler doesn't support UBSAN")
-    endif()
-endif()
 
 ####################
 #    Unit tests    #
