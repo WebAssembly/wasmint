@@ -38,8 +38,6 @@ namespace wasmint {
         }
     };
 
-    thread_local InterpreterThread * currentThread_ = nullptr;
-
     InterpreterThread::InterpreterThread(MachineState &env) : env_(env) {
     }
 
@@ -111,7 +109,6 @@ namespace wasmint {
     }
 
     void InterpreterThread::stepInternal() {
-        currentThread_ = this;
         getInstructionState().step();
     }
 

@@ -19,6 +19,7 @@
 #define WASMINT_INTERVAL_H
 
 #include <cstdint>
+#include <cstddef>
 
 namespace wasmint {
     class Interval {
