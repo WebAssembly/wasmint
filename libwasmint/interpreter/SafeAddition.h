@@ -20,14 +20,8 @@
 
 namespace wasmint {
     inline bool safeSizeTAddition(std::size_t a, std::size_t b, std::size_t* res) {
-        #ifdef __GNUC__
-        #  include <features.h>
-        #  if __GNUC_PREREQ(5,0)
+        #if defined(__GNUC__) && __GNUC__ > 4
             return __builtin_add_overflow(a, b, res);
-        #  else
-            *res = a + b;
-            return *res < a || *res < b;
-        #  endif
         #else
             *res = a + b;
             return *res < a || *res < b;
@@ -36,17 +30,11 @@ namespace wasmint {
 
 
     inline bool safeUInt32Addition(uint32_t a, uint32_t b, uint32_t* res) {
-        #ifdef __GNUC__
-        #  include <features.h>
-        #  if __GNUC_PREREQ(5,0)
-                return __builtin_add_overflow(a, b, res);
-        #  else
-                *res = a + b;
-                return *res < a || *res < b;
-        #  endif
+        #if defined(__GNUC__) && __GNUC__ > 4
+            return __builtin_add_overflow(a, b, res);
         #else
-                *res = a + b;
-                return *res < a || *res < b;
+            *res = a + b;
+            return *res < a || *res < b;
         #endif
     }
 }

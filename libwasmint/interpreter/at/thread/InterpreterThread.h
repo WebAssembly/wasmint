@@ -157,8 +157,6 @@ namespace wasmint {
 
         virtual void serialize(ByteOutputStream& stream) const;
     };
-
-    extern thread_local InterpreterThread * currentThread_;
 }
 
 #endif //WASMINT_INTERPRETER_THREAD_H
