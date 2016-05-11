@@ -110,9 +110,8 @@ bool TestCase::run(wasmint::WasmintVM& vm) {
             std::cerr << "Failed test as result is not a floating point number: " << result.toString() << "\n" << testCaseExpr_.toString(4) << std::endl;
             return false;
         }
-    } else {
-        assert(false);
     }
+    assert(false);
 }
 
 TestCase::TestCase(const wasm_module::sexpr::SExpr& expr) {
