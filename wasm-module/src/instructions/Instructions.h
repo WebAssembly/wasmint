@@ -112,9 +112,9 @@ namespace wasm_module {
 
     DeclInstruction(Return, "return", {Void::instance()}, Void::instance())};
 
-    DeclInstruction(GrowMemory, "grow_memory", {Int32::instance()}, Void::instance())};
+    DeclInstruction(GrowMemory, "grow_memory", {Int32::instance()}, Int32::instance())};
     DeclInstruction(PageSize, "page_size", {}, Int32::instance())};
-    DeclInstruction(MemorySize, "memory_size", {}, Int32::instance())};
+    DeclInstruction(CurrentMemory, "current_memory", {}, Int32::instance())};
 
     class LoadStoreInstruction : public Instruction {
 

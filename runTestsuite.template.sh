@@ -22,7 +22,7 @@ fi
 failedTests="0"
 
 for i in ${CMAKE_SOURCE_DIR}/testsuite/*.wast ; do
-    $memCheckCmd ./wasmint_wast $i
+    $memCheckCmd ${CMAKE_BINARY_DIR}/wasmint_wast $i
 
     if [ $? -ne 0 ]; then
         failedTests=$((failedTests+1))

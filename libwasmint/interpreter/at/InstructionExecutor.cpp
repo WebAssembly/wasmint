@@ -1075,7 +1075,7 @@ namespace wasmint {
                 case InstructionId::PageSize:
                     return Variable::createUInt32((uint32_t) thread.heap().pageSize());
 
-                case InstructionId::MemorySize:
+                case InstructionId::CurrentMemory:
                     return Variable::createUInt32((uint32_t) thread.heap().size());
 
                 /******************************************************

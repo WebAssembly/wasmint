@@ -12,6 +12,7 @@ namespace wasm_module {
 
     class HeapData {
 
+        const static std::size_t pageSize_ = 65536;
         uint32_t startSize_ = 0;
         uint32_t maxSize_ = 0;
         std::vector<HeapSegment> segments_;

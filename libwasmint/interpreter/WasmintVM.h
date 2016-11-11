@@ -60,7 +60,9 @@ namespace wasmint {
         void loadModuleFromData(const std::string &moduleContent);
 
         void loadModule(wasm_module::Module &module, bool takeMemoryOwnership) {
-            state_.useModule(module);
+            if (modules_.empty())
+                state_.useModule(module);
+
             modules_.push_back(&module);
             for (auto function :  module.functions()) {
                 compileFunction(function);

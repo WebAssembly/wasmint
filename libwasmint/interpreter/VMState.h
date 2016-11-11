@@ -40,13 +40,7 @@ namespace wasmint {
 
     public:
         void useModule(wasm_module::Module &module) {
-            if (module.heapData().startSize() != 0) {
-                if (heap_.size() == 0) {
-                    heap_ = Heap(module.heapData());
-                } else {
-                    throw std::domain_error("Only one module with heap supported at the moment");
-                }
-            }
+            heap_ = Heap(module.heapData());
         }
 
         VMThread& startAtFunction(WasmintVM* vm, std::size_t index) {

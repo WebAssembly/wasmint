@@ -22,10 +22,10 @@
 #include <sexpr_parsing/SExpr.h>
 #include <interpreter/WasmintVM.h>
 
+ExceptionMessage(CouldNotFindExportedFunction);
 
 class TestCase {
 
-    class CouldntFindExportedFunction {};
 
     enum class Type {
         Invalid,

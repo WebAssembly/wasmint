@@ -161,7 +161,7 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         Op1Case(F32Nearest)
 
         Op0Case(PageSize)
-        Op0Case(MemorySize)
+        Op0Case(CurrentMemory)
 
         case InstructionId::I32Load8Signed:
             compileInstruction(instruction->children().at(0));

@@ -164,15 +164,16 @@ namespace wasm_module { namespace sexpr {
             if (funcExpr.children().size() < 2) {
                 throw MissingFunctionName(funcExpr.toString());
             }
-            if (funcExpr[1].hasValue()) {
-                functionName_ = funcExpr[1].value();
+            // FIXME this is obviously not a perfect solution
+            if (funcExpr[1].hasChildren() && funcExpr[1][0].value() == "export") {
+                functionName_ = funcExpr[1][1].value();
             } else {
                 functionName_ = std::to_string(context.mainFunctionTable().size());
             }
 
             std::vector<std::size_t> instructionExprs;
 
-            for(unsigned i = 1; i < funcExpr.children().size(); i++) {
+            for(unsigned i = 2; i < funcExpr.children().size(); i++) {
                 const SExpr& expr = funcExpr[i];
 
                 if (expr.hasValue()) {

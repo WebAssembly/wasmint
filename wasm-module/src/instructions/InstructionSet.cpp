@@ -187,7 +187,7 @@ namespace wasm_module {
 
         else INSTRUCTION(GrowMemory, "grow_memory")
         else INSTRUCTION(PageSize, "page_size")
-        else INSTRUCTION(MemorySize, "memory_size")
+        else INSTRUCTION(CurrentMemory, "current_memory")
 
         else INSTRUCTION(I32Wrap, "i32.wrap/i64")
         else INSTRUCTION(I32TruncSignedF32, "i32.trunc_s/f32")

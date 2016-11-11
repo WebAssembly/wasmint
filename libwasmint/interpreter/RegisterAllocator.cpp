@@ -185,7 +185,7 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
         case InstructionId::F64Const:
         case InstructionId::HasFeature:
         case InstructionId::PageSize:
-        case InstructionId::MemorySize:
+        case InstructionId::CurrentMemory:
         case InstructionId::GetLocal:
         {
             setRegister(instruction, offset);

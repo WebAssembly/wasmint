@@ -1077,7 +1077,7 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
             cSource_ << functionConverter(&instruction) << " = _wasm_pagesize;\n";
             break;
 
-        case InstructionId::MemorySize:
+        case InstructionId::CurrentMemory:
             indent(indentation);
             cSource_ << functionConverter(&instruction) << " = _wasm_memorysize;\n";
             break;

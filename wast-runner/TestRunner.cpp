@@ -30,9 +30,9 @@ bool TestRunner::run(const wasm_module::sexpr::SExpr& expr) {
             if (firstChild == "module") {
                 wasm_module::Module* module = wasm_module::sexpr::ModuleParser::parse(child);
                 vm.reset(new wasmint::WasmintVM());
+                vm->loadModule(*module, true);
                 vm->loadModule(*wasmint::SpectestModule::create(), true);
                 vm->loadModule(*wasmint::RandomModule::create(), true);
-                vm->loadModule(*module, true);
             } else {
                 TestCase testCase(child);
                 if (testCase.needsVM()) {

@@ -41,7 +41,7 @@ namespace wasmint {
 
     class Heap {
 
-        const static std::size_t maxSize_ = 1073741824;
+        std::size_t maxSize_ = 1073741824;
         std::vector<uint8_t> data_;
 
         // 64 KiB as stated in the design documents
@@ -64,7 +64,7 @@ namespace wasmint {
             for (const wasm_module::HeapSegment& segment : data.segments()) {
                 std::copy(segment.data().begin(), segment.data().end(), data_.begin() + segment.offset());
             }
-
+            maxSize_ = data.maxSize();
         }
 
         std::size_t pageSize() const {
@@ -83,6 +83,14 @@ namespace wasmint {
 
         void setByte(std::size_t position, uint8_t value) {
             data_.at(position) = value;
+        }
+
+        size_t pageCount() {
+            return size() / pageSize();
+        }
+
+        bool growPages(std::size_t pages) {
+            return grow(pages * pageSize());
         }
 
         bool grow(std::size_t size) {

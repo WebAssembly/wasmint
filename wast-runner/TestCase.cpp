@@ -187,7 +187,7 @@ const wasm_module::Function *TestCase::getExportedFunction(wasmint::WasmintVM& v
             // pass
         }
     }
-    throw CouldntFindExportedFunction();
+    throw CouldNotFindExportedFunction(functionToCall_);
 }
 
 bool TestCase::run() {

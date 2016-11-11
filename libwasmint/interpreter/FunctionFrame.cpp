@@ -601,22 +601,22 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::GrowMemory: {
             uint32_t value = getRegister<uint32_t>(opcodeData);
 
-            if (value % heap.pageSize() != 0) {
-                return runner.trap("growing memory by non-multiple of page size");
-            }
-
+            size_t oldSize = heap.pageCount();
             // TODO risky conversion
-            if (!heap.grow((uint32_t) value)) {
-                return runner.trap("memory size exceeds implementation limit");
+            if (heap.growPages((uint32_t) value)) {
+                setRegister<uint32_t>(opcodeData, oldSize);
+            } else {
+                setRegister<uint32_t>(opcodeData, (uint32_t) -1);
             }
+            break;
         }
 
         case ByteOpcodes::PageSize:
             setRegister<uint32_t>(opcodeData, (uint32_t) heap.pageSize());
             break;
 
-        case ByteOpcodes::MemorySize:
-            setRegister<uint32_t>(opcodeData, (uint32_t) heap.size());
+        case ByteOpcodes::CurrentMemory:
+            setRegister<uint32_t>(opcodeData, (uint32_t) (heap.size() / heap.pageSize()));
             break;
 
 
