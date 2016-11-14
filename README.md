@@ -1,7 +1,9 @@
 # wasmint
 [![Build Status](https://travis-ci.org/WebAssembly/wasmint.svg?branch=master)](https://travis-ci.org/WebAssembly/wasmint)
 
-A embeddable WebAssembly (**wasm**) **int**erpreter and debugger licensed under the Apache 2.0 License.
+
+
+A embeddable **work-in-progress** WebAssembly (**wasm**) **int**erpreter and debugger licensed under the Apache 2.0 License.
 
 ## Navigation
 
@@ -15,8 +17,6 @@ A embeddable WebAssembly (**wasm**) **int**erpreter and debugger licensed under 
 * `wast-converter` can transform the *.wast-files that are used in the testsuite into normal wasm programs.
 
 * `wasm-to-c` compiles wasm modules to C source code.
-
-* [Test coverage report](https://teemperor.de/wasmint_coverage/)
 
 ## Current state
 
