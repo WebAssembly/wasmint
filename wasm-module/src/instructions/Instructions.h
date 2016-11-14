@@ -1099,10 +1099,6 @@ namespace wasm_module {
             return functionSignature.returnType();
         }
 
-        virtual bool typeCheckChildren() const override {
-            return false;
-        }
-
         virtual std::string dataString() const override {
             return name() + " " + functionName;
         }
