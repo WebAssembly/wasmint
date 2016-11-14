@@ -18,11 +18,10 @@
 #ifndef WASMINT_SPECTESTMODULE_H
 #define WASMINT_SPECTESTMODULE_H
 
+#include <iostream>
 
 #include <Module.h>
 #include <types/Int32.h>
-#include <iostream>
-#include <unistd.h>
 #include <types/Int64.h>
 #include <types/Float32.h>
 #include <types/Float64.h>
@@ -87,6 +86,7 @@ namespace wasmint {
             return module;
         }
 
+#undef stdout
         static std::stringstream& stdout() {
             return stdout_;
         }
