@@ -17,55 +17,13 @@
 #ifndef WASMINT_STDIOMODULE_H
 #define WASMINT_STDIOMODULE_H
 
-
 #include <Module.h>
-#include <types/Int32.h>
-#include <iostream>
-#include <unistd.h>
-#include <types/Int64.h>
-#include <types/Float32.h>
-#include <types/Float64.h>
 
 namespace wasmint {
     class StdioModule {
 
     public:
-        static wasm_module::Module* create() {
-            using namespace wasm_module;
-            Module* module = new Module();
-            module->context().name("stdio");
-
-            module->addVariadicFunction("print", Void::instance(),
-                                        [](std::vector<Variable> parameters) {
-
-                                            for (const Variable& parameter : parameters) {
-                                                std::cout << "print ";
-
-                                                if (&parameter.type() == Int32::instance()) {
-                                                    std::cout << parameter.int32();
-                                                } else if (&parameter.type() == Int64::instance()) {
-                                                    std::cout << parameter.int64();
-                                                } else if (&parameter.type() == Float32::instance()) {
-                                                    std::cout << parameter.float32();
-                                                } else if (&parameter.type() == Float64::instance()) {
-                                                    std::cout << parameter.float64();
-                                                } else {
-                                                    std::cout << "Unknown type to print" << parameter.type().name();
-                                                }
-                                                std::cout << std::endl;
-
-                                            }
-
-                                            return Void::instance();
-                                        });
-
-            module->addFunction("sleep", Void::instance(), {Int32::instance()},
-                                        [](std::vector<Variable> parameters) {
-                                            usleep(Int32::getValue(parameters.at(0)));
-                                            return Void::instance();
-                                        });
-            return module;
-        }
+        static wasm_module::Module* create();
     };
 }
 

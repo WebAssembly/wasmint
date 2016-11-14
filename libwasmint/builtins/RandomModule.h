@@ -18,12 +18,8 @@
 #ifndef WASMINT_RANDOMMODULE_H
 #define WASMINT_RANDOMMODULE_H
 
-
-
 #include <Module.h>
 #include <types/Int32.h>
-#include <iostream>
-#include <unistd.h>
 #include <types/Int64.h>
 #include <types/Float32.h>
 #include <types/Float64.h>
