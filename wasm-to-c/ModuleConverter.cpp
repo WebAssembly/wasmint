@@ -1042,10 +1042,7 @@ void ModuleConverter::serializeInstruction(const wasm_module::Instruction& instr
 
             break;
         }
-        case InstructionId::I32Select:
-        case InstructionId::I64Select:
-        case InstructionId::F32Select:
-        case InstructionId::F64Select:
+        case InstructionId::Select:
             serializeInstruction(*instruction.children().at(0), indentation);
             serializeInstruction(*instruction.children().at(1), indentation);
             serializeInstruction(*instruction.children().at(2), indentation);
