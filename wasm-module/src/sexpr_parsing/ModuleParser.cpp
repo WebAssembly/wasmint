@@ -65,6 +65,11 @@ namespace wasm_module { namespace sexpr {
 
         for (Function* function : module_->functions()) {
             function->mainInstruction()->triggerSecondStepEvaluate(module_->context(), *function);
+            if (function->returnType() != Void::instance()) {
+                if (function->returnType() != function->mainInstruction()->returnType()) {
+                    throw TypeMismatch("type mismatch");
+                }
+            }
         }
     }
 

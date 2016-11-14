@@ -32,6 +32,7 @@ namespace wasm_module { namespace sexpr {
 
     ExceptionMessage(MalformedMemoryStatement)
     ExceptionMessage(InvalidHexEncoding)
+    ExceptionMessage(TypeMismatch)
 
     class ModuleParser {
 
