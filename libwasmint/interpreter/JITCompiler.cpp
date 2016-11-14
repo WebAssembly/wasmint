@@ -541,42 +541,39 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
             break;
         }
 
-        case InstructionId::I32Select:
+        case InstructionId::Select:
         {
-            compileInstruction(instruction->children()[0]);
-            compileInstruction(instruction->children()[1]);
-            compileInstruction(instruction->children()[2]);
-            code_.appendOpcode(ByteOpcodes::I32Select);
-            code_.append(registerAllocator_(instruction));
-            break;
+            if (instruction->returnType() == wasm_module::Int32::instance()) {
+                compileInstruction(instruction->children()[0]);
+                compileInstruction(instruction->children()[1]);
+                compileInstruction(instruction->children()[2]);
+                code_.appendOpcode(ByteOpcodes::I32Select);
+                code_.append(registerAllocator_(instruction));
+                break;
+            } else if (instruction->returnType() == wasm_module::Int64::instance()) {
+                compileInstruction(instruction->children()[0]);
+                compileInstruction(instruction->children()[1]);
+                compileInstruction(instruction->children()[2]);
+                code_.appendOpcode(ByteOpcodes::I64Select);
+                code_.append(registerAllocator_(instruction));
+                break;
+            } else if (instruction->returnType() == wasm_module::Float32::instance()) {
+                compileInstruction(instruction->children()[0]);
+                compileInstruction(instruction->children()[1]);
+                compileInstruction(instruction->children()[2]);
+                code_.appendOpcode(ByteOpcodes::F32Select);
+                code_.append(registerAllocator_(instruction));
+                break;
+            } else if (instruction->returnType() == wasm_module::Float64::instance()) {
+                compileInstruction(instruction->children()[0]);
+                compileInstruction(instruction->children()[1]);
+                compileInstruction(instruction->children()[2]);
+                code_.appendOpcode(ByteOpcodes::F64Select);
+                code_.append(registerAllocator_(instruction));
+                break;
+            }
         }
-        case InstructionId::I64Select:
-        {
-            compileInstruction(instruction->children()[0]);
-            compileInstruction(instruction->children()[1]);
-            compileInstruction(instruction->children()[2]);
-            code_.appendOpcode(ByteOpcodes::I64Select);
-            code_.append(registerAllocator_(instruction));
-            break;
-        }
-        case InstructionId::F32Select:
-        {
-            compileInstruction(instruction->children()[0]);
-            compileInstruction(instruction->children()[1]);
-            compileInstruction(instruction->children()[2]);
-            code_.appendOpcode(ByteOpcodes::F32Select);
-            code_.append(registerAllocator_(instruction));
-            break;
-        }
-        case InstructionId::F64Select:
-        {
-            compileInstruction(instruction->children()[0]);
-            compileInstruction(instruction->children()[1]);
-            compileInstruction(instruction->children()[2]);
-            code_.appendOpcode(ByteOpcodes::F64Select);
-            code_.append(registerAllocator_(instruction));
-            break;
-        }
+
 
         default:
             throw std::domain_error("calculateNumberOfRegisters can't handle instruction " + instruction->name());

@@ -222,10 +222,7 @@ void wasmint::RegisterAllocator::allocateRegisters(const wasm_module::Instructio
             break;
         }
 
-        case InstructionId::I32Select:
-        case InstructionId::I64Select:
-        case InstructionId::F32Select:
-        case InstructionId::F64Select:
+        case InstructionId::Select:
         {
             allocateRegisters(instruction->children().at(0), offset);
             allocateRegisters(instruction->children().at(1), offset + 1);

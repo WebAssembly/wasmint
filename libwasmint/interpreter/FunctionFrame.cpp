@@ -814,19 +814,19 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
         case ByteOpcodes::I32Select:
         case ByteOpcodes::F32Select: {
-            if (getRegister<uint32_t>(opcodeData)) {
-                setRegister<uint32_t>(opcodeData, getRegister<uint32_t>(opcodeData + 1));
+            if (getRegister<uint32_t>(opcodeData + 2)) {
+                setRegister<uint32_t>(opcodeData, getRegister<uint32_t>(opcodeData + 0));
             } else {
-                setRegister<uint32_t>(opcodeData, getRegister<uint32_t>(opcodeData + 2));
+                setRegister<uint32_t>(opcodeData, getRegister<uint32_t>(opcodeData + 1));
             }
             break;
         }
         case ByteOpcodes::I64Select:
         case ByteOpcodes::F64Select: {
-            if (getRegister<uint32_t>(opcodeData)) {
-                setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
+            if (getRegister<uint32_t>(opcodeData + 2)) {
+                setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 0));
             } else {
-                setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 2));
+                setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             }
             break;
         }

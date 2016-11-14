@@ -29,6 +29,7 @@
 #include <Utils.h>
 #include "Instruction.h"
 #include "InstructionId.h"
+#include "UnreachableValidator.h"
 #include <set>
 #include <branching/BranchInformation.h>
 
@@ -184,11 +185,6 @@ namespace wasm_module {
     DeclInstruction(F64ConvertUnsignedI64, "f64.convert_u/i64", {Int64::instance()}, Float64::instance())};
     DeclInstruction(F64ReinterpretI64, "f64.reinterpret/i64", {Int64::instance()}, Float64::instance())};
 
-    DeclInstruction(I32Select, "i32.select", {Int32::instance() DeclInstComma Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
-    DeclInstruction(I64Select, "i64.select", {Int32::instance() DeclInstComma Int64::instance() DeclInstComma Int64::instance()}, Int64::instance())};
-    DeclInstruction(F32Select, "f32.select", {Int32::instance() DeclInstComma Float32::instance() DeclInstComma Float32::instance()}, Float32::instance())};
-    DeclInstruction(F64Select, "f64.select", {Int32::instance() DeclInstComma Float64::instance() DeclInstComma Float64::instance()}, Float64::instance())};
-
     DeclInstruction(F32Add, "f32.add", {Float32::instance() DeclInstComma Float32::instance()}, Float32::instance())};
     DeclInstruction(F32Sub, "f32.sub", {Float32::instance() DeclInstComma Float32::instance()}, Float32::instance())};
     DeclInstruction(F32Mul, "f32.mul", {Float32::instance() DeclInstComma Float32::instance()}, Float32::instance())};
@@ -288,6 +284,55 @@ namespace wasm_module {
             return true;
         }
     };
+
+    class Select : public Instruction {
+
+    protected:
+
+        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) override {
+            if (UnreachableValidator::canEvaluate(children()[0]) &&
+                children()[0]->returnType() == Void::instance()) {
+                throw IncompatibleChildReturnType("First argument of 'select' must not return void: "
+                                                  + toSExprString());
+            }
+            if (UnreachableValidator::canEvaluate(children()[1]) &&
+                    children()[1]->returnType() == Void::instance()) {
+                throw IncompatibleChildReturnType("Second argument of 'select' must not return void."
+                                                  + toSExprString());
+            }
+            if (UnreachableValidator::canEvaluate(children()[0])
+                && UnreachableValidator::canEvaluate(children()[1])
+                && children()[0]->returnType() != children()[1]->returnType()) {
+                throw IncompatibleChildReturnType("'select' expects two arguments of the same type."
+                                                  + toSExprString());
+            }
+        }
+
+    public:
+        virtual const std::string& name() const override {
+            static std::string name_ = "select";
+            return name_;
+        }
+
+        virtual InstructionId::Value id() const override {
+            return InstructionId::Select;
+        }
+
+        virtual const std::vector<const Type*>& childrenTypes() const override {
+            static std::vector<const Type *> chTypes_ = {Void::instance(), Void::instance(), Int32::instance()} ; return chTypes_;
+        }
+
+        virtual const Type* returnType() const override {
+            if (children()[1]->returnType() == Void::instance())
+                return children()[2]->returnType();
+            return children()[1]->returnType();
+        }
+
+        virtual bool typeCheckChildren() const override {
+            return true;
+        }
+    };
+
 
     class SetLocal : public Instruction {
 

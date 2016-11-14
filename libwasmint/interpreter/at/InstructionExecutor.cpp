@@ -1546,10 +1546,7 @@ namespace wasmint {
                  ***************** Select Operations ******************
                  ******************************************************/
 
-                case InstructionId::I32Select:
-                case InstructionId::I64Select:
-                case InstructionId::F32Select:
-                case InstructionId::F64Select:
+                case InstructionId::Select:
                     switch (state.state()) {
                         case 0:
                         case 1:
@@ -1557,9 +1554,9 @@ namespace wasmint {
                             return StepResult(instruction.children().at(state.state()));
                         default:
                             if (state.results().at(0).int32()) {
-                                return state.results().at(1);
+                                return state.results().at(0);
                             } else {
-                                return state.results().at(2);
+                                return state.results().at(1);
                             }
                     }
                 /******************************************************

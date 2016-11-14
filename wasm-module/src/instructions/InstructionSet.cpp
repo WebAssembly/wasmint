@@ -218,10 +218,7 @@ namespace wasm_module {
         else INSTRUCTION(F64ConvertUnsignedI64, "f64.convert_u/i64")
         else INSTRUCTION(F64ReinterpretI64, "f64.reinterpret/i64")
 
-        else INSTRUCTION(I32Select, "i32.select")
-        else INSTRUCTION(I64Select, "i64.select")
-        else INSTRUCTION(F32Select, "f32.select")
-        else INSTRUCTION(F64Select, "f64.select")
+        else INSTRUCTION(Select, "select")
 
         else INSTRUCTION(F32Add, "f32.add")
         else INSTRUCTION(F32Sub, "f32.sub")
