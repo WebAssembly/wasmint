@@ -18,6 +18,10 @@ A embeddable WebAssembly (**wasm**) **int**erpreter and debugger licensed under 
 
 * [Test coverage report](https://teemperor.de/wasmint_coverage/)
 
+## Current state
+
+The interpreter still needs to catch up with the latest spec.
+
 ## Building
 
 libwasmint, wasmint and wasm-module require a C++11 compiler (including STL) and CMake as build dependencies.
