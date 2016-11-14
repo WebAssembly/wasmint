@@ -249,10 +249,6 @@ namespace wasm_module {
         virtual const Type* returnType() const override {
             return Void::instance();
         }
-
-        virtual bool typeCheckChildren() const override {
-            return true;
-        }
     };
 
     class IfElse : public Instruction {
@@ -278,10 +274,6 @@ namespace wasm_module {
                 return children()[1]->returnType();
             }
             return Void::instance();
-        }
-
-        virtual bool typeCheckChildren() const override {
-            return true;
         }
     };
 
@@ -326,10 +318,6 @@ namespace wasm_module {
             if (children()[1]->returnType() == Void::instance())
                 return children()[2]->returnType();
             return children()[1]->returnType();
-        }
-
-        virtual bool typeCheckChildren() const override {
-            return true;
         }
     };
 

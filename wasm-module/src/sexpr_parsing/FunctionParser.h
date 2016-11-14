@@ -30,6 +30,7 @@ namespace wasm_module { namespace sexpr {
 
     ExceptionMessage(UnexpectedTokenInFunction);
     ExceptionMessage(MissingFunctionName);
+    ExceptionMessage(MultipleFunctionName);
     ExceptionMessage(MalformedLocalStatement);
     ExceptionMessage(MalformedParamStatement);
     ExceptionMessage(MalformedResultStatement);
@@ -161,19 +162,11 @@ namespace wasm_module { namespace sexpr {
         }
 
         FunctionParser(const SExpr& funcExpr, ModuleContext& context) : context_(context) {
-            if (funcExpr.children().size() < 2) {
-                throw MissingFunctionName(funcExpr.toString());
-            }
             // FIXME this is obviously not a perfect solution
-            if (funcExpr[1].hasChildren() && funcExpr[1][0].value() == "export") {
-                functionName_ = funcExpr[1][1].value();
-            } else {
-                functionName_ = std::to_string(context.mainFunctionTable().size());
-            }
 
             std::vector<std::size_t> instructionExprs;
 
-            for(unsigned i = 2; i < funcExpr.children().size(); i++) {
+            for(unsigned i = 1; i < funcExpr.children().size(); i++) {
                 const SExpr& expr = funcExpr[i];
 
                 if (expr.hasValue()) {
@@ -195,10 +188,17 @@ namespace wasm_module { namespace sexpr {
                     parseResult(expr);
                 } else if (typeName == "type") {
                     parseType(expr);
+                } else if (typeName == "export") {
+                    if (!functionName_.empty())
+                        throw MultipleFunctionName(funcExpr.toString());
+                    functionName_ = expr[1].value();
                 } else {
                     instructionExprs.push_back(i);
                 }
             }
+
+            if (functionName_.empty())
+                functionName_ = std::to_string(context.mainFunctionTable().size());
 
             if (hasFunctionTypeDefined && !hasOwnSignature) {
                 returnType = functionType_.returnType();
