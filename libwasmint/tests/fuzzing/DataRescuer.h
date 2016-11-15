@@ -1,9 +1,8 @@
 #ifndef WASMINT_DATARESCUER_H
 #define WASMINT_DATARESCUER_H
 
-#include<stdio.h>
-#include<signal.h>
-#include<unistd.h>
+#include <stdio.h>
+#include <signal.h>
 #include <iostream>
 
 namespace wasmint {
