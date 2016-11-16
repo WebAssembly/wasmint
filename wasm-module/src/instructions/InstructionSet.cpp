@@ -72,6 +72,8 @@ namespace wasm_module {
                 return new GetLocal(expr, functionContext);
             } else if (name == "set_local") {
                 return new SetLocal(expr, functionContext);
+            } else if (name == "tee_local") {
+                return new TeeLocal(expr, functionContext);
             } else if (name == "has_feature") {
                 return new HasFeature(expr);
             } else if (name == "label") {
@@ -80,6 +82,8 @@ namespace wasm_module {
                 return new Loop(expr, functionContext);
             } else if (name == "block") {
                 return new Block(expr, functionContext);
+            } else if (name == "drop") {
+                return new Drop(expr);
             } else if (name == "tableswitch") {
                 return new TableSwitch(expr, subExprsToIgnore);
             } else if (name == "case") {
@@ -138,6 +142,7 @@ namespace wasm_module {
         INSTRUCTION(I32ShiftLeft, "i32.shl")
         INSTRUCTION(I32ShiftRightZeroes, "i32.shr_u")
         INSTRUCTION(I32ShiftRightSigned, "i32.shr_s")
+        INSTRUCTION(I32EqualZero, "i32.eqz")
         INSTRUCTION(I32Equal, "i32.eq")
         INSTRUCTION(I32NotEqual, "i32.ne")
         INSTRUCTION(I32LessThanSigned, "i32.lt_s")
@@ -165,6 +170,7 @@ namespace wasm_module {
         INSTRUCTION(I64ShiftLeft, "i64.shl")
         INSTRUCTION(I64ShiftRightZeroes, "i64.shr_u")
         INSTRUCTION(I64ShiftRightSigned, "i64.shr_s")
+        INSTRUCTION(I64EqualZero, "i64.eqz")
         INSTRUCTION(I64Equal, "i64.eq")
         INSTRUCTION(I64NotEqual, "i64.ne")
         INSTRUCTION(I64LessThanSigned, "i64.lt_s")

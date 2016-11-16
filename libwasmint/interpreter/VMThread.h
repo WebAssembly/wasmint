@@ -47,6 +47,7 @@ namespace wasmint {
         static const uint32_t stackLimit = 100000;
         wasm_module::Variable result_;
 
+
     public:
         VMThread() {
         }
@@ -123,7 +124,7 @@ namespace wasmint {
         void enterFunction(std::size_t functionId);
         void enterFunction(std::size_t functionId, const std::vector<wasm_module::Variable>& parameters);
 
-        void enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset);
+        void enterFunction(std::size_t functionId, uint32_t parameterSize);
 
         bool operator==(const VMThread& other) const {
 

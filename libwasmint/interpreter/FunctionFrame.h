@@ -23,13 +23,13 @@
 #include <interpreter/heap/Heap.h>
 #include "ByteCode.h"
 #include "CompiledFunction.h"
+#include "ValueStack.h"
 
 namespace wasmint {
     class VMThread;
 
     class FunctionFrame {
         const ByteCode* code_ = nullptr;
-        std::vector<uint64_t> registers_;
         std::vector<uint64_t> variables_;
 
         uint16_t functionTargetRegister_ = 0;
@@ -37,9 +37,12 @@ namespace wasmint {
         uint32_t instructionPointer_ = 0;
         CompiledFunction* function_ = nullptr;
 
+        ValueStack stack_;
+
         void dumpStatus(ByteOpcodes::Values opcode, uint16_t opcodeData);
 
         void stepInternal(VMThread &runner, Heap &heap);
+
 
     public:
         FunctionFrame() {
@@ -48,19 +51,18 @@ namespace wasmint {
         FunctionFrame(CompiledFunction& function) : function_(&function) {
             code_ = &function.code();
             uint16_t numberOfRegisters = popFromCode<uint16_t>();
-            registers_.resize(numberOfRegisters, 0);
 
             uint16_t numberOfVariables = popFromCode<uint16_t>();
             variables_.resize(numberOfVariables, 0);
         }
 
         void passFunctionResult(uint64_t value) {
-            setRegister(functionTargetRegister_, value);
+            stack_.push(value);
         }
 
         void passFunctionResult(const wasm_module::Variable& value) {
             if (&value.type() != wasm_module::Void::instance())
-                setRegisterFromVariable(functionTargetRegister_, value);
+                stack_.push(value.primitiveValue());
         }
         template<typename T>
         T popFromCode() {
@@ -82,21 +84,6 @@ namespace wasmint {
             return result;
         }
 
-        template<typename T>
-        void setRegister(uint16_t index, T value) {
-            *((T*)(registers_.data() + index)) = value;
-        }
-
-        void setRegisterFromVariable(uint16_t index, const wasm_module::Variable& variable) {
-            *(registers_.data() + index) = *((uint64_t*) variable.value());
-        }
-
-        template<typename T>
-        T getRegister(unsigned index) {
-            T result = *((T*)(registers_.data() + index));
-            return result;
-        }
-
         uint64_t getVariable(uint16_t index) {
             uint64_t result = *(variables_.data() + index);
             return result;
@@ -113,16 +100,11 @@ namespace wasmint {
             if (code_ != other.code_)
                 return false;
 
-            if (registers_.size() != other.registers_.size())
-                return false;
-
             if (variables_.size() != other.variables_.size())
                 return false;
 
-            for (std::size_t i = 0; i < registers_.size(); i++) {
-                if (registers_[i] != other.registers_[i])
-                    return false;
-            }
+            if (stack_ != other.stack_)
+                return false;
 
             for (std::size_t i = 0; i < variables_.size(); i++) {
                 if (variables_[i] != other.variables_[i])
@@ -140,6 +122,21 @@ namespace wasmint {
 
         const CompiledFunction& function() const {
             return *function_;
+        }
+
+        template<typename T>
+        void push(T value) {
+            stack_.push<T>(value);
+        }
+
+        template<typename T>
+        T peek() {
+            return stack_.peek<T>();
+        }
+
+        template<typename T>
+        T pop() {
+            return stack_.pop<T>();
         }
     };
 }

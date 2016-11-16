@@ -101,7 +101,7 @@ add_library(libwasmint
 
     libwasmint/serialization/ByteOutputStream.cpp
     libwasmint/serialization/ByteInputStream.cpp
-)
+        libwasmint/interpreter/ValueStack.cpp libwasmint/interpreter/ValueStack.h)
 
 
 ###########################

@@ -50,7 +50,7 @@ namespace wasmint {
         }
     }
 
-    void VMThread::enterFunction(std::size_t functionId, uint32_t parameterSize, uint16_t parameterRegisterOffset) {
+    void VMThread::enterFunction(std::size_t functionId, uint32_t parameterSize) {
         CompiledFunction& targetFunction = machine().getCompiledFunction(functionId);
         const wasm_module::Function& function = targetFunction.function();
 
@@ -74,7 +74,7 @@ namespace wasmint {
 
                 std::vector<wasm_module::Variable> parameters;
                 parameters.reserve(nativeInstruction->childrenTypes().size());
-                for (uint16_t i = 0; i < parameterSize; i++) {
+                for (int32_t i = parameterSize - 1; i >= 0; i++) {
                     const wasm_module::Type* type = nullptr;
                     if (function.variadic()) {
                         uint32_t typeId = frames_.back().popFromCode<uint32_t>();
@@ -98,8 +98,8 @@ namespace wasmint {
                         type = function.parameters().at(i);
                     }
                     wasm_module::Variable parameter(type);
-                    uint64_t value = currentFrame_->getRegister<uint64_t>(parameterRegisterOffset + i);
-                    memcpy(parameter.value(), &value, type->size());
+                    uint64_t value = currentFrame_->pop<uint64_t>();
+                    parameter.setFromPrimitiveValue(value);
                     parameters.push_back(parameter);
                 }
 
@@ -115,8 +115,8 @@ namespace wasmint {
         } else {
             pushFrame(FunctionFrame(targetFunction));
 
-            for (uint32_t i = 0; i < parameterSize; i++) {
-                currentFrame().setVariable(i, frames_.at(frames_.size() - 2).getRegister<uint64_t>(parameterRegisterOffset + i));
+            for (int32_t i = parameterSize - 1; i >= 0; i++) {
+                currentFrame().setVariable(i, frames_.at(frames_.size() - 2).pop<uint64_t>());
             }
         }
     }

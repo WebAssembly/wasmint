@@ -75,7 +75,7 @@ namespace wasmint {
         }
 
         void appendOpcode(ByteOpcode opcode) {
-            append((uint16_t) opcode);
+            append((uint32_t) opcode);
         }
 
         template<typename T>

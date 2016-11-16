@@ -34,6 +34,7 @@ namespace InstructionId {
         I32ShiftRightZeroes,
         I32ShiftRightSigned,
         I32Equal,
+        I32EqualZero,
         I32NotEqual,
         I32LessThanSigned,
         I32LessEqualSigned,
@@ -60,6 +61,7 @@ namespace InstructionId {
         I64ShiftLeft,
         I64ShiftRightZeroes,
         I64ShiftRightSigned,
+        I64EqualZero,
         I64Equal,
         I64NotEqual,
         I64LessThanSigned,
@@ -83,6 +85,7 @@ namespace InstructionId {
         CallImport,
         Call,
         Block,
+        Drop,
         If,
         IfElse,
         Return,
@@ -93,6 +96,7 @@ namespace InstructionId {
 
         GetLocal,
         SetLocal,
+        TeeLocal,
 
         GrowMemory,
         PageSize,

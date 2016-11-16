@@ -41,6 +41,7 @@ namespace wasmint {
         I32ShiftLeft,
         I32ShiftRightZeroes,
         I32ShiftRightSigned,
+        I32EqualZero,
         I32Equal,
         I32NotEqual,
         I32LessThanSigned,
@@ -68,6 +69,7 @@ namespace wasmint {
         I64ShiftLeft,
         I64ShiftRightZeroes,
         I64ShiftRightSigned,
+        I64EqualZero,
         I64Equal,
         I64NotEqual,
         I64LessThanSigned,
@@ -93,12 +95,12 @@ namespace wasmint {
         Branch,
         BranchIf,
         BranchIfNot,
-        BranchCopyReg,
-        BranchIfCopyReg,
-        BranchIfNotCopyReg,
 
         GetLocal,
         SetLocal,
+        TeeLocal,
+
+        Drop,
 
         GrowMemory,
         PageSize,

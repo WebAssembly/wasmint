@@ -14,19 +14,4 @@
  * limitations under the License.
  */
 
-
-#include "BreakpointEnvironment.h"
-
-#include "Breakpoint.h"
-#include <interpreter/VMState.h>
-
-namespace wasmint {
-    std::string BreakpointEnvironment::returnValue() {
-        if (breakpoint_->instruction()->returnType() == wasm_module::Void::instance()) {
-            return "";
-        } else {
-            // FIXME: dummy code
-            return "dummy";
-        }
-    }
-}
+#include "ValueStack.h"

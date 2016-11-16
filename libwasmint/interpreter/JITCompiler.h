@@ -31,7 +31,6 @@ namespace wasmint {
 
     class JITCompiler {
 
-        RegisterAllocator registerAllocator_;
         ByteCode code_;
         std::map<const wasm_module::Instruction*, uint32_t> instructionStartAddresses;
         std::map<const wasm_module::Instruction*, uint32_t> instructionEndAddresses;
@@ -48,14 +47,10 @@ namespace wasmint {
         void addBranchAddress(const wasm_module::BranchInformation* information);
         void addBranch(const wasm_module::Instruction* instruction, bool before);
         void addBranch(const wasm_module::BranchInformation* information);
-        void addBranchIf(const wasm_module::BranchInformation* information, uint16_t opcodeData);
-        void addBranchIfNot(const wasm_module::BranchInformation* information, uint16_t opcodeData);
-        void addBranchIf(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before);
-        void addBranchIfNot(const wasm_module::Instruction* instruction, uint16_t opcodeData, bool before);
-        void addBranchCopyReg(const wasm_module::BranchInformation* information, uint16_t targetReg, uint16_t srcReg);
-        void addBranchCopyReg(const wasm_module::Instruction* instruction, uint16_t targetReg, uint16_t srcReg);
-        void addBranchIfCopyReg(const wasm_module::BranchInformation* information, uint16_t opcodeData, uint16_t targetReg, uint16_t srcReg);
-        void addCopyRegister(uint16_t target, uint16_t source);
+        void addBranchIf(const wasm_module::BranchInformation* information);
+        void addBranchIfNot(const wasm_module::BranchInformation* information);
+        void addBranchIf(const wasm_module::Instruction* instruction, bool before);
+        void addBranchIfNot(const wasm_module::Instruction* instruction, bool before);
 
         void linkLocally();
 
@@ -86,10 +81,6 @@ namespace wasmint {
                 return iter->second;
             }
             throw CompilerHasNotCompiledInstruction(instruction->dataString());
-        }
-
-        uint16_t getRegisterIndex(const wasm_module::Instruction* instruction) const {
-            return registerAllocator_(instruction);
         }
     };
 }

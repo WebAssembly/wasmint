@@ -28,11 +28,8 @@ namespace wasmint {
 
 void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
-    uint16_t opcode;
-    popFromCode<uint16_t>(&opcode);
-
-    uint16_t opcodeData;
-    popFromCode<uint16_t>(&opcodeData);
+    uint32_t opcode;
+    popFromCode<uint32_t>(&opcode);
 
     //dumpStatus((ByteOpcodes::Values) opcode, opcodeData);
 
@@ -40,83 +37,99 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         /******************************************************
          ***************** Int 32 Operations ******************
          ******************************************************/
-        case ByteOpcodes::I32Add:
-            setRegister<uint32_t>(opcodeData,
-                                  getRegister<uint32_t>(opcodeData) + getRegister<uint32_t>(opcodeData + 1));
+        case ByteOpcodes::I32Add: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left + right);
             break;
-        case ByteOpcodes::I32Sub:
-            setRegister<uint32_t>(opcodeData,
-                                  getRegister<uint32_t>(opcodeData) - getRegister<uint32_t>(opcodeData + 1));
+        }
+        case ByteOpcodes::I32Sub: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left - right);
             break;
-        case ByteOpcodes::I32Mul:
-            setRegister<uint32_t>(opcodeData,
-                                  getRegister<uint32_t>(opcodeData) * getRegister<uint32_t>(opcodeData + 1));
+        }
+        case ByteOpcodes::I32Mul: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left * right);
             break;
+        }
         case ByteOpcodes::I32DivSigned: {
-            int32_t left = getRegister<int32_t>(opcodeData);
-            int32_t right = getRegister<int32_t>(opcodeData + 1);
+            int32_t right = pop<int32_t>();
+            int32_t left = pop<int32_t>();
             if (left == std::numeric_limits<int32_t>::min() && right == -1)
                 return runner.trap("integer overflow");
 
             if (right == 0)
                 return runner.trap("integer divide by zero");
-            setRegister<int32_t>(opcodeData, left / right);
+            push(left / right);
             break;
         }
         case ByteOpcodes::I32DivUnsigned: {
-            uint32_t left = getRegister<uint32_t>(opcodeData);
-            uint32_t right = getRegister<uint32_t>(opcodeData + 1);
+            uint32_t right = pop<uint32_t>();
+            uint32_t left = pop<uint32_t>();
             if (right == 0)
                 return runner.trap("integer divide by zero");
-            setRegister<uint32_t>(opcodeData, left / right);
+            push(left / right);
             break;
         }
         case ByteOpcodes::I32RemainderSigned: {
-            int32_t left = getRegister<int32_t>(opcodeData);
-            int32_t right = getRegister<int32_t>(opcodeData + 1);
+            int32_t right = pop<int32_t>();
+            int32_t left = pop<int32_t>();
             if (right < 0)
                 right = -right;
             if (right == 0)
                 return runner.trap("integer divide by zero");
-            setRegister<int32_t>(opcodeData, left % right);
+            push(left % right);
             break;
         }
         case ByteOpcodes::I32RemainderUnsigned: {
-            uint32_t left = getRegister<uint32_t>(opcodeData);
-            uint32_t right = getRegister<uint32_t>(opcodeData + 1);
+            uint32_t right = pop<uint32_t>();
+            uint32_t left = pop<uint32_t>();
             if (right == 0)
                 return runner.trap("integer divide by zero");
-            setRegister<uint32_t>(opcodeData, left % right);
+            push(left % right);
             break;
         }
-        case ByteOpcodes::I32And:
-            setRegister<uint32_t>(opcodeData,
-                                  getRegister<uint32_t>(opcodeData) & getRegister<uint32_t>(opcodeData + 1));
+        case ByteOpcodes::I32And: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left & right);
             break;
+        }
 
-        case ByteOpcodes::I32Or:
-            setRegister<uint32_t>(opcodeData,
-                                  getRegister<uint32_t>(opcodeData) | getRegister<uint32_t>(opcodeData + 1));
+        case ByteOpcodes::I32Or: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left | right);
             break;
+        }
 
-        case ByteOpcodes::I32Xor:
-            setRegister<uint32_t>(opcodeData,
-                                  getRegister<uint32_t>(opcodeData) ^ getRegister<uint32_t>(opcodeData + 1));
+        case ByteOpcodes::I32Xor: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left ^ right);
             break;
+        }
 
-        case ByteOpcodes::I32ShiftLeft:
-            setRegister<uint32_t>(opcodeData,
-                                  getRegister<uint32_t>(opcodeData) << (getRegister<uint32_t>(opcodeData + 1) % 32));
+        case ByteOpcodes::I32ShiftLeft: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left << right);
             break;
+        }
 
-        case ByteOpcodes::I32ShiftRightZeroes:
-            setRegister<uint32_t>(opcodeData,
-                                  getRegister<uint32_t>(opcodeData) >> (getRegister<uint32_t>(opcodeData + 1) % 32));
+        case ByteOpcodes::I32ShiftRightZeroes: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left >> (right & 32));
             break;
+        }
 
         case ByteOpcodes::I32ShiftRightSigned: {
-            uint32_t left = getRegister<uint32_t>(opcodeData);
-            uint32_t right = getRegister<uint32_t>(opcodeData + 1);
+            uint32_t right = pop<uint32_t>();
+            uint32_t left = pop<uint32_t>();
 
             right %= 32;
 
@@ -133,66 +146,91 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
                 }
             }
 
-            setRegister<uint32_t>(opcodeData, resultInt);
+            push(resultInt);
             break;
         }
 
-        case ByteOpcodes::I32Equal:
-            setRegister<int32_t>(opcodeData,
-                                 getRegister<uint32_t>(opcodeData) == (getRegister<uint32_t>(opcodeData + 1)));
+        case ByteOpcodes::I32EqualZero: {
+            auto op = pop<uint32_t>();
+            push(op == 0);
             break;
-        case ByteOpcodes::I32NotEqual:
-            setRegister<int32_t>(opcodeData,
-                                 getRegister<uint32_t>(opcodeData) != (getRegister<uint32_t>(opcodeData + 1)));
+        }
+        case ByteOpcodes::I32Equal: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left == right);
             break;
+        }
+        case ByteOpcodes::I32NotEqual: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left != right);
+            break;
+        }
 
-        case ByteOpcodes::I32LessThanSigned:
-            setRegister<int32_t>(opcodeData,
-                                 getRegister<int32_t>(opcodeData) < (getRegister<int32_t>(opcodeData + 1)));
+        case ByteOpcodes::I32LessThanSigned: {
+            auto right = pop<int32_t>();
+            auto left = pop<int32_t>();
+            push(left < right);
             break;
+        }
 
-        case ByteOpcodes::I32LessEqualSigned:
-            setRegister<int32_t>(opcodeData,
-                                 getRegister<int32_t>(opcodeData) <= (getRegister<int32_t>(opcodeData + 1)));
+        case ByteOpcodes::I32LessEqualSigned: {
+            auto right = pop<int32_t>();
+            auto left = pop<int32_t>();
+            push(left <= right);
             break;
+        }
 
-        case ByteOpcodes::I32LessThanUnsigned:
-            setRegister<int32_t>(opcodeData,
-                                 getRegister<uint32_t>(opcodeData) < (getRegister<uint32_t>(opcodeData + 1)));
+        case ByteOpcodes::I32LessThanUnsigned: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left < right);
             break;
+        }
 
-        case ByteOpcodes::I32LessEqualUnsigned:
-            setRegister<int32_t>(opcodeData,
-                                 getRegister<uint32_t>(opcodeData) <= (getRegister<uint32_t>(opcodeData + 1)));
+        case ByteOpcodes::I32LessEqualUnsigned: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left <= right);
             break;
+        }
 
-        case ByteOpcodes::I32GreaterThanSigned:
-            setRegister<int32_t>(opcodeData,
-                                 getRegister<int32_t>(opcodeData) > (getRegister<int32_t>(opcodeData + 1)));
+        case ByteOpcodes::I32GreaterThanSigned: {
+            auto right = pop<int32_t>();
+            auto left = pop<int32_t>();
+            push(left > right);
             break;
+        }
 
-        case ByteOpcodes::I32GreaterEqualSigned:
-            setRegister<int32_t>(opcodeData,
-                                 getRegister<int32_t>(opcodeData) >= (getRegister<int32_t>(opcodeData + 1)));
+        case ByteOpcodes::I32GreaterEqualSigned: {
+            auto right = pop<int32_t>();
+            auto left = pop<int32_t>();
+            push(left >= right);
             break;
+        }
 
-        case ByteOpcodes::I32GreaterThanUnsigned:
-            setRegister<int32_t>(opcodeData,
-                                 getRegister<uint32_t>(opcodeData) > (getRegister<uint32_t>(opcodeData + 1)));
+        case ByteOpcodes::I32GreaterThanUnsigned: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left > right);
             break;
+        }
 
-        case ByteOpcodes::I32GreaterEqualUnsigned:
-            setRegister<int32_t>(opcodeData,
-                                 getRegister<uint32_t>(opcodeData) >= (getRegister<uint32_t>(opcodeData + 1)));
+        case ByteOpcodes::I32GreaterEqualUnsigned: {
+            auto right = pop<uint32_t>();
+            auto left = pop<uint32_t>();
+            push(left >= right);
             break;
+        }
 
         case ByteOpcodes::I32CountLeadingZeroes: {
-            uint32_t value = getRegister<uint32_t>(opcodeData);
+            uint32_t value = pop<uint32_t>();
 
             uint32_t leadingZeroes = 0;
 
             if (value == 0) {
-                setRegister<uint32_t>(opcodeData, 32);
+                push(32);
             } else {
                 while (true) {
                     if ((value & (0x1u << 31u)) == 0) {
@@ -204,17 +242,17 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
                     if (value == 0)
                         break;
                 }
-                setRegister<uint32_t>(opcodeData, leadingZeroes);
+                push(leadingZeroes);
             }
             break;
         }
         case ByteOpcodes::I32CountTrailingZeroes: {
-            uint32_t value = getRegister<uint32_t>(opcodeData);
+            uint32_t value = pop<uint32_t>();
 
             uint32_t trailingZeroes = 0;
 
             if (value == 0) {
-                setRegister<uint32_t>(opcodeData, 32);
+                push(32);
             } else {
                 while (true) {
                     if ((value & 0x1u) == 0) {
@@ -227,13 +265,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
                         break;
                 }
 
-                setRegister<uint32_t>(opcodeData, trailingZeroes);
+                push(trailingZeroes);
             }
             break;
         }
 
         case ByteOpcodes::I32PopulationCount: {
-            uint32_t value = getRegister<uint32_t>(opcodeData);
+            uint32_t value = pop<uint32_t>();
 
             uint32_t population = 0;
 
@@ -245,7 +283,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
                 if (value == 0)
                     break;
             }
-            setRegister<uint32_t>(opcodeData, population);
+            push(population);
             break;
         }
 
@@ -253,83 +291,99 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             /******************************************************
              ***************** Int 64 Operations ******************
              ******************************************************/
-        case ByteOpcodes::I64Add:
-            setRegister<uint64_t>(opcodeData,
-                                  getRegister<uint64_t>(opcodeData) + getRegister<uint64_t>(opcodeData + 1));
+        case ByteOpcodes::I64Add: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left + right);
             break;
-        case ByteOpcodes::I64Sub:
-            setRegister<uint64_t>(opcodeData,
-                                  getRegister<uint64_t>(opcodeData) - getRegister<uint64_t>(opcodeData + 1));
+        }
+        case ByteOpcodes::I64Sub: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left - right);
             break;
-        case ByteOpcodes::I64Mul:
-            setRegister<uint64_t>(opcodeData,
-                                  getRegister<uint64_t>(opcodeData) * getRegister<uint64_t>(opcodeData + 1));
+        }
+        case ByteOpcodes::I64Mul: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left * right);
             break;
+        }
         case ByteOpcodes::I64DivSigned: {
-            int64_t left = getRegister<int64_t>(opcodeData);
-            int64_t right = getRegister<int64_t>(opcodeData + 1);
+            int64_t right = pop<int64_t>();
+            int64_t left = pop<int64_t>();
             if (left == std::numeric_limits<int64_t>::min() && right == -1)
                 return runner.trap("integer overflow");
 
             if (right == 0)
                 return runner.trap("integer divide by zero");
-            setRegister<int64_t>(opcodeData, left / right);
+            push(left / right);
             break;
         }
         case ByteOpcodes::I64DivUnsigned: {
-            uint64_t left = getRegister<uint64_t>(opcodeData);
-            uint64_t right = getRegister<uint64_t>(opcodeData + 1);
+            uint64_t right = pop<uint64_t>();
+            uint64_t left = pop<uint64_t>();
             if (right == 0)
                 return runner.trap("integer divide by zero");
-            setRegister<uint64_t>(opcodeData, left / right);
+            push(left / right);
             break;
         }
         case ByteOpcodes::I64RemainderSigned: {
-            int64_t left = getRegister<int64_t>(opcodeData);
-            int64_t right = getRegister<int64_t>(opcodeData + 1);
+            int64_t right = pop<int64_t>();
+            int64_t left = pop<int64_t>();
             if (right < 0)
                 right = -right;
             if (right == 0)
                 return runner.trap("integer divide by zero");
-            setRegister<int64_t>(opcodeData, left % right);
+            push(left % right);
             break;
         }
         case ByteOpcodes::I64RemainderUnsigned: {
-            uint64_t left = getRegister<uint64_t>(opcodeData);
-            uint64_t right = getRegister<uint64_t>(opcodeData + 1);
+            uint64_t right = pop<uint64_t>();
+            uint64_t left = pop<uint64_t>();
             if (right == 0)
                 return runner.trap("integer divide by zero");
-            setRegister<uint64_t>(opcodeData, left % right);
+            push(left % right);
             break;
         }
-        case ByteOpcodes::I64And:
-            setRegister<uint64_t>(opcodeData,
-                                  getRegister<uint64_t>(opcodeData) & getRegister<uint64_t>(opcodeData + 1));
+        case ByteOpcodes::I64And: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left & right);
             break;
+        }
 
-        case ByteOpcodes::I64Or:
-            setRegister<uint64_t>(opcodeData,
-                                  getRegister<uint64_t>(opcodeData) | getRegister<uint64_t>(opcodeData + 1));
+        case ByteOpcodes::I64Or: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left | right);
             break;
+        }
 
-        case ByteOpcodes::I64Xor:
-            setRegister<uint64_t>(opcodeData,
-                                  getRegister<uint64_t>(opcodeData) ^ getRegister<uint64_t>(opcodeData + 1));
+        case ByteOpcodes::I64Xor: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left ^ right);
             break;
+        }
 
-        case ByteOpcodes::I64ShiftLeft:
-            setRegister<uint64_t>(opcodeData,
-                                  getRegister<uint64_t>(opcodeData) << (getRegister<uint64_t>(opcodeData + 1) % 64));
+        case ByteOpcodes::I64ShiftLeft: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left << (right % 64));
             break;
+        }
 
-        case ByteOpcodes::I64ShiftRightZeroes:
-            setRegister<uint64_t>(opcodeData,
-                                  getRegister<uint64_t>(opcodeData) >> (getRegister<uint64_t>(opcodeData + 1) % 64));
+        case ByteOpcodes::I64ShiftRightZeroes: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left >> (right % 64));
             break;
+        }
 
         case ByteOpcodes::I64ShiftRightSigned: {
-            uint64_t left = getRegister<uint64_t>(opcodeData);
-            uint64_t right = getRegister<uint64_t>(opcodeData + 1);
+            uint64_t right = pop<uint64_t>();
+            uint64_t left = pop<uint64_t>();
 
             right %= 64;
 
@@ -344,66 +398,91 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
                 resultInt |= bitMask;
             }
 
-            setRegister<uint64_t>(opcodeData, resultInt);
+            push(resultInt);
             break;
         }
 
-        case ByteOpcodes::I64Equal:
-            setRegister<int64_t>(opcodeData,
-                                 getRegister<uint64_t>(opcodeData) == (getRegister<uint64_t>(opcodeData + 1)));
+        case ByteOpcodes::I64EqualZero: {
+            auto op = pop<uint64_t>();
+            push(op == 0);
             break;
-        case ByteOpcodes::I64NotEqual:
-            setRegister<int64_t>(opcodeData,
-                                 getRegister<uint64_t>(opcodeData) != (getRegister<uint64_t>(opcodeData + 1)));
+        }
+        case ByteOpcodes::I64Equal: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left == right);
             break;
+        }
+        case ByteOpcodes::I64NotEqual: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left != right);
+            break;
+        }
 
-        case ByteOpcodes::I64LessThanSigned:
-            setRegister<int64_t>(opcodeData,
-                                 getRegister<int64_t>(opcodeData) < (getRegister<int64_t>(opcodeData + 1)));
+        case ByteOpcodes::I64LessThanSigned: {
+            auto right = pop<int64_t>();
+            auto left = pop<int64_t>();
+            push(left < right);
             break;
+        }
 
-        case ByteOpcodes::I64LessEqualSigned:
-            setRegister<int64_t>(opcodeData,
-                                 getRegister<int64_t>(opcodeData) <= (getRegister<int64_t>(opcodeData + 1)));
+        case ByteOpcodes::I64LessEqualSigned: {
+            auto right = pop<int64_t>();
+            auto left = pop<int64_t>();
+            push(left <= right);
             break;
+        }
 
-        case ByteOpcodes::I64LessThanUnsigned:
-            setRegister<int64_t>(opcodeData,
-                                 getRegister<uint64_t>(opcodeData) < (getRegister<uint64_t>(opcodeData + 1)));
+        case ByteOpcodes::I64LessThanUnsigned: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left < right);
             break;
+        }
 
-        case ByteOpcodes::I64LessEqualUnsigned:
-            setRegister<int64_t>(opcodeData,
-                                 getRegister<uint64_t>(opcodeData) <= (getRegister<uint64_t>(opcodeData + 1)));
+        case ByteOpcodes::I64LessEqualUnsigned: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left <= right);
             break;
+        }
 
-        case ByteOpcodes::I64GreaterThanSigned:
-            setRegister<int64_t>(opcodeData,
-                                 getRegister<int64_t>(opcodeData) > (getRegister<int64_t>(opcodeData + 1)));
+        case ByteOpcodes::I64GreaterThanSigned: {
+            auto right = pop<int64_t>();
+            auto left = pop<int64_t>();
+            push(left > right);
             break;
+        }
 
-        case ByteOpcodes::I64GreaterEqualSigned:
-            setRegister<int64_t>(opcodeData,
-                                 getRegister<int64_t>(opcodeData) >= (getRegister<int64_t>(opcodeData + 1)));
+        case ByteOpcodes::I64GreaterEqualSigned: {
+            auto right = pop<int64_t>();
+            auto left = pop<int64_t>();
+            push(left >= right);
             break;
+        }
 
-        case ByteOpcodes::I64GreaterThanUnsigned:
-            setRegister<int64_t>(opcodeData,
-                                 getRegister<uint64_t>(opcodeData) > (getRegister<uint64_t>(opcodeData + 1)));
+        case ByteOpcodes::I64GreaterThanUnsigned: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left > right);
             break;
+        }
 
-        case ByteOpcodes::I64GreaterEqualUnsigned:
-            setRegister<int64_t>(opcodeData,
-                                 getRegister<uint64_t>(opcodeData) >= (getRegister<uint64_t>(opcodeData + 1)));
+        case ByteOpcodes::I64GreaterEqualUnsigned: {
+            auto right = pop<uint64_t>();
+            auto left = pop<uint64_t>();
+            push(left >= right);
             break;
+        }
 
         case ByteOpcodes::I64CountLeadingZeroes: {
-            uint64_t value = getRegister<uint64_t>(opcodeData);
+            uint64_t value = pop<uint64_t>();
 
             uint64_t leadingZeroes = 0;
 
             if (value == 0) {
-                setRegister<uint64_t>(opcodeData, 64);
+                push(64);
             } else {
                 while (true) {
                     if ((value & (0x1ul << 63u)) == 0) {
@@ -415,17 +494,17 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
                     if (value == 0)
                         break;
                 }
-                setRegister<uint64_t>(opcodeData, leadingZeroes);
+                push(leadingZeroes);
             }
             break;
         }
         case ByteOpcodes::I64CountTrailingZeroes: {
-            uint64_t value = getRegister<uint64_t>(opcodeData);
+            uint64_t value = pop<uint64_t>();
 
             uint64_t trailingZeroes = 0;
 
             if (value == 0) {
-                setRegister<uint64_t>(opcodeData, 64);
+                push(64);
             } else {
                 while (true) {
                     if ((value & 0x1u) == 0) {
@@ -438,13 +517,13 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
                         break;
                 }
 
-                setRegister<uint64_t>(opcodeData, trailingZeroes);
+                push(trailingZeroes);
             }
             break;
         }
 
         case ByteOpcodes::I64PopulationCount: {
-            uint64_t value = getRegister<uint64_t>(opcodeData);
+            uint64_t value = pop<uint64_t>();
 
             uint64_t population = 0;
 
@@ -456,7 +535,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
                 if (value == 0)
                     break;
             }
-            setRegister<uint64_t>(opcodeData, population);
+            push(population);
             break;
         }
 
@@ -471,7 +550,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::BranchIf:
         {
             uint32_t jumpOffset = popFromCode<uint32_t>();
-            if (getRegister<uint32_t>(opcodeData)) {
+            if (pop<uint32_t>()) {
                 instructionPointer_ = jumpOffset;
             }
             break;
@@ -479,39 +558,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::BranchIfNot:
         {
             uint32_t jumpOffset = popFromCode<uint32_t>();
-            if (!getRegister<uint32_t>(opcodeData)) {
-                instructionPointer_ = jumpOffset;
-            }
-            break;
-        }
-
-        case ByteOpcodes::BranchCopyReg:
-        {
-            uint16_t sourceRegister = popFromCode<uint16_t>();
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(sourceRegister));
-            popFromCode<uint16_t>(); // alignment padding
-            instructionPointer_ = popFromCode<uint32_t>();
-            break;
-        }
-
-        case ByteOpcodes::BranchIfCopyReg:
-        {
-            uint16_t targetRegister = popFromCode<uint16_t>();
-            uint16_t sourceRegister = popFromCode<uint16_t>();
-            setRegister<uint64_t>(targetRegister, getRegister<uint64_t>(sourceRegister));
-            uint32_t jumpOffset = popFromCode<uint32_t>();
-            if (getRegister<uint32_t>(opcodeData)) {
-                instructionPointer_ = jumpOffset;
-            }
-            break;
-        }
-        case ByteOpcodes::BranchIfNotCopyReg:
-        {
-            uint16_t targetRegister = popFromCode<uint16_t>();
-            uint16_t sourceRegister = popFromCode<uint16_t>();
-            setRegister<uint64_t>(targetRegister, getRegister<uint64_t>(sourceRegister));
-            uint32_t jumpOffset = popFromCode<uint32_t>();
-            if (!getRegister<uint32_t>(opcodeData)) {
+            if (!pop<uint32_t>()) {
                 instructionPointer_ = jumpOffset;
             }
             break;
@@ -519,14 +566,14 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
         case ByteOpcodes::Return:
         {
-            runner.finishFrame(getRegister<uint64_t>(opcodeData));
+            runner.finishFrame(pop<uint64_t>());
             break;
         }
 
         case ByteOpcodes::TableSwitch:
         {
             uint32_t tableSize = popFromCode<uint32_t>();
-            uint32_t tableIndex = getRegister<uint32_t>(opcodeData);
+            uint32_t tableIndex = pop<uint32_t>();
             if (tableIndex < tableSize) {
                 // multiply tableIndex with 4 as each address in the jump table is 4 bytes long
                 instructionPointer_ = peekFromCode<uint32_t>(tableIndex * 4u);
@@ -541,15 +588,14 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::CallImport:
         case ByteOpcodes::Call:
         {
-            functionTargetRegister_ = opcodeData;
             uint32_t functionId = popFromCode<uint32_t>();
             uint32_t parameterSize = popFromCode<uint32_t>();
-            runner.enterFunction(functionId, parameterSize, opcodeData);
+            runner.enterFunction(functionId, parameterSize);
             break;
         }
         case ByteOpcodes::CallIndirect:
         {
-            int16_t signedLocalFunctionId = getRegister<int16_t>(opcodeData);
+            int16_t signedLocalFunctionId = pop<int16_t>();
             if (signedLocalFunctionId < 0) {
                 runner.trap("undefined table index " + std::to_string(signedLocalFunctionId));
                 break;
@@ -562,7 +608,7 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
                 if (index == neededIndex) {
                     uint32_t functionId = (uint32_t) runner.machine().getIndex(signature.moduleName(), signature.name());
                     uint16_t parameterSize = popFromCode<uint16_t>();
-                    runner.enterFunction(functionId, parameterSize, opcodeData);
+                    runner.enterFunction(functionId, parameterSize);
                 } else {
                     runner.trap("indirect call signature mismatch");
                 }
@@ -572,24 +618,33 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             break;
         }
         case ByteOpcodes::SetLocal:
-            setVariable(popFromCode<uint16_t>(), getRegister<uint64_t>(opcodeData));
+            setVariable(popFromCode<uint16_t>(), pop<uint64_t>());
+            popFromCode<uint16_t>(); // pop alignment data
+            break;
+        case ByteOpcodes::TeeLocal:
+            setVariable(popFromCode<uint16_t>(), peek<uint64_t>());
             popFromCode<uint16_t>(); // pop alignment data
             break;
         case ByteOpcodes::GetLocal:
-            setRegister<uint64_t>(opcodeData, getVariable(popFromCode<uint16_t>()));
+            push(getVariable(popFromCode<uint16_t>()));
             popFromCode<uint16_t>(); // pop alignment data
             break;
+
+        case ByteOpcodes::Drop:
+            // FIXME
+            break;
+
         case ByteOpcodes::I32Const:
-            setRegister(opcodeData, popFromCode<uint32_t>());
+            push(popFromCode<uint32_t>());
             break;
         case ByteOpcodes::I64Const:
-            setRegister(opcodeData, popFromCode<uint64_t>());
+            push(popFromCode<uint64_t>());
             break;
         case ByteOpcodes::F32Const:
-            setRegister(opcodeData, popFromCode<float>());
+            push(popFromCode<float>());
             break;
         case ByteOpcodes::F64Const:
-            setRegister(opcodeData, popFromCode<double>());
+            push(popFromCode<double>());
             break;
         case ByteOpcodes::Unreachable:
             runner.trap("unreachable executed");
@@ -599,24 +654,24 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             break;
 
         case ByteOpcodes::GrowMemory: {
-            uint32_t value = getRegister<uint32_t>(opcodeData);
+            uint32_t value = pop<uint32_t>();
 
             size_t oldSize = heap.pageCount();
             // TODO risky conversion
             if (heap.growPages((uint32_t) value)) {
-                setRegister<uint32_t>(opcodeData, oldSize);
+                push(oldSize);
             } else {
-                setRegister<uint32_t>(opcodeData, (uint32_t) -1);
+                push((uint32_t) -1);
             }
             break;
         }
 
         case ByteOpcodes::PageSize:
-            setRegister<uint32_t>(opcodeData, (uint32_t) heap.pageSize());
+            push((uint32_t) heap.pageSize());
             break;
 
         case ByteOpcodes::CurrentMemory:
-            setRegister<uint32_t>(opcodeData, (uint32_t) (heap.size() / heap.pageSize()));
+            push((uint32_t) (heap.size() / heap.pageSize()));
             break;
 
 
@@ -626,185 +681,176 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         case ByteOpcodes::I32Load8Signed:
         {
             int8_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<int32_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::I32Load8Unsigned:
         {
             uint8_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint32_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::I32Load16Signed:
         {
             int16_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<int32_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::I32Load16Unsigned:
         {
             uint16_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 runner.trap("out of bounds memory access");
-            setRegister<uint32_t>(opcodeData, value);
+            push(value);
             break;
         }
         case ByteOpcodes::I32Load:
         {
             uint32_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint32_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::I64Load8Signed:
         {
             int8_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<int64_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::I64Load8Unsigned: {
             uint8_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::I64Load16Signed: {
             int16_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<int64_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::I64Load16Unsigned: {
             uint16_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::I64Load32Signed: {
             int32_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<int64_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::I64Load32Unsigned: {
             uint32_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::I64Load: {
             uint64_t value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::F32Load: {
             float value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<float>(opcodeData, value);
+            push(value);
             break;
         }
 
         case ByteOpcodes::F64Load: {
             double value;
-            if (!heap.getStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(), &value))
+            if (!heap.getStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(), &value))
                 return runner.trap("out of bounds memory access");
-            setRegister<double>(opcodeData, value);
+            push(value);
             break;
         }
         case ByteOpcodes::I32Store8: {
-            if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
-                                      getRegister<uint8_t>(opcodeData + 1)))
+            if (!heap.setStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(),
+                                      pop<uint8_t>()))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
         case ByteOpcodes::I32Store16: {
-            if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
-                                      getRegister<uint16_t>(opcodeData + 1)))
+            if (!heap.setStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(),
+                                      pop<uint16_t>()))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
         case ByteOpcodes::I64Store8: {
-            if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
-                                      getRegister<uint8_t>(opcodeData + 1)))
+            if (!heap.setStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(),
+                                      pop<uint8_t>()))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
         case ByteOpcodes::I64Store16: {
-            if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
-                                      getRegister<uint16_t>(opcodeData + 1)))
+            if (!heap.setStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(),
+                                      pop<uint16_t>()))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
         case ByteOpcodes::I64Store32: {
-            if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
-                                      getRegister<uint32_t>(opcodeData + 1)))
+            if (!heap.setStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(),
+                                      pop<uint32_t>()))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
         case ByteOpcodes::F32Store: {
-            if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
-                                      getRegister<float>(opcodeData + 1)))
+            if (!heap.setStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(),
+                                      pop<float>()))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::F64Store: {
-            if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
-                                      getRegister<double>(opcodeData + 1)))
+            if (!heap.setStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(),
+                                      pop<double>()))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::I32Store: {
-            if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
-                                      getRegister<uint32_t>(opcodeData + 1)))
+            if (!heap.setStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(),
+                                      pop<uint32_t>()))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
         case ByteOpcodes::I64Store: {
-            if (!heap.setStaticOffset(getRegister<uint32_t>(opcodeData), popFromCode<uint32_t>(),
-                                      getRegister<uint64_t>(opcodeData + 1)))
+            if (!heap.setStaticOffset(pop<uint32_t>(), popFromCode<uint32_t>(),
+                                      pop<uint64_t>()))
                 return runner.trap("out of bounds memory access");
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
             break;
         }
 
@@ -813,20 +859,17 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
              ******************************************************/
 
         case ByteOpcodes::I32Select:
-        case ByteOpcodes::F32Select: {
-            if (getRegister<uint32_t>(opcodeData + 2)) {
-                setRegister<uint32_t>(opcodeData, getRegister<uint32_t>(opcodeData + 0));
-            } else {
-                setRegister<uint32_t>(opcodeData, getRegister<uint32_t>(opcodeData + 1));
-            }
-            break;
-        }
+        case ByteOpcodes::F32Select:
         case ByteOpcodes::I64Select:
         case ByteOpcodes::F64Select: {
-            if (getRegister<uint32_t>(opcodeData + 2)) {
-                setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 0));
+            auto condition = pop<uint32_t>();
+            auto falseResult = pop<uint64_t>();
+            auto trueResult = pop<uint64_t>();
+            if (condition) {
+                pop<uint64_t>();
+                push(pop<uint64_t>());
             } else {
-                setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(opcodeData + 1));
+                push(pop<uint64_t>());
             }
             break;
         }
@@ -835,179 +878,228 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
              ******************************************************/
 
         case ByteOpcodes::F32Add: {
-            float left = getRegister<float>(opcodeData);
-            float right = getRegister<float>(opcodeData + 1);
+            float right = pop<float>();
+            float left = pop<float>();
             if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && std::signbit(right)) {
-                setRegister<float>(opcodeData, std::numeric_limits<float>::quiet_NaN());
+                push(std::numeric_limits<float>::quiet_NaN());
             } else {
-                setRegister<float>(opcodeData, getRegister<float>(opcodeData) + getRegister<float>(opcodeData + 1));
+                push(left + right);
             }
 
             break;
         }
 
         case ByteOpcodes::F32Sub: {
-            float left = getRegister<float>(opcodeData);
-            float right = getRegister<float>(opcodeData + 1);
+            float right = pop<float>();
+            float left = pop<float>();
             if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && !std::signbit(right)) {
-                setRegister<float>(opcodeData, std::numeric_limits<float>::quiet_NaN());
+                push(std::numeric_limits<float>::quiet_NaN());
             } else {
-                setRegister<float>(opcodeData, getRegister<float>(opcodeData) - getRegister<float>(opcodeData + 1));
+                push(left - right);
             }
 
             break;
         }
         case ByteOpcodes::F32Mul: {
-            float left = getRegister<float>(opcodeData);
-            float right = getRegister<float>(opcodeData + 1);
+            float right = pop<float>();
+            float left = pop<float>();
             if (std::isinf(left) && right == 0 && !std::signbit(left) && !std::signbit(right)) {
-                setRegister<float>(opcodeData, std::numeric_limits<float>::quiet_NaN());
+                push(std::numeric_limits<float>::quiet_NaN());
             } else {
-                setRegister<float>(opcodeData, getRegister<float>(opcodeData) * getRegister<float>(opcodeData + 1));
+                push(left * right);
             }
 
             break;
         }
 
         case ByteOpcodes::F32Div: {
-            float left = getRegister<float>(opcodeData);
-            float right = getRegister<float>(opcodeData + 1);
+            float right = pop<float>();
+            float left = pop<float>();
             if (left == 0 && right == 0 && !std::signbit(left) && !std::signbit(right)) {
-                setRegister<float>(opcodeData, std::numeric_limits<float>::quiet_NaN());
+                push(std::numeric_limits<float>::quiet_NaN());
             } else {
-                setRegister<float>(opcodeData, getRegister<float>(opcodeData) / getRegister<float>(opcodeData + 1));
+                push(left / right);
             }
 
             break;
         }
 
         case ByteOpcodes::F32Abs: {
-            float value = getRegister<float>(opcodeData);
+            float value = pop<float>();
 
             if (std::signbit(value)) {
                 value = -value;
             }
-            setRegister<float>(opcodeData, value);
+            push(value);
 
             break;
         }
 
         case ByteOpcodes::F32Neg:
-            setRegister<float>(opcodeData, -getRegister<float>(opcodeData));
+            push(-pop<float>());
             break;
 
 
-        case ByteOpcodes::F32CopySign:
-            setRegister<float>(opcodeData,
-                               std::copysign(getRegister<float>(opcodeData), getRegister<float>(opcodeData + 1)));
+        case ByteOpcodes::F32CopySign: {
+            float right = pop<float>();
+            float left = pop<float>();
+            push(std::copysign(left, right));
             break;
+        }
 
         case ByteOpcodes::F32Ceil:
-            setRegister<float>(opcodeData, std::ceil(getRegister<float>(opcodeData)));
+            push(std::ceil(pop<float>()));
             break;
 
         case ByteOpcodes::F32Floor:
-            setRegister<float>(opcodeData, std::floor(getRegister<float>(opcodeData)));
+            push(std::floor(pop<float>()));
             break;
         case ByteOpcodes::F32Trunc:
-            setRegister<float>(opcodeData, std::trunc(getRegister<float>(opcodeData)));
+            push(std::trunc(pop<float>()));
             break;
 
         case ByteOpcodes::F32Nearest:
-            setRegister<float>(opcodeData, nearbyintf(getRegister<float>(opcodeData)));
+            push(nearbyintf(pop<float>()));
             break;
 
-        case ByteOpcodes::F32Equal:
-            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) == getRegister<float>(opcodeData + 1));
+        case ByteOpcodes::F32Equal: {
+            auto right = pop<float>();
+            auto left = pop<float>();
+            push(left == right);
             break;
+        }
 
-        case ByteOpcodes::F32NotEqual:
-            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) != getRegister<float>(opcodeData + 1));
+        case ByteOpcodes::F32NotEqual: {
+            auto right = pop<float>();
+            auto left = pop<float>();
+            push(left != right);
             break;
+        }
 
-        case ByteOpcodes::F32LesserThan:
-            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) < getRegister<float>(opcodeData + 1));
+        case ByteOpcodes::F32LesserThan: {
+            auto right = pop<float>();
+            auto left = pop<float>();
+            push(left < right);
             break;
+        }
 
-        case ByteOpcodes::F32LesserEqual:
-            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) <= getRegister<float>(opcodeData + 1));
+        case ByteOpcodes::F32LesserEqual: {
+            auto right = pop<float>();
+            auto left = pop<float>();
+            push(left <= right);
             break;
+        }
 
-        case ByteOpcodes::F32GreaterThan:
-            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) > getRegister<float>(opcodeData + 1));
+        case ByteOpcodes::F32GreaterThan: {
+            auto right = pop<float>();
+            auto left = pop<float>();
+            push(left > right);
             break;
+        }
 
-        case ByteOpcodes::F32GreaterEqual:
-            setRegister<int32_t>(opcodeData, getRegister<float>(opcodeData) >= getRegister<float>(opcodeData + 1));
+        case ByteOpcodes::F32GreaterEqual: {
+            auto right = pop<float>();
+            auto left = pop<float>();
+            push(left >= right);
             break;
+        }
+
         case ByteOpcodes::F32Sqrt: {
-            float value = getRegister<float>(opcodeData);
+            float value = peek<float>();
             if (std::isnan(value)) {
-                uint32_t asInt = getRegister<uint32_t>(opcodeData);
+                uint32_t asInt = pop<uint32_t>();
                 asInt |= 0x400000;
-                setRegister<uint32_t>(opcodeData, asInt);
+                push(asInt);
+                break;
             }
-            else if (value == -0.0f && std::signbit(value)) {
-                setRegister<float>(opcodeData, -0.0f);
+            pop<float>();
+            if (value == -0.0f && std::signbit(value)) {
+                push(-0.0f);
             } else if (std::signbit(value)) {
-                setRegister<float>(opcodeData, std::numeric_limits<float>::quiet_NaN());
+                push(std::numeric_limits<float>::quiet_NaN());
             } else {
-                setRegister<float>(opcodeData, std::sqrt(value));
+                push(std::sqrt(value));
             }
 
             break;
         }
         case ByteOpcodes::F32Min: {
-            float left = getRegister<float>(opcodeData);
-            float right = getRegister<float>(opcodeData + 1);
+            float right = peek<float>();
+
+            if (std::isnan(right)) {
+                uint32_t asInt = pop<uint32_t>();
+                asInt |= 0x400000;
+
+                pop<float>(); // pop left arg
+                push(asInt);
+
+                break;
+            }
+            // pop right arg
+            pop<float>();
+            float left = peek<float>();
 
             if (std::isnan(left)) {
-                uint32_t asInt = getRegister<uint32_t>(opcodeData);
+                uint32_t asInt = pop<uint32_t>();
                 asInt |= 0x400000;
-                setRegister<uint32_t>(opcodeData, asInt);
-            } else if (std::isnan(right)) {
-                uint32_t asInt = getRegister<uint32_t>(opcodeData + 1);
-                asInt |= 0x400000;
-                setRegister<uint32_t>(opcodeData, asInt);
-            } else if (left == right) {
+                push(asInt);
+                break;
+            }
+            // pop left arg
+            pop<float>();
+
+            if (left == right) {
                 auto leftSign = std::signbit(left);
                 auto rightSign = std::signbit(right);
                 if (leftSign && !rightSign) {
-                    setRegister<float>(opcodeData, left);
+                    push(left);
                 } else if (!leftSign && rightSign) {
-                    setRegister<float>(opcodeData, right);
+                    push(right);
                 } else {
-                    setRegister<float>(opcodeData, left < right ? left : right);
+                    push(left < right ? left : right);
                 }
             } else {
-                setRegister<float>(opcodeData, left < right ? left : right);
+                push(left < right ? left : right);
             }
             break;
         }
         case ByteOpcodes::F32Max: {
-            float left = getRegister<float>(opcodeData);
-            float right = getRegister<float>(opcodeData + 1);
+            float right = peek<float>();
+
+            if (std::isnan(right)) {
+                uint32_t asInt = pop<uint32_t>();
+                asInt |= 0x400000;
+
+                pop<float>(); // pop left arg
+                push(asInt);
+
+                break;
+            }
+            // pop right arg
+            pop<float>();
+            float left = peek<float>();
 
             if (std::isnan(left)) {
-                uint32_t asInt = getRegister<uint32_t>(opcodeData);
+                uint32_t asInt = pop<uint32_t>();
                 asInt |= 0x400000;
-                setRegister<uint32_t>(opcodeData, asInt);
-            } else if (std::isnan(right)) {
-                uint32_t asInt = getRegister<uint32_t>(opcodeData + 1);
-                asInt |= 0x400000;
-                setRegister<uint32_t>(opcodeData, asInt);
-            } else if (left == right) {
+                push(asInt);
+                break;
+            }
+            // pop left arg
+            pop<float>();
+
+            if (left == right) {
                 auto leftSign = std::signbit(left);
                 auto rightSign = std::signbit(right);
                 if (leftSign && !rightSign) {
-                    setRegister<float>(opcodeData, right);
+                    push(left);
                 } else if (!leftSign && rightSign) {
-                    setRegister<float>(opcodeData, left);
+                    push(right);
                 } else {
-                    setRegister<float>(opcodeData, left > right ? left : right);
+                    push(left > right ? left : right);
                 }
             } else {
-                setRegister<float>(opcodeData, left > right ? left : right);
+                push(left > right ? left : right);
             }
             break;
         }
@@ -1018,179 +1110,229 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
              ******************************************************/
 
         case ByteOpcodes::F64Add: {
-            double left = getRegister<double>(opcodeData);
-            double right = getRegister<double>(opcodeData + 1);
+            double right = pop<double>();
+            double left = pop<double>();
             if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && std::signbit(right)) {
-                setRegister<double>(opcodeData, std::numeric_limits<double>::quiet_NaN());
+                push(std::numeric_limits<double>::quiet_NaN());
             } else {
-                setRegister<double>(opcodeData, getRegister<double>(opcodeData) + getRegister<double>(opcodeData + 1));
+                push(left + right);
             }
 
             break;
         }
 
         case ByteOpcodes::F64Sub: {
-            double left = getRegister<double>(opcodeData);
-            double right = getRegister<double>(opcodeData + 1);
+            double right = pop<double>();
+            double left = pop<double>();
             if (std::isinf(left) && std::isinf(right) && !std::signbit(left) && !std::signbit(right)) {
-                setRegister<double>(opcodeData, std::numeric_limits<double>::quiet_NaN());
+                push(std::numeric_limits<double>::quiet_NaN());
             } else {
-                setRegister<double>(opcodeData, getRegister<double>(opcodeData) - getRegister<double>(opcodeData + 1));
+                push(left - right);
             }
 
             break;
         }
         case ByteOpcodes::F64Mul: {
-            double left = getRegister<double>(opcodeData);
-            double right = getRegister<double>(opcodeData + 1);
+            double right = pop<double>();
+            double left = pop<double>();
             if (std::isinf(left) && right == 0 && !std::signbit(left) && !std::signbit(right)) {
-                setRegister<double>(opcodeData, std::numeric_limits<double>::quiet_NaN());
+                push(std::numeric_limits<double>::quiet_NaN());
             } else {
-                setRegister<double>(opcodeData, getRegister<double>(opcodeData) * getRegister<double>(opcodeData + 1));
+                push(left * right);
             }
 
             break;
         }
 
         case ByteOpcodes::F64Div: {
-            double left = getRegister<double>(opcodeData);
-            double right = getRegister<double>(opcodeData + 1);
+            double right = pop<double>();
+            double left = pop<double>();
             if (left == 0 && right == 0 && !std::signbit(left) && !std::signbit(right)) {
-                setRegister<double>(opcodeData, std::numeric_limits<double>::quiet_NaN());
+                push(std::numeric_limits<double>::quiet_NaN());
             } else {
-                setRegister<double>(opcodeData, getRegister<double>(opcodeData) / getRegister<double>(opcodeData + 1));
+                push(left / right);
             }
 
             break;
         }
 
         case ByteOpcodes::F64Abs: {
-            double value = getRegister<double>(opcodeData);
+            double value = pop<double>();
 
             if (std::signbit(value)) {
                 value = -value;
             }
-            setRegister<double>(opcodeData, value);
+            push(value);
 
             break;
         }
 
         case ByteOpcodes::F64Neg:
-            setRegister<double>(opcodeData, -getRegister<double>(opcodeData));
+            push(-pop<double>());
             break;
 
 
-        case ByteOpcodes::F64CopySign:
-            setRegister<double>(opcodeData,
-                                std::copysign(getRegister<double>(opcodeData), getRegister<double>(opcodeData + 1)));
+        case ByteOpcodes::F64CopySign: {
+            double right = pop<double>();
+            double left = pop<double>();
+            push(std::copysign(left, right));
             break;
+        }
 
         case ByteOpcodes::F64Ceil:
-            setRegister<double>(opcodeData, std::ceil(getRegister<double>(opcodeData)));
+            push(std::ceil(pop<double>()));
             break;
 
         case ByteOpcodes::F64Floor:
-            setRegister<double>(opcodeData, std::floor(getRegister<double>(opcodeData)));
+            push(std::floor(pop<double>()));
             break;
         case ByteOpcodes::F64Trunc:
-            setRegister<double>(opcodeData, std::trunc(getRegister<double>(opcodeData)));
+            push(std::trunc(pop<double>()));
             break;
 
         case ByteOpcodes::F64Nearest:
-            setRegister<double>(opcodeData, nearbyint(getRegister<double>(opcodeData)));
+            push(nearbyint(pop<double>()));
             break;
 
-        case ByteOpcodes::F64Equal:
-            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) == getRegister<double>(opcodeData + 1));
+        case ByteOpcodes::F64Equal: {
+            auto right = pop<double>();
+            auto left = pop<double>();
+            push(left == right);
             break;
+        }
 
-        case ByteOpcodes::F64NotEqual:
-            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) != getRegister<double>(opcodeData + 1));
+        case ByteOpcodes::F64NotEqual: {
+            auto right = pop<double>();
+            auto left = pop<double>();
+            push(left != right);
             break;
+        }
 
-        case ByteOpcodes::F64LesserThan:
-            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) < getRegister<double>(opcodeData + 1));
+        case ByteOpcodes::F64LesserThan: {
+            auto right = pop<double>();
+            auto left = pop<double>();
+            push(left < right);
             break;
+        }
 
-        case ByteOpcodes::F64LesserEqual:
-            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) <= getRegister<double>(opcodeData + 1));
+        case ByteOpcodes::F64LesserEqual: {
+            auto right = pop<double>();
+            auto left = pop<double>();
+            push(left <= right);
             break;
+        }
 
-        case ByteOpcodes::F64GreaterThan:
-            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) > getRegister<double>(opcodeData + 1));
+        case ByteOpcodes::F64GreaterThan: {
+            auto right = pop<double>();
+            auto left = pop<double>();
+            push(left > right);
             break;
+        }
 
-        case ByteOpcodes::F64GreaterEqual:
-            setRegister<int32_t>(opcodeData, getRegister<double>(opcodeData) >= getRegister<double>(opcodeData + 1));
+        case ByteOpcodes::F64GreaterEqual: {
+            auto right = pop<double>();
+            auto left = pop<double>();
+            push(left >= right);
             break;
+        }
+
         case ByteOpcodes::F64Sqrt: {
-            double value = getRegister<double>(opcodeData);
+            double value = peek<double>();
             if (std::isnan(value)) {
-                uint64_t asInt = getRegister<uint64_t>(opcodeData);
+                uint64_t asInt = pop<uint64_t>();
                 asInt |= 0x8000000000000;
-                setRegister<uint64_t>(opcodeData, asInt);
+                push(asInt);
+                break;
             }
-            else if (value == -0.0 && std::signbit(value)) {
-                setRegister<double>(opcodeData, -0.0);
+            pop<double>();
+            if (value == -0.0 && std::signbit(value)) {
+                push(-0.0);
             } else if (std::signbit(value)) {
-                setRegister<double>(opcodeData, std::numeric_limits<double>::quiet_NaN());
+                push(std::numeric_limits<double>::quiet_NaN());
             } else {
-                setRegister<double>(opcodeData, std::sqrt(value));
+                push(std::sqrt(value));
             }
 
             break;
         }
+
         case ByteOpcodes::F64Min: {
-            double left = getRegister<double>(opcodeData);
-            double right = getRegister<double>(opcodeData + 1);
+            double right = peek<double>();
+
+            if (std::isnan(right)) {
+                uint64_t asInt = pop<uint64_t>();
+                asInt |= 0x8000000000000;
+
+                pop<double>(); // pop left arg
+                push(asInt);
+                break;
+            }
+            pop<double>(); // pop right arg
+
+            double left = peek<double>();
 
             if (std::isnan(left)) {
-                uint64_t asInt = getRegister<uint64_t>(opcodeData);
+                uint64_t asInt = pop<uint64_t>();
                 asInt |= 0x8000000000000;
-                setRegister<uint64_t>(opcodeData, asInt);
-            } else if (std::isnan(right)) {
-                uint64_t asInt = getRegister<uint64_t>(opcodeData + 1);
-                asInt |= 0x8000000000000;
-                setRegister<uint64_t>(opcodeData, asInt);
-            } else if (left == right) {
+
+                push(asInt);
+                break;
+            }
+
+            pop<double>(); // pop left arg
+
+            if (left == right) {
                 auto leftSign = std::signbit(left);
                 auto rightSign = std::signbit(right);
                 if (leftSign && !rightSign) {
-                    setRegister<double>(opcodeData, left);
+                    push(left);
                 } else if (!leftSign && rightSign) {
-                    setRegister<double>(opcodeData, right);
+                    push(right);
                 } else {
-                    setRegister<double>(opcodeData, left < right ? left : right);
+                    push(left < right ? left : right);
                 }
             } else {
-                setRegister<double>(opcodeData, left < right ? left : right);
+                push(left < right ? left : right);
             }
             break;
         }
         case ByteOpcodes::F64Max: {
-            double left = getRegister<double>(opcodeData);
-            double right = getRegister<double>(opcodeData + 1);
+            double right = peek<double>();
+
+            if (std::isnan(right)) {
+                uint64_t asInt = pop<uint64_t>();
+                asInt |= 0x8000000000000;
+
+                pop<double>(); // pop left arg
+                push(asInt);
+                break;
+            }
+            pop<double>(); // pop right arg
+
+            double left = peek<double>();
 
             if (std::isnan(left)) {
-                uint64_t asInt = getRegister<uint64_t>(opcodeData);
+                uint64_t asInt = pop<uint64_t>();
                 asInt |= 0x8000000000000;
-                setRegister<uint64_t>(opcodeData, asInt);
-            } else if (std::isnan(right)) {
-                uint64_t asInt = getRegister<uint64_t>(opcodeData + 1);
-                asInt |= 0x8000000000000;
-                setRegister<uint64_t>(opcodeData, asInt);
-            } else if (left == right) {
+
+                push(asInt);
+                break;
+            }
+
+            pop<double>(); // pop left arg
+
+            if (left == right) {
                 auto leftSign = std::signbit(left);
                 auto rightSign = std::signbit(right);
                 if (leftSign && !rightSign) {
-                    setRegister<double>(opcodeData, right);
+                    push(left);
                 } else if (!leftSign && rightSign) {
-                    setRegister<double>(opcodeData, left);
+                    push(right);
                 } else {
-                    setRegister<double>(opcodeData, left > right ? left : right);
+                    push(left > right ? left : right);
                 }
             } else {
-                setRegister<double>(opcodeData, left > right ? left : right);
+                push(left > right ? left : right);
             }
             break;
         }
@@ -1199,11 +1341,11 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
              ******************************************************/
 
         case ByteOpcodes::I32Wrap: {
-            setRegister<int64_t>(opcodeData, getRegister<int32_t>(opcodeData));
+            push<int64_t>(pop<int32_t>());
             break;
         }
         case ByteOpcodes::I32TruncSignedF32: {
-            float value = getRegister<float>(opcodeData);
+            float value = pop<float>();
 
             if (value >= 2.14748365e+09f)
                 return runner.trap("integer overflow");
@@ -1217,11 +1359,11 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             int32_t result = (int32_t) value;
 
-            setRegister<int32_t>(opcodeData, result);
+            push(result);
             break;
         }
         case ByteOpcodes::I32TruncSignedF64: {
-            double value = getRegister<double>(opcodeData);
+            double value = pop<double>();
 
             if (value > 2147483647.0)
                 return runner.trap("integer overflow");
@@ -1234,12 +1376,12 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             int32_t result = (int32_t) value;
 
-            setRegister<int32_t>(opcodeData, result);
+            push(result);
             break;
         }
 
         case ByteOpcodes::I32TruncUnsignedF32: {
-            float value = getRegister<float>(opcodeData);
+            float value = pop<float>();
 
             if (value >= 4.2949673e+09f)
                 return runner.trap("integer overflow");
@@ -1253,12 +1395,12 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             uint32_t result = (uint32_t) value;
 
-            setRegister<uint32_t>(opcodeData, result);
+            push(result);
             break;
         }
 
         case ByteOpcodes::I32TruncUnsignedF64: {
-            double value = getRegister<double>(opcodeData);
+            double value = pop<double>();
 
             if (value >= 4294967296)
                 return runner.trap("integer overflow");
@@ -1271,20 +1413,20 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             uint32_t result = (uint32_t) value;
 
-            setRegister<uint32_t>(opcodeData, result);
+            push(result);
             break;
         }
 
         case ByteOpcodes::I64ExtendSignedI32:
-            setRegister<int64_t>(opcodeData, getRegister<int32_t>(opcodeData));
+            push<int64_t>(pop<int32_t>());
             break;
 
         case ByteOpcodes::I64ExtendUnsignedI32:
-            setRegister<uint64_t>(opcodeData, getRegister<uint32_t>(opcodeData));
+            push<uint64_t>(pop<uint32_t>());
             break;
 
         case ByteOpcodes::I64TruncSignedF32: {
-            float value = getRegister<float>(opcodeData);
+            float value = pop<float>();
 
             if (value >= 9.22337204e+18f)
                 return runner.trap("integer overflow");
@@ -1297,12 +1439,12 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             int64_t result = (int64_t) value;
 
-            setRegister<int64_t>(opcodeData, result);
+            push(result);
             break;
         }
 
         case ByteOpcodes::I64TruncSignedF64: {
-            double value = getRegister<double>(opcodeData);
+            double value = pop<double>();
 
             if (value >= 9.2233720368547758e+18)
                 return runner.trap("integer overflow");
@@ -1315,12 +1457,12 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             int64_t result = (int64_t) value;
 
-            setRegister<int64_t>(opcodeData, result);
+            push(result);
             break;
         }
 
         case ByteOpcodes::I64TruncUnsignedF32: {
-            float value = getRegister<float>(opcodeData);
+            float value = pop<float>();
 
             if (value >= 1.84467441e+19f)
                 return runner.trap("integer overflow");
@@ -1333,12 +1475,12 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             uint64_t result = (uint64_t) value;
 
-            setRegister<uint64_t>(opcodeData, result);
+            push(result);
             break;
         }
 
         case ByteOpcodes::I64TruncUnsignedF64: {
-            double value = getRegister<double>(opcodeData);
+            double value = pop<double>();
 
             if (value >= 1.8446744073709552e+19)
                 return runner.trap("integer overflow");
@@ -1351,62 +1493,55 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
 
             uint64_t result = (uint64_t) value;
 
-            setRegister<uint64_t>(opcodeData, result);
+            push(result);
             break;
         }
 
         case ByteOpcodes::F32DemoteF64:
-            setRegister<float>(opcodeData, (float) getRegister<double>(opcodeData));
+            push((float) pop<double>());
             break;
 
         case ByteOpcodes::F32ConvertSignedI32:
-            setRegister<float>(opcodeData, (float) getRegister<int32_t>(opcodeData));
+            push((float) pop<int32_t>());
             break;
 
         case ByteOpcodes::F32ConvertSignedI64:
-            setRegister<float>(opcodeData, (float) getRegister<int64_t>(opcodeData));
+            push((float) pop<int64_t>());
             break;
 
         case ByteOpcodes::F32ConvertUnsignedI32:
-            setRegister<float>(opcodeData, (float) getRegister<uint64_t>(opcodeData));
+            push((float) pop<uint32_t>());
             break;
 
         case ByteOpcodes::F32ConvertUnsignedI64:
-            setRegister<float>(opcodeData, (float) getRegister<uint64_t>(opcodeData));
+            push((float) pop<uint64_t>());
             break;
 
         case ByteOpcodes::F64PromoteF32:
-            setRegister<double>(opcodeData, (double) getRegister<float>(opcodeData));
+            push((double) pop<float>());
             break;
 
         case ByteOpcodes::F64ConvertSignedI32:
-            setRegister<double>(opcodeData, (double) getRegister<int32_t>(opcodeData));
+            push((double) pop<int32_t>());
             break;
 
         case ByteOpcodes::F64ConvertSignedI64:
-            setRegister<double>(opcodeData, (double) getRegister<int64_t>(opcodeData));
+            push((double) pop<int64_t>());
             break;
 
         case ByteOpcodes::F64ConvertUnsignedI32:
-            setRegister<double>(opcodeData, (double) getRegister<uint32_t>(opcodeData));
+            push((double) pop<uint32_t>());
             break;
 
         case ByteOpcodes::F64ConvertUnsignedI64:
-            setRegister<double>(opcodeData, (double) getRegister<uint64_t>(opcodeData));
+            push((double) pop<uint64_t>());
             break;
 
-        case ByteOpcodes::CopyReg:
-        {
-            uint16_t sourceRegister = popFromCode<uint16_t>();
-            setRegister<uint64_t>(opcodeData, getRegister<uint64_t>(sourceRegister));
-            popFromCode<uint16_t>(); // alignment padding
-            break;
-        }
         case ByteOpcodes::End:
-            if (registers_.empty())
+            if (stack_.empty())
                 runner.finishFrame(0);
             else
-                runner.finishFrame(getRegister<uint64_t>(0));
+                runner.finishFrame(pop<uint64_t>());
             break;
         default:
             return runner.trap("Unknown instruction with opcode " + std::to_string(opcode));
@@ -1417,9 +1552,9 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
         std::cout << "#########################\n";
         std::cout << "Opcode: " << ByteOpcodes::name(opcode) << " r" << opcodeData << "\n";
         std::cout << "Registers:\n";
-        for (std::size_t i = 0; i < registers_.size(); i++) {
-            std::cout << "  r" << std::to_string(i) << " = " << registers_[i] << "| float: " << getRegister<float>(i) << "| double: " << getRegister<double>(i) << "\n";
-        }
+        //for (std::size_t i = 0; i < registers_.size(); i++) {
+        //    std::cout << "  r" << std::to_string(i) << " = " << registers_[i] << "| float: " << getRegister<float>(i) << "| double: " << getRegister<double>(i) << "\n";
+        //}
         std::cout << "Variables:\n";
         for (std::size_t i = 0; i < variables_.size(); i++) {
             std::cout << "  " << function_->function().variableName((uint32_t) i) << " = " << variables_[i] << "\n";

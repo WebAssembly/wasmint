@@ -68,6 +68,7 @@ namespace wasm_module {
     DeclInstruction(I32ShiftLeft, "i32.shl", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
     DeclInstruction(I32ShiftRightZeroes, "i32.shr_u", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
     DeclInstruction(I32ShiftRightSigned, "i32.shr_s", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
+    DeclInstruction(I32EqualZero, "i32.eqz", {Int32::instance()}, Int32::instance())};
     DeclInstruction(I32Equal, "i32.eq", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
     DeclInstruction(I32NotEqual, "i32.ne", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
     DeclInstruction(I32LessThanSigned, "i32.lt_s", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
@@ -95,6 +96,7 @@ namespace wasm_module {
     DeclInstruction(I64ShiftLeft, "i64.shl", {Int64::instance() DeclInstComma Int64::instance()}, Int64::instance())};
     DeclInstruction(I64ShiftRightZeroes, "i64.shr_u", {Int64::instance() DeclInstComma Int64::instance()}, Int64::instance())};
     DeclInstruction(I64ShiftRightSigned, "i64.shr_s", {Int64::instance() DeclInstComma Int64::instance()}, Int64::instance())};
+    DeclInstruction(I64EqualZero, "i64.eqz", {Int64::instance()}, Int32::instance())};
     DeclInstruction(I64Equal, "i64.eq", {Int64::instance() DeclInstComma Int64::instance()}, Int32::instance())};
     DeclInstruction(I64NotEqual, "i64.ne", {Int64::instance() DeclInstComma Int64::instance()}, Int32::instance())};
     DeclInstruction(I64LessThanSigned, "i64.lt_s", {Int64::instance() DeclInstComma Int64::instance()}, Int32::instance())};
@@ -145,15 +147,15 @@ namespace wasm_module {
     DeclLoadStoreInstruction(F32Load, "f32.load", {Int32::instance()}, Float32::instance())};
     DeclLoadStoreInstruction(F64Load, "f64.load", {Int32::instance()}, Float64::instance())};
 
-    DeclLoadStoreInstruction(I32Store8, "i32.store8", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
-    DeclLoadStoreInstruction(I32Store16, "i32.store16", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
-    DeclLoadStoreInstruction(I32Store, "i32.store", {Int32::instance() DeclInstComma Int32::instance()}, Int32::instance())};
-    DeclLoadStoreInstruction(I64Store8, "i64.store8", {Int32::instance() DeclInstComma Int64::instance()}, Int64::instance())};
-    DeclLoadStoreInstruction(I64Store16, "i64.store16", {Int32::instance() DeclInstComma Int64::instance()}, Int64::instance())};
-    DeclLoadStoreInstruction(I64Store32, "i64.store32", {Int32::instance() DeclInstComma Int64::instance()}, Int64::instance())};
-    DeclLoadStoreInstruction(I64Store, "i64.store", {Int32::instance() DeclInstComma Int64::instance()}, Int64::instance())};
-    DeclLoadStoreInstruction(F32Store, "f32.store", {Int32::instance() DeclInstComma Float32::instance()}, Float32::instance())};
-    DeclLoadStoreInstruction(F64Store, "f64.store", {Int32::instance() DeclInstComma Float64::instance()}, Float64::instance())};
+    DeclLoadStoreInstruction(I32Store8, "i32.store8", {Int32::instance() DeclInstComma Int32::instance()}, Void::instance())};
+    DeclLoadStoreInstruction(I32Store16, "i32.store16", {Int32::instance() DeclInstComma Int32::instance()}, Void::instance())};
+    DeclLoadStoreInstruction(I32Store, "i32.store", {Int32::instance() DeclInstComma Int32::instance()}, Void::instance())};
+    DeclLoadStoreInstruction(I64Store8, "i64.store8", {Int32::instance() DeclInstComma Int64::instance()}, Void::instance())};
+    DeclLoadStoreInstruction(I64Store16, "i64.store16", {Int32::instance() DeclInstComma Int64::instance()}, Void::instance())};
+    DeclLoadStoreInstruction(I64Store32, "i64.store32", {Int32::instance() DeclInstComma Int64::instance()}, Void::instance())};
+    DeclLoadStoreInstruction(I64Store, "i64.store", {Int32::instance() DeclInstComma Int64::instance()}, Void::instance())};
+    DeclLoadStoreInstruction(F32Store, "f32.store", {Int32::instance() DeclInstComma Float32::instance()}, Void::instance())};
+    DeclLoadStoreInstruction(F64Store, "f64.store", {Int32::instance() DeclInstComma Float64::instance()}, Void::instance())};
 
 
     DeclInstruction(I32Wrap, "i32.wrap/i64", {Int64::instance()}, Int32::instance())};
@@ -350,7 +352,7 @@ namespace wasm_module {
         }
 
         virtual const Type* returnType() const override {
-            return expectedType.front();
+            return Void::instance();
         }
 
         virtual InstructionId::Value id() const override {
@@ -415,6 +417,77 @@ namespace wasm_module {
         }
     };
 
+    class TeeLocal : public Instruction {
+
+        std::vector<const Type*> expectedType;
+        std::string localName_;
+
+    public:
+        uint32_t localIndex;
+
+        TeeLocal(const sexpr::SExpr& expr, FunctionContext &context) {
+            localIndex = context.variableNameToIndex(localName_ = expr[1].value());
+            expectedType = {context.locals().at(localIndex)};
+        }
+
+        virtual const std::string& name() const override {
+            static std::string name_ = "tee_local";
+            return name_;
+        }
+
+        virtual const std::vector<const Type*>& childrenTypes() const override {
+            return expectedType;
+        }
+
+        virtual const Type* returnType() const override {
+            return expectedType.front();
+        }
+
+        virtual InstructionId::Value id() const override {
+            return InstructionId::TeeLocal;
+        }
+
+        virtual std::string dataString() const override {
+            std::string result = name();
+            if (!localName_.empty())
+                result += " " + localName_;
+            return result;
+        }
+    };
+
+
+    class Drop : public Instruction {
+
+        std::vector<const Type *> childrenTypes_;
+
+    public:
+        Drop(const sexpr::SExpr& expr) {
+            if (expr.children().size() == 2) {
+                childrenTypes_ = {Void::instance()};
+            }
+        }
+
+        virtual const std::string& name() const override {
+            static std::string name_ = "drop";
+            return name_;
+        }
+
+        virtual InstructionId::Value id() const override {
+            return InstructionId::Drop;
+        }
+
+        virtual const std::vector<const Type*>& childrenTypes() const override {
+            return childrenTypes_;
+        }
+
+        virtual const Type* returnType() const override {
+            return Void::instance();
+        }
+
+        virtual bool typeCheckChildren() const override {
+            return true;
+        }
+    };
 
     class Block : public Instruction {
 
