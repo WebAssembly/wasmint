@@ -127,6 +127,9 @@ namespace wasm_module {
                     pos++;
                 }
             }
+            if (str.at(pos) == '+') {
+                pos++;
+            }
             for (; pos < str.size(); pos++) {
                 if (!isDecChar(str.at(pos))) {
                     return false;

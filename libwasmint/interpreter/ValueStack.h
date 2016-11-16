@@ -45,6 +45,10 @@ public:
         return result;
     }
 
+    void clear() {
+        stack_.clear();
+    }
+
     bool operator==(const ValueStack& other) const{
         return stack_ == other.stack_;
     }

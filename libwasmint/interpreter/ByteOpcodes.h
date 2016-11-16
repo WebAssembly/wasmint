@@ -100,6 +100,8 @@ namespace wasmint {
         SetLocal,
         TeeLocal,
 
+        ClearStackPreserveTop,
+
         Drop,
 
         GrowMemory,

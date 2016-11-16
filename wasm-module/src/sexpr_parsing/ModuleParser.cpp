@@ -66,7 +66,8 @@ namespace wasm_module { namespace sexpr {
         for (Function* function : module_->functions()) {
             function->mainInstruction()->triggerSecondStepEvaluate(module_->context(), *function);
             // Check that the function body returns the correct type
-            if (!Type::typeCompatible(function->returnType(), function->mainInstruction()->returnType())) {
+            if (UnreachableValidator::canEvaluate(function->mainInstruction()) &&
+                !Type::typeCompatible(function->returnType(), function->mainInstruction()->returnType())) {
                 throw TypeMismatch("type mismatch");
             }
         }

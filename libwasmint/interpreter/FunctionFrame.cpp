@@ -630,8 +630,14 @@ void FunctionFrame::stepInternal(VMThread &runner, Heap &heap) {
             popFromCode<uint16_t>(); // pop alignment data
             break;
 
+        case ByteOpcodes::ClearStackPreserveTop: {
+            uint64_t top = stack_.pop<uint64_t>();
+            stack_.clear();
+            stack_.push(top);
+            break;
+        }
         case ByteOpcodes::Drop:
-            // FIXME
+            stack_.pop<uint64_t>();
             break;
 
         case ByteOpcodes::I32Const:

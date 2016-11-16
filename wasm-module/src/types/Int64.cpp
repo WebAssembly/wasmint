@@ -68,6 +68,8 @@ namespace wasm_module {
                 uint64_t value = 0;
                 for(std::size_t i = 0; i < literal.size(); i++) {
                     char c = literal[i];
+                    if (c == '+')
+                        continue;
                     value *= 10;
                     value += c - '0';
                 }

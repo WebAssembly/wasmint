@@ -510,6 +510,7 @@ void wasmint::JITCompiler::compileInstruction(const wasm_module::Instruction* in
         case InstructionId::Return:
         {
             compileInstruction(instruction->children().at(0));
+            code_.appendOpcode(ByteOpcodes::ClearStackPreserveTop);
             addBranch(instruction->function()->mainInstruction(), false);
             break;
         }
