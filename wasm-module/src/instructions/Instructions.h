@@ -113,8 +113,6 @@ namespace wasm_module {
 
     DeclInstruction(AddressOf, "address_of", {}, Void::instance())};
 
-    DeclInstruction(Return, "return", {Void::instance()}, Void::instance())};
-
     DeclInstruction(GrowMemory, "grow_memory", {Int32::instance()}, Int32::instance())};
     DeclInstruction(PageSize, "page_size", {}, Int32::instance())};
     DeclInstruction(CurrentMemory, "current_memory", {}, Int32::instance())};
@@ -231,6 +229,35 @@ namespace wasm_module {
 
     DeclInstruction(Unreachable, "unreachable", {}, Void::instance())};
     DeclInstruction(Nop, "nop", {}, Void::instance())};
+
+    class Return : public Instruction {
+
+    public:
+        virtual const std::string& name() const override {
+            static std::string name_ = "return";
+            return name_;
+        }
+
+        virtual InstructionId::Value id() const override {
+            return InstructionId::Return;
+        }
+
+        virtual const std::vector<const Type*>& childrenTypes() const override {
+            static std::vector<const Type *> chTypes_ = {Void::instance()} ; return chTypes_;
+        }
+
+        virtual const Type* returnType() const override {
+            return Void::instance();
+        }
+
+        virtual void secondStepEvaluate(ModuleContext& context, FunctionContext& functionContext) override {
+            if (!Type::typeCompatible(functionContext.returnType(), children()[0]->returnType())) {
+                throw IncompatibleChildReturnType("Return expected " + functionContext.returnType()->name()
+                                                  + " but got " + children()[0]->returnType()->name()
+                                                  + toSExprString());
+            }
+        }
+    };
 
     class If : public Instruction {
 
