@@ -18,6 +18,8 @@
 #ifndef WASMINT_QUICKSORTSOURCE_H
 #define WASMINT_QUICKSORTSOURCE_H
 
+#include <string>
+
 #include "PiDigits.h"
 
 const std::string quickSortSource =

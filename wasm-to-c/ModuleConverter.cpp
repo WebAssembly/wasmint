@@ -23,6 +23,7 @@
 #include "FunctionConverter.h"
 #include <algorithm>
 #include <iostream>
+#include <cctype>
 #include <instructions/Instructions.h>
 #include <assert.h>
 
