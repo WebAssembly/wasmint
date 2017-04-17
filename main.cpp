@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     bool runMain = true;
 
     if (argc == 1) {
-        std::cerr << "No modules given. Call programm like this: \n$ wasmint module1.wasm" << std::endl;
+        std::cerr << "No modules given. Call program like this: \n$ wasmint module1.wasm" << std::endl;
         return 1;
     }
 
